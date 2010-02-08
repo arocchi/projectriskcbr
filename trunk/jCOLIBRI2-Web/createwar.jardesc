@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="C:/doctorado/JColibri/jColibri2-Web/war/jCOLIBRI2-Web.war"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/jCOLIBRI2-Web/createwar.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <file path="/jCOLIBRI2-Web/configure.jsp"/>
+        <folder path="/jCOLIBRI2-Web/img"/>
+        <file path="/jCOLIBRI2-Web/.tomcatplugin"/>
+        <file path="/jCOLIBRI2-Web/selectsome.jsp"/>
+        <file path="/jCOLIBRI2-Web/directprop.jsp"/>
+        <file path="/jCOLIBRI2-Web/selectsome.html"/>
+        <file path="/jCOLIBRI2-Web/index.html"/>
+        <file path="/jCOLIBRI2-Web/configure.html"/>
+        <file path="/jCOLIBRI2-Web/similarity.jsp"/>
+        <folder path="/jCOLIBRI2-Web/WEB-INF"/>
+        <file path="/jCOLIBRI2-Web/query.html"/>
+        <file path="/jCOLIBRI2-Web/directprop.html"/>
+        <file path="/jCOLIBRI2-Web/query.jsp"/>
+        <file path="/jCOLIBRI2-Web/.classpath"/>
+        <file path="/jCOLIBRI2-Web/similarity.html"/>
+        <file path="/jCOLIBRI2-Web/loadcases.jsp"/>
+        <file path="/jCOLIBRI2-Web/closecasebase.jsp"/>
+    </selectedElements>
+</jardesc>
