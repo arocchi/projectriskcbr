@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="persistentclasses.Revisione" table="STORICO">
+    <composite-id class="persistentclasses.attributes.RevisionePrimaryKey" name="key">
+      <key-property column="ID_RISCHIO" name="idRischio"/>
+      <key-property column="NUMERO_REVISIONE" name="numeroRevisione"/>
+    </composite-id>
+    <property column="PROBABILITA" name="probabilita"/>
+    <property column="INDICE_IMPATTO" name="indiceImpatto"/>
+  </class>
+</hibernate-mapping>

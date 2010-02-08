@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="persistentclasses.Azioni" table="AZIONI">
+    <!--
+    <id column="AZIONI_ID" name="id">
+         La parola chiave assigned implica che le chiavi primarie sono decise
+        dall'utilizzatore della classe e non generate automaticamente da Hibernate
+      <generator class="assigned"/>
+    </id>
+    -->
+    <composite-id class="persistentclasses.attributes.AzioniPrimaryKey" name="primaryKey">
+      <key-property column="ID_AZIONE" name="idAzione"/>
+      <key-property column="ID_RISCHIO" name="idRischio"/>
+      <key-property column="TIPO" name="tipo"/>
+    </composite-id>
+    <!--
+    <property column="ID_RISCHIO" name="idRischio"/>
+    <property column="ID_AZIONE" name="idAzione"/>
+    -->
+    <property column="STATO" name="stato"/>
+    <property column="DESCRIZIONE" name="descrizione"/>
+    <property column="REVISIONE" name="revisione"/>
+    <property column="INTENSITA" name="intensita"/>
+  </class>
+</hibernate-mapping>
