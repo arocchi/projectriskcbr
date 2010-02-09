@@ -30,10 +30,10 @@ public class StatoRischio {
     }
     public StatoRischio setStato(String s){
         //controllo dei tipi consentiti
-        if(!s.contentEquals("mitigazione") &&
-           !s.contentEquals("monitoraggio")&&
-           !s.contentEquals("chiuso"))
-            return null;
+        if(!s.contentEquals("Mitigation") &&
+           !s.contentEquals("Monitoring")&&
+           !s.contentEquals("Closed"))
+            return this;
             
         stato = s;
         return this;
