@@ -7,6 +7,7 @@ package desktopparser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jxl.*;
@@ -29,10 +30,18 @@ public class DesktopParser {
             sheetProgetto(workbook);
             SessionObject.endTransaction();
             System.out.println("Progetti salvati");
-            
+
             SessionObject.newTransaction();
             sheetRischio(workbook);
             SessionObject.endTransaction();
+            System.out.println("Rischi salvati");
+
+
+            SessionObject.newTransaction();
+            sheetCausaEffetto(workbook);
+            SessionObject.endTransaction();
+            System.out.println("Causa ed Effetto aggiunti");
+ 
 
             // Closing the stream
             workbook.close();
@@ -43,7 +52,7 @@ public class DesktopParser {
         } catch (JXLException jxlex) {
             jxlex.printStackTrace(System.out);
         } catch(Exception e) {
-           
+           System.out.println(e);
         }
         return filename;
     }
@@ -257,11 +266,14 @@ public class DesktopParser {
 
         //flag that indicates that the current line is a valid project (note empty line)
         boolean writable;
+
+        //variable to remember the already inserted description in risk checklist
+        LinkedList<Integer> inserted = new LinkedList<Integer>();
+
         // Creating interfacing objects
         Rischio assigned;
 
         // Reading unknown number of lines, cause I don't know the exact number of projects
-        //start from the 2nd line (i=1), cause the first one contains the index of the table
         for (int i = 0; ; i++)
         {
                 // If 4 consecutive lines are empty, the database is fineshed
@@ -270,8 +282,11 @@ public class DesktopParser {
                 writable = true;
                 assigned = new Rischio();
                 // Readings 40 columns: one for each "Rischio" sheet
-                for (int j = 0; j < 39 ; j++) {
+                for (int j = 0; j < 24 ; j++) {
                     try {
+                        //there are some hidden fields not to considerate
+                        if(j==5)
+                            j=18;
                         current = sheet.getCell(j, i);
                         // Checking the emptiness of the cell
                         String content = current.getContents();
@@ -297,10 +312,8 @@ public class DesktopParser {
                             if (firstLineFlag == false) {
                                 firstLineFlag = true;
                                 writable = false;
-                                //break;
+                                break;
                             }
-                            System.out.println(toString(current));
-                            if(writable) break;
                             emptyCnt = 0;
                             // Here I have to give the content read to the object mapped in the database
 
@@ -321,30 +334,32 @@ public class DesktopParser {
                                 case 4:
                                     assigned.setCategoria(new CategoriaRischio(toString(current)));
                                     break;
-                                case 5:
+                                case 18:
                                     assigned.setVerificato(toInt(current));
                                     break;
-                                case 6:
+                                case 19:
                                     assigned.setNumeroRevisione(toInt(current));
                                     break;
-                                case 7:
+                                case 20:
                                     assigned.setDescrizione(toString(current));
                                     //creating the checklist description if the risk is not in the checklist
-                                    if(CkRischi.checkAvailable(assigned.getCodiceChecklist()))
+                                    if(!inserted.contains(assigned.getCodiceChecklist()) &&
+                                       CkRischi.checkAvailable(assigned.getCodiceChecklist()))
                                     {
                                         //inserting description
                                         CkRischi ckr = new CkRischi();
                                         ckr.setFields(assigned.getCodiceChecklist(), toString(current));
                                         ckr.write();
+                                        inserted.add(assigned.getCodiceChecklist());
                                     }
                                     break;
-                                case 8:
+                                case 21:
                                     assigned.setContingency(toDouble(current));
                                     break;
-                                case 9:
+                                case 22:
                                     assigned.setProbabilitaIniziale(toInt(current));
                                     break;
-                                case 10:
+                                case 23:
                                     assigned.setImpattoIniziale(toInt(current));
                                     break;
                             }
@@ -363,6 +378,36 @@ public class DesktopParser {
     public void sheetCausaEffetto(Workbook workbook) {
         // Selecting the correspondent sheet
         Sheet sheet = workbook.getSheet(2);
+        
+        int emptyCnt = 0;
+        
+        for(int i = 1; emptyCnt<4 ;i++){
+            try{
+                Cell current = sheet.getCell(0, i);
+                // Checking the emptiness of the cell
+                String content = current.getContents();
+
+                if(content.isEmpty()){
+                    emptyCnt ++;
+                    continue;
+                }
+                //retrieving risk from DB and adding properties
+
+                Rischio r = (Rischio) Rischio.getById(Rischio.class, content);
+                if(r!=null)
+                {
+                    String causa = sheet.getCell(1,i).getContents();
+                    r.setCausa(causa);
+                    String effetto = sheet.getCell(2,i).getContents();
+                    r.setEffetto(effetto);
+                    r.update();
+                }
+                    //XXX System.out.println(content + "\nCAUSA:" + sheet.getCell(1,i).getContents() + "\nEFFETTO:"+sheet.getCell(2,i).getContents());
+            } catch (Exception e){
+                    //System.out.println(e);
+                break;
+            }
+        }
     }
 
     public void sheetAzioni(Workbook workbook) {
