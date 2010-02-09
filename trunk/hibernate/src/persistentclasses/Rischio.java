@@ -151,8 +151,16 @@ public class Rischio extends persistentBase{
         stato = x;
         return this;
     }
+    public Rischio setStato(String x){
+        stato = new StatoRischio(x);
+        return this;
+    }
     public Rischio setCategoria(CategoriaRischio x){
         categoria = x;
+        return this;
+    }
+    public Rischio setCategoria(String x){
+        categoria = new CategoriaRischio(x);
         return this;
     }
     public Rischio setVerificato(int x){
