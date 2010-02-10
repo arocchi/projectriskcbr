@@ -41,7 +41,11 @@ public class DesktopParser {
             sheetCausaEffetto(workbook);
             SessionObject.endTransaction();
             System.out.println("Causa ed Effetto aggiunti");
- 
+
+            SessionObject.newTransaction();
+            sheetAzioni(workbook);
+            SessionObject.endTransaction();
+            System.out.println("Azioni aggiunte");
 
             // Closing the stream
             workbook.close();
@@ -95,7 +99,7 @@ public class DesktopParser {
                         current = sheet.getCell(j, i);
                         // Checking the emptiness of the cell
                         String content = current.getContents();
-
+                        
                         // Empty cell => next row
                         if (content.isEmpty()){
                             // If two consecutive cells in the same row are empty, go to the next line
@@ -410,9 +414,113 @@ public class DesktopParser {
         }
     }
 
-    public void sheetAzioni(Workbook workbook) {
+    public void sheetAzioni(Workbook workbook) throws Exception {
         // Selecting the correspondent sheet
         Sheet sheet = workbook.getSheet(3);
+
+        // Current cell examined
+        Cell current;
+
+        // I need a variable to get the number of consecuive empty rows.
+        // I assume that 4 consecutive rows implie the end of file
+        int emptyCnt = 0;
+
+        // I need a variable to establish that the first non-empty line (wich contains the descriptions) has been reached
+        boolean firstLineFlag = false;
+
+        //flag that indicates that the current line is a valid project (note empty line)
+        boolean writable;
+
+        // Creating interfacing objects
+        Azioni assigned;
+
+        // Reading unknown number of lines, cause I don't know the exact number of projects
+        for (int i = 0; ; i++)
+        {
+                // If 4 consecutive lines are empty, the database is fineshed
+                if (emptyCnt == 4)
+                    break;
+                
+                writable = true;
+                assigned = new Azioni();
+                // Readings 40 columns: one for each "Rischio" sheet
+                for (int j = 0; j < 8 ; j++) {
+                    try {
+                        current = sheet.getCell(j, i);
+                        // Checking the emptiness of the cell
+                        String content = current.getContents();
+                        //XXX
+                        //System.out.println(content);
+                        // Empty cell => next row
+                        if (content.isEmpty()){
+                            // If two consecutive cells in the same row are empty, go to the next line
+                            try {
+                                Cell currentIncremented = sheet.getCell(j+1, i);
+                                if (currentIncremented.getContents().isEmpty()) {
+                                    emptyCnt++;
+                                    writable = false;
+                                    break;
+                                }
+                            } catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+                                // Other columns are not specified
+                                break;
+                            }
+                            //se mancano i campi della chiave ignoro la riga
+                            if(j==1 || j==2 || j==3)
+                            {
+                                writable=false;
+                                break;
+                            }
+                        }
+                        // Non empty content
+                        else {
+                            // Heading description row, without real data
+                            if (firstLineFlag == false) {
+                                firstLineFlag = true;
+                                writable = false;
+                                break;
+                            }
+                            emptyCnt = 0;
+                            // Here I have to give the content read to the object mapped in the database
+
+                            // Giving the content to a particular variable by the column number
+                            switch(j) {
+                                case 0:
+                                    
+                                    break;
+                                case 1:
+                                    assigned.setPrimaryKey(new AzioniPrimaryKey());
+                                    assigned.getPrimaryKey().setIdAzione(toInt(current));
+                                    break;
+                                case 2:
+                                    assigned.getPrimaryKey().setIdRischio(content);
+                                    break;
+                                case 3:
+                                    assigned.getPrimaryKey().setTipo(content.charAt(0));
+                                    break;
+                                case 4:
+                                    assigned.setIntensita(toInt(current));
+                                    break;
+                                case 5:
+                                    assigned.setStato(content);
+                                    break;
+                                case 6:
+                                    assigned.setDescrizione(content);
+                                    break;
+                                case 7:
+                                    assigned.setRevisione(toInt(current));
+                                    break;
+                            }
+                        }
+                    }
+                    catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+                        // Other lines are not specified
+                        return;
+                    }
+                }//for (cells)
+                if(writable && Azioni.checkAvailable(assigned.getPrimaryKey()))
+                    assigned.write();
+            }//for (lines)
     }
 
     public void sheetCkMitigazioni(Workbook workbook) {

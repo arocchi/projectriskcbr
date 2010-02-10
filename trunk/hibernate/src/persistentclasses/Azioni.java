@@ -25,11 +25,12 @@ public class Azioni extends persistentBase{
     public Azioni setStato(String x){
         //XXX considerare di rimuovere il controllo
         //se non è uno stato consentito non faccio nulla
-        if(x.equals("Planned") ||
+        /*if(x.equals("Planned") ||
            x.equals("Closed") ||
            x.equals("Back-up") ||
            x.equals("In progress"))
-            stato=x;
+            stato=x;*/
+        stato = x;
         return this;
     }
 
