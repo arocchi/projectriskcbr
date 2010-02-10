@@ -1,0 +1,17 @@
+<!-- Tutti i gruppi di rischi forniti dal CBR -->
+<gruppo idName="#ID#">
+	<nomeGruppo>#NOME DEL GRUPPO NEL CASO NE ABBIA UNO#</nomeGruppo>
+	<!-- Rischi che appartengono a questo gruppo -->
+	<rischio idName="#ID RISCHIO#">
+		<codiceChecklist>##</codiceChecklist>
+		<stato>#MONITORAGGIO [..]#</stato>
+		<categoria>#NOME CATEGORIA#</categoria>
+		<rVer>#0 [1 - 2]#</rVer>
+		<descrizione>##</descrizione>
+		<contingency>##</contingency>
+		<probIniziale>#0-100#</probIniziale>
+		<impattoIniziale>#1-5#</impattoIniziale>
+	</rischio>
+	<!-- .. Altri rischi .. -->
+</gruppo>
+<!-- .. Altri gruppi .. -->
