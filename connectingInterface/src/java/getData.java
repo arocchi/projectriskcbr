@@ -35,11 +35,11 @@ public class getData extends HttpServlet {
             if (type != null) {
                 if (type.equals("cliente")){
                     // Calling a method that gives all the customers in the database
-                    dataFromDB cl = new dataFromDB("cliente", out);
+                    dataFromDB cl = new dataFromDB(0, out);
                 } else if (type.equals("oggettoFornitura")){
-                    dataFromDB cl = new dataFromDB("oggetto Fornitura", out);
+                    dataFromDB cl = new dataFromDB(1, out);
                 } else if (type.equals("reparto")) {
-                    dataFromDB cl = new dataFromDB("reparto", out);
+                    dataFromDB cl = new dataFromDB(2, out);
                 } else {
                     out.println("<error>Type not allowed</error>");
                 }

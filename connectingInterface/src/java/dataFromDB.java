@@ -8,7 +8,31 @@ import java.io.PrintWriter;
  * @author User
  */
 public class dataFromDB {
-    dataFromDB (String type, PrintWriter out) {
+    dataFromDB (int type, PrintWriter out) {
+
+        switch(type) {
+
+            // Getting the checklist of CLIENTE
+            case 0:
+                // HIBERNATE => Select nome FROM cliente
+
+                /*
+                 * OUTPUT (for each record):
+                 * out.println("<nome idName="idCliente">nomeCliente</nome>");
+                 */
+                break;
+
+            // Getting the checklist of OGGETTOFORNITURA
+            case 1:
+                // The same of above
+                break;
+
+            // Getting the checklist of REPARTO
+            case 2:
+                // The same of above
+                break;
+        }
+
         //out.println("Hai richiesto: " + type + "\n");
         out.println("<name>Franci</name>");
         out.println("<name>Luigi</name>");
