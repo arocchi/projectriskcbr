@@ -12,7 +12,7 @@ public class CkRecovery extends Descrizione{
      */
     public static boolean checkAvailable(int key) throws Exception
     {
-        return !executeQuery("select codChecklist from ckRecovery").contains(key);
+        return !executeQuery("select codChecklist from CkRecovery").contains(key);
     }
 
     /**

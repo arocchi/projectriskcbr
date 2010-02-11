@@ -47,6 +47,20 @@ public class DesktopParser {
             SessionObject.endTransaction();
             System.out.println("Azioni aggiunte");
 
+            SessionObject.newTransaction();
+            sheetCkMitigazione(workbook);
+            SessionObject.endTransaction();
+            System.out.println("Ck Mitigazione aggiunte");
+
+            SessionObject.newTransaction();
+            sheetCkRecovery(workbook);
+            SessionObject.endTransaction();
+            System.out.println("Ck Recovery aggiunte");
+
+            SessionObject.newTransaction();
+            sheetStorico(workbook);
+            SessionObject.endTransaction();
+            System.out.println("Storico aggiunto");
             // Closing the stream
             workbook.close();
 
@@ -465,7 +479,7 @@ public class DesktopParser {
                                 // Other columns are not specified
                                 break;
                             }
-                            //se mancano i campi della chiave ignoro la riga
+                            //if key fields missing, ignore the line
                             if(j==1 || j==2 || j==3)
                             {
                                 writable=false;
@@ -519,23 +533,275 @@ public class DesktopParser {
                     }
                 }//for (cells)
                 if(writable && Azioni.checkAvailable(assigned.getPrimaryKey()))
-                    assigned.write();
+                    try{assigned.write();}
+                    catch (Exception ho){
+                        //catching the exception due to duplicaet entries
+                    }
             }//for (lines)
     }
 
-    public void sheetCkMitigazioni(Workbook workbook) {
+    public void sheetCkMitigazione(Workbook workbook) throws Exception {
         // Selecting the correspondent sheet
         Sheet sheet = workbook.getSheet(4);
+
+        // Current cell examined
+        Cell current;
+
+        // I need a variable to get the number of consecuive empty rows.
+        // I assume that 4 consecutive rows implie the end of file
+        int emptyCnt = 0;
+
+        // I need a variable to establish that the first non-empty line (wich contains the descriptions) has been reached
+        boolean firstLineFlag = false;
+
+        //flag that indicates that the current line is a valid project (note empty line)
+        boolean writable;
+
+        // Creating interfacing objects
+        CkMitigazione assigned;
+
+        // Reading unknown number of lines, cause I don't know the exact number of projects
+        for (int i = 0; ; i++)
+        {
+                // If 4 consecutive lines are empty, the database is fineshed
+                if (emptyCnt == 4)
+                    break;
+
+                writable = true;
+                assigned = new CkMitigazione();
+                // Readings 40 columns: one for each "Rischio" sheet
+                for (int j = 0; j < 2 ; j++) {
+                    try {
+                        current = sheet.getCell(j, i);
+                        // Checking the emptiness of the cell
+                        String content = current.getContents();
+
+                        // Empty cell => next row
+                        if (content.isEmpty()){
+                            // If two consecutive cells in the same row are empty, go to the next line
+                            try {
+                                Cell currentIncremented = sheet.getCell(j+1, i);
+                                if (currentIncremented.getContents().isEmpty()) {
+                                    emptyCnt++;
+                                    writable = false;
+                                    break;
+                                }
+                            } catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+                                // Other columns are not specified
+                                break;
+                            }
+                        }
+                        // Non empty content
+                        else {
+                            // Heading description row, without real data
+                            if (firstLineFlag == false) {
+                                firstLineFlag = true;
+                                writable = false;
+                                break;
+                            }
+                            emptyCnt = 0;
+                            // Here I have to give the content read to the object mapped in the database
+
+                            // Giving the content to a particular variable by the column number
+                            switch(j) {
+                                case 0:
+                                    assigned.setCodChecklist(toInt(current));
+                                    break;
+                                case 1:
+                                    assigned.setDescrizione(content);
+                                    break;
+                            }
+                        }
+                    }
+                    catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+                        // Other lines are not specified
+                        return;
+                    }
+                }//for (cells)
+                if(writable && CkMitigazione.checkAvailable(assigned.getCodChecklist()))
+                    try{assigned.write();}
+                    catch (Exception e){/*duplicate keys*/}
+            }//for (lines)
     }
 
-    public void sheetCkRecovery(Workbook workbook) {
+    public void sheetCkRecovery(Workbook workbook) throws Exception {
         // Selecting the correspondent sheet
         Sheet sheet = workbook.getSheet(5);
+
+        // Current cell examined
+        Cell current;
+
+        // I need a variable to get the number of consecuive empty rows.
+        // I assume that 4 consecutive rows implie the end of file
+        int emptyCnt = 0;
+
+        // I need a variable to establish that the first non-empty line (wich contains the descriptions) has been reached
+        boolean firstLineFlag = false;
+
+        //flag that indicates that the current line is a valid project (note empty line)
+        boolean writable;
+
+        // Creating interfacing objects
+        CkRecovery assigned;
+
+        // Reading unknown number of lines, cause I don't know the exact number of projects
+        for (int i = 0; ; i++)
+        {
+                // If 4 consecutive lines are empty, the database is fineshed
+                if (emptyCnt == 4)
+                    break;
+
+                writable = true;
+                assigned = new CkRecovery();
+                // Readings 40 columns: one for each "Rischio" sheet
+                for (int j = 0; j < 2 ; j++) {
+                    try {
+                        current = sheet.getCell(j, i);
+                        // Checking the emptiness of the cell
+                        String content = current.getContents();
+
+                        // Empty cell => next row
+                        if (content.isEmpty()){
+                            // If two consecutive cells in the same row are empty, go to the next line
+                            try {
+                                Cell currentIncremented = sheet.getCell(j+1, i);
+                                if (currentIncremented.getContents().isEmpty()) {
+                                    emptyCnt++;
+                                    writable = false;
+                                    break;
+                                }
+                            } catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+                                // Other columns are not specified
+                                break;
+                            }
+                        }
+                        // Non empty content
+                        else {
+                            // Heading description row, without real data
+                            if (firstLineFlag == false) {
+                                firstLineFlag = true;
+                                writable = false;
+                                break;
+                            }
+                            emptyCnt = 0;
+                            // Here I have to give the content read to the object mapped in the database
+
+                            // Giving the content to a particular variable by the column number
+                            switch(j) {
+                                case 0:
+                                    assigned.setCodChecklist(toInt(current));
+                                    break;
+                                case 1:
+                                    assigned.setDescrizione(content);
+                                    break;
+                            }
+                        }
+                    }
+                    catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+                        // Other lines are not specified
+                        return;
+                    }
+                }//for (cells)
+                if(writable && CkRecovery.checkAvailable(assigned.getCodChecklist()))
+                    try{assigned.write();}
+                    catch (Exception e){/*duplicate keys*/}
+            }//for (lines)
     }
 
-    public void sheetStorico(Workbook workbook) {
+    public void sheetStorico(Workbook workbook) throws Exception {
         // Selecting the correspondent sheet
         Sheet sheet = workbook.getSheet(6);
+
+        // Current cell examined
+        Cell current;
+
+        // I need a variable to get the number of consecuive empty rows.
+        // I assume that 4 consecutive rows implie the end of file
+        int emptyCnt = 0;
+
+        // I need a variable to establish that the first non-empty line (wich contains the descriptions) has been reached
+        boolean firstLineFlag = false;
+
+        //flag that indicates that the current line is a valid project (note empty line)
+        boolean writable;
+
+        // Creating interfacing objects
+        Revisione assigned;
+
+        // Reading unknown number of lines, cause I don't know the exact number of projects
+        for (int i = 0; ; i++)
+        {
+                // If 4 consecutive lines are empty, the database is fineshed
+                if (emptyCnt == 4)
+                    break;
+
+                writable = true;
+                assigned = new Revisione();
+                // Readings 40 columns: one for each "Rischio" sheet
+                for (int j = 0; j < 4 ; j++) {
+                    try {
+                        current = sheet.getCell(j, i);
+                        // Checking the emptiness of the cell
+                        String content = current.getContents();
+
+                        // Empty cell => next row
+                        if (content.isEmpty()){
+                            // If two consecutive cells in the same row are empty, go to the next line
+                            try {
+                                Cell currentIncremented = sheet.getCell(j+1, i);
+                                if (currentIncremented.getContents().isEmpty()) {
+                                    emptyCnt++;
+                                    writable = false;
+                                    break;
+                                }
+                            } catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+                                // Other columns are not specified
+                                break;
+                            }
+                            //if key fields missing, ignore the line
+                            if(j==1 || j==2)
+                            {
+                                writable=false;
+                                break;
+                            }
+                        }
+                        // Non empty content
+                        else {
+                            // Heading description row, without real data
+                            if (firstLineFlag == false) {
+                                firstLineFlag = true;
+                                writable = false;
+                                break;
+                            }
+                            emptyCnt = 0;
+                            // Here I have to give the content read to the object mapped in the database
+
+                            // Giving the content to a particular variable by the column number
+                            switch(j) {
+                                case 0:
+                                    assigned.setIdRischio(content);
+                                    break;
+                                case 1:
+                                    assigned.setNumeroRevisione(toInt(current));
+                                    break;
+                                case 2:
+                                    assigned.setProbabilita(toInt(current));
+                                    break;
+                                case 3:
+                                    assigned.setIndiceImpatto(toInt(current));
+                                    break;
+                            }
+                        }
+                    }
+                    catch (java.lang.ArrayIndexOutOfBoundsException ee) {
+                        // Other lines are not specified
+                        return;
+                    }
+                }//for (cells)
+                if(writable && Revisione.checkAvailable(assigned.getKey()))
+                    try{assigned.write();}
+                    catch (Exception e){/*duplicate keys*/}
+            }//for (lines)
     }
 
     private String toString(Cell current) {
