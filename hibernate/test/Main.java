@@ -1,19 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 
 import persistentclasses.*;
 import persistentclasses.attributes.*;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.classic.Session;
 
 /**
  *

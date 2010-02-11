@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package persistentclasses;
 
 import java.io.Serializable;
@@ -10,28 +5,20 @@ import java.util.List;
 import org.hibernate.Query;
 
 /**
- *
- * @author narduz
+ * Classe base da cui tutti gli oggetti persistenti dovranno derivare
+ * Implementa metodi per salvare l'oggetto sul database *
  */
 public abstract class persistentBase {
-    /*XXX id, setters e getters non più necessari
-    protected int id;
 
-    public void setId(int x){
-        id = x;
-
-    }
-    public int getId(){
-        return id;
-    }
-     * */
-    //operazioni sull'oggetto
+    //scrive un nuovo oggetto sul database
     public void write() throws Exception{
         if(SessionObject.session == null)// || tx == null)
             throw new Exception("write() operation needs a previous newTransaction() operation\n");
 
         SessionObject.session.save(this);
     }
+
+    //aggiorna le modifiche di un oggetto su database
     public void update() throws Exception{
          if(SessionObject.session == null)// || tx == null)
             throw new Exception("update() operation needs a previous newTransaction() operation\n");
@@ -40,14 +27,17 @@ public abstract class persistentBase {
         //SessionObject.session.merge(this);
         SessionObject.session.delete(this);
         SessionObject.session.save(this);
-
-        //XXX SessionObject.prova = "FATTA UPDATE";
     }
 
-    /*
+    /**
+     * Preleva dal DB un oggetto, mediante il suo id.
      * Sintassi di chiamata della funzione:
-     * p= (Progetto) p.getById(12);
+     * p= (Progetto) persistentBase.getById(classe, identificatore);
      * dove p è l'oggetto a cui assegnare il progetto
+     * @param c classe di appartenenza dell'oggetto da trovare
+     * @param x identificatore dell'oggetto da trovare
+     * @return oggetto ritrovato (he deriva da persistentBase)
+     * @throws Exception
      */
     public static persistentBase getById(Class c, Object x) throws Exception{ //da implementare per ogni classe derivata
          if(SessionObject.session == null)// || tx == null)
@@ -58,6 +48,7 @@ public abstract class persistentBase {
         
     }
 
+    //cancella un oggetto da DB
     public void delete() throws Exception{
         if(SessionObject.session == null)// || tx == null)
             throw new Exception("delete() operation needs a previous newTransaction() operation\n");
@@ -65,9 +56,11 @@ public abstract class persistentBase {
         SessionObject.session.delete(this);
     }
 
-    //funzioni che le classi derivate devono implementare
     /**
      * Esegue la query passata come agomento, ritornandone i risultati in una lista.
+     * @paran queryString   stringa rappresentante la query da eseguire
+     * @return lista di oggetti prodotti dalla query
+     * @throws Exception
      */
     protected static List executeQuery(String queryString) throws Exception
     {

@@ -1,20 +1,16 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package persistentclasses.attributes;
 
 import java.io.Serializable;
 
 /**
- *
  * Chiave primaria per la tabella dello storico
  */
 public class RevisionePrimaryKey implements Serializable {
+
     private String      idRischio;
     private int         numeroRevisione;
 
+    //costruttori
     public RevisionePrimaryKey(){}
 
     public RevisionePrimaryKey(String idR, int numRev)
@@ -24,7 +20,6 @@ public class RevisionePrimaryKey implements Serializable {
     }
 
     //setters e getters
-
     public RevisionePrimaryKey setIdRischio(String x)
     {
         idRischio = x;
@@ -46,6 +41,8 @@ public class RevisionePrimaryKey implements Serializable {
     {
         return numeroRevisione;
     }
+
+    //serve per i confronti di hibernate
     public boolean equals(RevisionePrimaryKey x)
     {
             if(x instanceof RevisionePrimaryKey &&
@@ -55,6 +52,8 @@ public class RevisionePrimaryKey implements Serializable {
             return false;
     }
 
+    //funzion usata in fase di debug
+    @Override
     public String toString()
     {
         return "idRischio = " +idRischio +"\nnumeroRevisione = " +numeroRevisione;

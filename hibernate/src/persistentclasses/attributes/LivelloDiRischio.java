@@ -1,13 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package persistentclasses.attributes;
 
 /**
- *
- * @author narduz
+ * La classe descrive i livelli di rischio per un progetto
  */
 public class LivelloDiRischio {
 
@@ -24,9 +18,10 @@ public class LivelloDiRischio {
 
     //default constructor
     public LivelloDiRischio(){
-        R1 = 0;
-        R2 = 0;
-        R3 = 0;
+        //di default sono impostati a -1 (campo non valido)
+        R1 = -1;
+        R2 = -1;
+        R3 = -1;
     }
 
     public void setR1(int x){
