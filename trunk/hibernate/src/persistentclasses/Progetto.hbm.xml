@@ -71,8 +71,10 @@
     <component class="persistentclasses.attributes.ImpattoStrategico" name="ipp">
       <property column="IPP" name="value"/>
     </component>
+    <!-- campi aggiunti, ma non usati. togliere il commento per attivarne il salvataggio
     <property column="DATA_INIZIO" name="dataInizio"/>
     <property column="DATA_FINE" name="dataFine"/>
+    -->
     <property column="IS_CASE" name="isCase"/>
     <property column="IS_OPEN" name="isOpen"/>
   </class>

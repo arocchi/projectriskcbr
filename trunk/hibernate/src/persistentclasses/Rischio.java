@@ -1,8 +1,6 @@
 package persistentclasses;
-import persistentclasses.attributes.AzioniPrimaryKey;
-import persistentclasses.attributes.CategoriaRischio;
-import persistentclasses.attributes.RevisionePrimaryKey;
-import persistentclasses.attributes.StatoRischio;
+
+import persistentclasses.attributes.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,7 +49,7 @@ public class Rischio extends persistentBase{
 
         //codiceChecklist va associato al rischio nel momento in cui e' creato
 
-        stato = new StatoRischio();
+        stato = new StatoRischio("Mitigation");//a causa di alcuni campi vuoti nel DB formito, diamo un valore di default
         categoria = new CategoriaRischio();
         verificato = 0; //default, un rischio appena creato si intende aperto
         numeroRevisione = 0; //rischio creato di default nella rev 0
@@ -141,7 +139,7 @@ public class Rischio extends persistentBase{
         return this;
     }
     public Rischio setCategoria(String x){
-        categoria = new CategoriaRischio(x);
+        categoria.setCategoria(x);
         return this;
     }
     public Rischio setVerificato(int x){

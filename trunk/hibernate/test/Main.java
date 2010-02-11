@@ -1,5 +1,3 @@
-
-
 import persistentclasses.*;
 import persistentclasses.attributes.*;
 import java.util.GregorianCalendar;
@@ -72,16 +70,9 @@ public class Main {
                     break;
                 }
 
-                //testing classe Rischio
+
                 case 3:
                 {
-                   Rischio r = new Rischio("P1", "CODICE1", 1, "mitigazione", "Supply Chain", 0, 0, "Rischio demmerda",
-                                         1000000.0, 50, 10, "Tutte le cause", "Qualche effetto", 500.0);
-                   SessionObject.getStarted();
-                   SessionObject.newTransaction();
-                   r.write();
-                   System.out.println("SIAMO QUI");
-                   SessionObject.endTransaction();
                    break;
                 }
                 //testing progetto, rischio e azioni 25-1-10
@@ -385,7 +376,7 @@ public class Main {
                     r.caricaStorico();
                     Revisione rev = (Revisione) r.getStorico().iterator().next();
                     rev.setIndiceImpatto(1);
-                    r.aggiungiRevisione("R1",4, 11, 2);
+                    //r.aggiungiRevisione("R1",4, 11, 2);
                     r.salvaStorico();
                     System.out.println(r.getStorico());
                     SessionObject.endTransaction();

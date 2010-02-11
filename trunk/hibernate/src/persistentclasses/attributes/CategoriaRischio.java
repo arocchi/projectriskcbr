@@ -9,7 +9,9 @@ package persistentclasses.attributes;
 public class CategoriaRischio {
     String categoria;
 
-    public CategoriaRischio(){}
+    public CategoriaRischio(){
+        categoria = new String("No category");
+    }
 
     public CategoriaRischio(String s)
     {
@@ -21,7 +23,7 @@ public class CategoriaRischio {
     }
 
     public CategoriaRischio setCategoria(String s){
-        categoria = new String(s);
+        categoria = s;
         return this;
     }
 
