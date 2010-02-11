@@ -1,14 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package persistentclasses;
 import persistentclasses.attributes.AzioniPrimaryKey;
 import persistentclasses.attributes.CategoriaRischio;
 import persistentclasses.attributes.RevisionePrimaryKey;
 import persistentclasses.attributes.StatoRischio;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,8 +12,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 /**
- *
- * @author narduz
+ * Classe che rappresenta i rischi nel database.
  */
 public class Rischio extends persistentBase{
 
@@ -36,7 +29,6 @@ public class Rischio extends persistentBase{
     private int                 probabilitaIniziale;
     private int                 impattoIniziale;//impatto
 
-    //in tabella a parte
     private String              causa;
     private String              effetto;
 
@@ -49,42 +41,31 @@ public class Rischio extends persistentBase{
     //storico per questo determinato rischio. Se null, il rischio non ha subito modifiche
     private List storico;
 
+    //costruttore di default
     public Rischio()
     {
+        //id programma va specificato alla creazione del  rischio
+
+        //codice viene deciso dall'utente e' presente una funzione
+        //generateAutoKey che consente di generarlo automaticamente
+
+        //codiceChecklist va associato al rischio nel momento in cui e' creato
+
+        stato = new StatoRischio();
+        categoria = new CategoriaRischio();
+        verificato = 0; //default, un rischio appena creato si intende aperto
+        numeroRevisione = 0; //rischio creato di default nella rev 0
+        descrizione = new String();
+        contingency = -1.0; //se non specificata manualmente, campo non valido
+        probabilitaIniziale = -1; //se non specificato manualmente, campo non valido
+        impattoIniziale = -1; //se non specificato manualmente, campo non valido
+
+        causa = new String();
+        effetto = new String();
+
+        costoPotenzialeImpatto = 100;//il campo non e' fornito da database. Assumiamo un valoredi default
         azioni = new LinkedList();
         storico = new LinkedList();
-    }
-
-    //usato per testing
-    public Rischio( String a,
-                    String b,
-                    int c,
-                    String d,
-                    String e,
-                    int f,
-                    int g,
-                    String h,
-                    double i,
-                    int l,
-                    int m,
-                    String n,
-                    String o,
-                    double p)
-    {
-    idProgramma = new String(a);
-    codice = b;
-    codiceChecklist = c;
-    stato = new StatoRischio().setStato(d);
-    categoria = new CategoriaRischio().setCategoria(e);
-    verificato = f;
-    numeroRevisione = g;
-    descrizione = h;
-    contingency = i;
-    probabilitaIniziale = l;
-    impattoIniziale = m;
-    causa = n;
-    effetto = o;
-    costoPotenzialeImpatto = p;
     }
 
     //setters e getters
@@ -215,13 +196,23 @@ public class Rischio extends persistentBase{
     }
 
 
+    /**
+     * Ritorna una lista con le chiavi primarie
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return List di chiavi primarie
+     * @throws Exception
+     */
     public static List getAllPrimaryKeys() throws Exception
     {
          String queryString = new String("select codice from Rischio");
          return executeQuery(queryString);
     }
+
     /**
-     * Controlla se la chiave immessa come argomento è disponibile o meno
+     * Controlla se la chiave immessa come argomento è disponibile o meno.
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return true se la chiave e' disponibile. false altrimenti
+     * @throws Exception
      */
     public static boolean checkAvailable(String key) throws Exception
     {
@@ -235,6 +226,10 @@ public class Rischio extends persistentBase{
      * Genera automaticamente una nuova chiave
      * La stringa progetto passata come argomento è
      * l'id del progetto su cui il rischio andrà istanziato
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param progetto  Stringa identificativa del progetto (usata per generare chiavi automatiche per i rischi
+     * @return          stringa (chiave generata)
+     * @throws Exception
      */
     public static String generateAutoKey(String progetto) throws Exception
     {
@@ -250,7 +245,10 @@ public class Rischio extends persistentBase{
     
     /**
      * Legge dal database la lista delle azioni associate al rischio e aggiorna il campo
-     * "azioni"
+     * "azioni".
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return riferimento al rischio (come un setter)
+     * @throws Exception
      */
     public Rischio caricaAzioni() throws Exception
     {
@@ -259,8 +257,12 @@ public class Rischio extends persistentBase{
     }
 
     /**
-     *
      * Aggiunge l'azione 'a' al rischio, col numero di revisione rev
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param rev   revisione del rischio alla quale si sta aggiungendo l'azione
+     * @param a     azione da aggiungere al rischio
+     * @return      puntatore al rischio
+     * @throws Exception
      */
     public Rischio aggiungiAzione(int rev, Azioni a) throws Exception
     {
@@ -283,6 +285,10 @@ public class Rischio extends persistentBase{
 
     /**
      * Rimuove dalla lista azioni l'azione con la chiave inserita come argomento
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param key   Chiave primaria dell'azione da rimuovere
+     * @return puntatore al rischio
+     * @throws Exception
      */
     public Rischio rimuoviAzione(AzioniPrimaryKey key) throws Exception
     {
@@ -307,6 +313,12 @@ public class Rischio extends persistentBase{
 
     /**
      * interfaccia per la classe precedente
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param idR   id rischio
+     * @param idA   id azione
+     * @param t     tipo azione
+     * @return      puntatore al rischio
+     * @throws Exception
      */
     public Rischio rimuoviAzione(String idR, int idA, char t) throws Exception
     {
@@ -316,6 +328,9 @@ public class Rischio extends persistentBase{
     
     /**
      * Salva le azioni nel DB
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return puntatore al rischio
+     * @throws Exception
      */
     public Rischio salvaAzioni() throws Exception
     {
@@ -369,6 +384,9 @@ public class Rischio extends persistentBase{
     /**
      * Legge dal database lo storico di questo determinato rischio, aggiornando il campo
      * "storico"
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return puntatore al rischio
+     * @throws Exception
      */
     public Rischio caricaStorico() throws Exception
     {
@@ -378,6 +396,10 @@ public class Rischio extends persistentBase{
 
     /**
      * aggiunge una revisione allo storico
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param x oggetto revisione da aggiungere
+     * @return puntatore al rischio
+     * @throws Exception
      */
     public Rischio aggiungiRevisione(Revisione x) throws Exception
     {
@@ -404,11 +426,17 @@ public class Rischio extends persistentBase{
 
     /**
      * Interfaccia per la classe precedente
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param numeroRevisione   numero della revosione da aggiungere
+     * @param probabilita       probabilita' nella nuov revisione
+     * @param indiceImpatto     indiceImpatto nella nuova revisione
+     * @return                  puntatore al rischio
+     * @throws Exception
      */
-    public Rischio aggiungiRevisione(String idRischio, int numeroRevisione, int probabilita, int indiceImpatto) throws Exception
+    public Rischio aggiungiRevisione(int numeroRevisione, int probabilita, int indiceImpatto) throws Exception
     {
         Revisione rv = new Revisione();
-        rv.setIdRischio(idRischio);
+        rv.setIdRischio(codice);
         rv.setNumeroRevisione(numeroRevisione);
         rv.setIndiceImpatto(indiceImpatto);
         rv.setProbabilita(probabilita);
@@ -418,6 +446,10 @@ public class Rischio extends persistentBase{
 
     /**
      * Rimuove la revisione identificata dalla chiave key dal DB
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param key       chiave primaria della revisione da rimuovere
+     * @return          puntatre al rischio
+     * @throws Exception
      */
     public Rischio rimuoviRevisione(RevisionePrimaryKey key) throws Exception
     {
@@ -442,15 +474,22 @@ public class Rischio extends persistentBase{
 
     /**
      * Interfaccia per la classe precedente
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param numRev    numero revisione da eliminare dal rischio
+     * @return
+     * @throws Exception
      */
-    public Rischio rimuoviRevisione(String idR, int numRev) throws Exception
+    public Rischio rimuoviRevisione(int numRev) throws Exception
     {
-        rimuoviRevisione(new RevisionePrimaryKey(idR, numRev));
+        rimuoviRevisione(new RevisionePrimaryKey(codice, numRev));
         return this;
     }
     
    /**
     * Salva lo sotrico nel DB
+    * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+    * @return puntatore al rischio
+    * @throws Exception
     */
     public Rischio salvaStorico() throws Exception
     {
@@ -502,6 +541,8 @@ public class Rischio extends persistentBase{
     /**
      * Calcola l'IR per la revisione passata come argomento
      * Ritorna -1 se la revisione non esiste
+     * @param numvrev   numero della revisione di cui prendere Ir
+     * @return          intero rappresentante l'Ir
      */
     public int getIr(int numrev)
     {
@@ -524,11 +565,11 @@ public class Rischio extends persistentBase{
         return r.getIr();
     }
     /**
-     * @function public int getIr()
      * calcola indice del rischio come
      * INDICE probabilità * INDICE impatto
      *
      * calcola l'IR per l'ultima revisione
+     * @return  IR per l'ultima revisione
      */
     public int getIr(){
         Iterator it = storico.iterator();
@@ -544,21 +585,17 @@ public class Rischio extends persistentBase{
     }
 
     /**
-     *
+     * Da specifica, l'impatto atteso e' costo potenziale * probabilita' iniziale
+     * @return  impatto atteso
      */
     public double getImpattoAtteso(){
         return costoPotenzialeImpatto*probabilitaIniziale;
     }
 
-    //tutte le azioni della revisione rev
-    /*
-    public List getAzioni(int numRev){
-        //XXX serve??
-        return null;
-    }*/
-    
     /**
      * ritorna tutte le azioni chiuse. Può ritornare lista vuota
+     * Fa uso della funzione utilita' azioniStato
+     * @return Lista di azioni chiuse
      */
     public List getAzioniChiuse(){
         return azioniStato(true);
@@ -566,6 +603,8 @@ public class Rischio extends persistentBase{
 
     /**
      * ritorna tutte le azioni aperte. Può ritornare lista vuota
+     * Fa uso della funzione utilita' azioniStato
+     * @return Lista di azioni aperte
      */
     public List getAzioniAperte(){
         return azioniStato(false);
@@ -573,8 +612,9 @@ public class Rischio extends persistentBase{
 
     /**
      * Funzione di utilità per getAzioniAperte() e getAzioniChiuse()
-     * b = true -> preleva le azioni chiuse
-     * b = false -> preleva le azioni aperte
+     * @param b true -> preleva le azioni chiuse;
+     *          false -> preleva le azioni aperte
+     * @return  Lista di azioni
      */
     private List azioniStato(boolean b){
         LinkedList l = new LinkedList();

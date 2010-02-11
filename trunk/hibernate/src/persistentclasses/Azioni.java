@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * Classe che rappresenta la singola azione sul DB.
  */
 public class Azioni extends persistentBase{
     private AzioniPrimaryKey    primaryKey;//idRischio + idAzione + tipo
@@ -15,6 +15,18 @@ public class Azioni extends persistentBase{
     private int         revisione;//revisione a cui si riferisce l'azione
     private int         intensita;//da -10  10, effetto dell'azione (solo per azioni chiuse, quindi presumibile default 0)
 
+    //costruttore di default
+    public Azioni()
+    {
+        //non esistono valori di default per la chiave primaria.
+        //vanno settati necessariamente
+
+        stato = "Not specified";
+        descrizione = "not specified";
+        revisione = 0;
+        intensita = -50; //valore fuori range, perchè questo campo è valido solo per azioni chiuse
+    }
+
     //setters e getters
     public Azioni setPrimaryKey(AzioniPrimaryKey x)
     {
@@ -23,13 +35,6 @@ public class Azioni extends persistentBase{
     }
 
     public Azioni setStato(String x){
-        //XXX considerare di rimuovere il controllo
-        //se non è uno stato consentito non faccio nulla
-        /*if(x.equals("Planned") ||
-           x.equals("Closed") ||
-           x.equals("Back-up") ||
-           x.equals("In progress"))
-            stato=x;*/
         stato = x;
         return this;
     }
@@ -90,19 +95,34 @@ public class Azioni extends persistentBase{
       *
       * XXX Funzione per debug, mostra la chiave dell'azione
       */
-     public String toString()
+     /*public String toString()
      {
          return primaryKey.toString();
-     }
+     }*/
 
+     /**
+      * Funzione che accede al DataBase, e legge tutte le chiavi primarie
+      * delle azioni presenti.
+      * Serve come utilita' per altre funzioni.
+      * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+      *
+      * @return Lista di tutte le chiavi primarie di Azioni, contenute ne DB
+      * @throws Exception
+      */
      public static List getAllPrimaryKeys() throws Exception
      {
          String queryString = new String("select primaryKey from Azioni");
          return persistentBase.executeQuery(queryString);
      }
 
-     /**
-     * Controlla se la chiave immessa come argomento è disponibile o meno
+    /**
+     * Controlla che la chiave imessa sia disponibile.
+     * Utile nel caso in cui alcuni parametri siano decisi dall'utente
+     * anziche' generati automaticamente.
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param key   chiave di un oggetto Azioni
+     * @return      false: chiave gia' in uso per un'altra azione. true: chiave disponibile
+     * @throws Exception
      */
     public static boolean checkAvailable(AzioniPrimaryKey key) throws Exception
     {
@@ -120,7 +140,16 @@ public class Azioni extends persistentBase{
     }
 
     /**
-     * interfaccia per la classe precedente
+     * Interfaccia per la classe precedente.
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * Anziche' immettere un oggetto AzioniPrimaryKey,
+     * se ne specificano i singoli campi:
+     *
+     * @param idAzione  campo della chiave
+     * @param idRischio campo della chiave
+     * @param tipo      campo della chiave
+     * @return          false: chiave occupata; true: chiave libera
+     * @throws Exception
      */
     public static boolean checkAvailable(int idAzione, String idRischio, char tipo) throws Exception
     {

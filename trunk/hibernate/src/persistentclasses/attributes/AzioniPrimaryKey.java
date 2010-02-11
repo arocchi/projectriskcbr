@@ -1,20 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package persistentclasses.attributes;
 
 import java.io.Serializable;
 
 /**
- * Classe necessaria per il cast nell'operazione di ricerca delle chiavi in uso
- * @author narduz
+ * Chiave primaria delle azioni
  */
 public class AzioniPrimaryKey implements Serializable{
     private int         idAzione;
     private String      idRischio;//univoco in tutto il db
     private char        tipo;//M o R per mitigazione o recovery
+
 
     public AzioniPrimaryKey(){}
 
@@ -54,6 +49,7 @@ public class AzioniPrimaryKey implements Serializable{
          return tipo;
      }
 
+     //serve per i confronti fatti da hibernate
      public boolean equals(AzioniPrimaryKey x)
      {
             if(x instanceof AzioniPrimaryKey &&
@@ -64,6 +60,8 @@ public class AzioniPrimaryKey implements Serializable{
             return false;
      }
 
+     //funzione usata in debug per leggere il contenuto delle azioni
+    @Override
      public String toString()
      {
          return new String("idAzione = " + idAzione + "\nidRischio = " + idRischio +"\n" +"tipo = "+tipo+"\n");

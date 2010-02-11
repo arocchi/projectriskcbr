@@ -12,7 +12,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 /**
- *
+ * Classe che rappresenta un singolo progetto nel database.
  */
 public class Progetto extends persistentBase{
     private boolean isCase; //indica se il progetto va usato come caso per successivi retrieve
@@ -54,6 +54,31 @@ public class Progetto extends persistentBase{
     public Progetto()
     {
         rischi = new LinkedList();
+        isCase = false; //di default un progetto non e' inserito nella base dei casi
+        isOpen = true; //alla creazione si considera che il progetto sia aperto
+        //codice va specificato obbligatoriamente
+        reparto = -1; //se non specificato il campo e' non valido
+        classeRischio = -1; //se non specificato il campo e' non valido
+        valoreEconomico = -1.0; //se non specificato il campo e' non valido
+        durataContratto = -1; //se non specificato il campo e' non valido
+        oggettoFornitura = new String();
+        nomeCliente = new String();
+
+        //i valori di default per i restanti campi sono assegnati dai relativi costruttori
+        paese = new LivelloDiRischio();
+        mercatoCliente = new LivelloDiRischio();
+        contratto = new LivelloDiRischio();
+        composizionePartnership = new LivelloDiRischio();
+        ingegneria = new LivelloDiRischio();
+        approvvigionamento = new LivelloDiRischio();
+        fabbricazione = new LivelloDiRischio();
+        montaggio = new LivelloDiRischio();
+        avviamento = new LivelloDiRischio();
+        im = new ImpattoStrategico();
+        ic = new ImpattoStrategico();
+        ip = new ImpattoStrategico();
+        ia = new ImpattoStrategico();
+        ipp = new ImpattoStrategico();
     }
 
     //setters e getters
@@ -257,7 +282,10 @@ public class Progetto extends persistentBase{
     }
 
     /**
-     * Preleva le chiavi primarie di tutti i progetti
+     * Preleva dal DB le chiavi primarie di tutti i progetti.
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return  Lista di chiavi
+     * @throws Exception
      */
     public static List getAllPrimaryKeys() throws Exception
      {
@@ -267,6 +295,10 @@ public class Progetto extends persistentBase{
 
     /**
      * Controlla se la chiave immessa come argomento è disponibile o meno
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @param key   chiave da testare
+     * @return      true: chiave disponibile. false altrimenti
+     * @throws Exception
      */
     public static boolean checkAvailable(String key) throws Exception
     {
@@ -278,6 +310,9 @@ public class Progetto extends persistentBase{
 
     /**
      * Genera automaticamente una nuova chiave
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return  chiave generata
+     * @throws Exception
      */
     public static String generateAutoKey() throws Exception
     {
@@ -292,7 +327,10 @@ public class Progetto extends persistentBase{
     }
 
     /**
-     * Carica tutti i rischi del progetto dal DB
+     * Carica tutti i rischi del progetto dal DB.
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return  puntatore al progetto (come un setter method)
+     * @throws Exception
      */
     public Progetto caricaRischi() throws Exception
     {
@@ -308,7 +346,10 @@ public class Progetto extends persistentBase{
         return this;
     }
     /**
-     * Aggiunge il rischio al progetto
+     * Aggiunge il rischio al progetto.
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return puntatore al progetto (come un setter method
+     * @throws Exception
      */
     public Progetto aggiungiRischio(Rischio r) throws Exception
     {
@@ -329,7 +370,10 @@ public class Progetto extends persistentBase{
     }
 
     /**
-     * Rimuove il rischio con codice=id dal progetto e dal DB
+     * Rimuove il rischio con codice=id dal progetto e dal DB.
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return puntatore al progetto (come un setter method
+     * @throws Exception
      */
     public Progetto rimuoviRischio(String id) throws Exception
     {
@@ -354,6 +398,9 @@ public class Progetto extends persistentBase{
 
     /**
      * Salva i rischi del progetto
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return puntatore al progetto (come un setter method
+     * @throws Exception
      */
     public Progetto salvaRischi() throws Exception
     {
@@ -416,20 +463,10 @@ public class Progetto extends persistentBase{
     }
 
     /**
-     * Importante: questa funzione va usata nel seguente modo:
-     * Progetto p = Progetto.getById("identificatore");
-     * Legge dal DB il progetto il base all' id fornito
-     *//*
-    public static Progetto getById(String id) throws Exception
-    {
-        if(SessionObject.session == null)// || tx == null)
-            throw new Exception("getById() operation needs a previous newTransaction() operation\n");
-
-        return (Progetto) SessionObject.session.get(Progetto.class, id);
-    }*/
-
-    /**
      * Ritorna una lista con tutti i progetti nel DB
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return  Lista di oggetti Progetto
+     * @throws Exception
      */
     public static List getAllProjects() throws Exception
     {
@@ -438,6 +475,9 @@ public class Progetto extends persistentBase{
 
     /**
      * ritorna una lista con tutti i progetti aperti
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return  Lista di progetti aperti (ancora modificabili)
+     * @throws Exception
      */
     public static List getOpenProjects() throws Exception
     {
@@ -446,6 +486,9 @@ public class Progetto extends persistentBase{
 
     /**
      * Ritorna la lista di progetti che forma la base di casi
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return Lista di progetti costituenti la base di casi
+     * @throws Exception
      */
     public static List getCases() throws Exception
     {
@@ -456,6 +499,9 @@ public class Progetto extends persistentBase{
      * A differenza della funzione write() ereditata dalla classe base
      * questa funzione salva sia i campi del progetto, sia tutti i rischi e le azioni
      * associate al progetto stesso.
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return puntatore al progetto salvato (come un setter method)
+     * @throws Exception
      */
     public Progetto salvaProgetto() throws Exception
     {

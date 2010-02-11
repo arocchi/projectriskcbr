@@ -7,15 +7,14 @@ package persistentclasses.attributes;
 
 /**
  *  La classe descrive gli attributi inerenti l'impatto strategico di un progetto
- *  
- * @author narduz
  */
 public class ImpattoStrategico {
     private int value;
 
     //costruttori
     public ImpattoStrategico(){
-        value = 0;
+        //di default il valore e' -1 (campo non valido)
+        value = -1;
     }
 
     public ImpattoStrategico(int x) {
@@ -33,6 +32,7 @@ public class ImpattoStrategico {
     }
 
     //conversione a stringa
+    @Override
     public String toString(){
         String s = new String(""+value);
         return s;

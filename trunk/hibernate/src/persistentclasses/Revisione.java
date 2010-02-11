@@ -5,18 +5,22 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * Classe che rappresenta le singole revisioni apportate nello storico
+ * dei progetti.
  */
 public class Revisione extends persistentBase {
     private RevisionePrimaryKey key;
     private int                 probabilita;
     private int                 indiceImpatto;//indice impatto relativo alla revisione 'numeroRevisione'
 
-    
+    //costruttore di default
     public Revisione()
     {
-        key = new RevisionePrimaryKey();
+        key = new RevisionePrimaryKey();//la chiave va specificata dall'utente
+        probabilita = -1;//campo non valido di default
+        indiceImpatto = -1;//campo non valido di default
     }
+    
     //setters e getters
     public Revisione setKey(RevisionePrimaryKey x)
     {
@@ -72,6 +76,12 @@ public class Revisione extends persistentBase {
         return indiceImpatto;
     }
 
+    /**
+     * Ritorna una lista con tutte le chiavi primarie di Revisione
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return  Lista di chiavi primarie
+     * @throws Exception
+     */
     public static List getAllPrimaryKeys() throws Exception
     {
         String queryString = new String("select key from Revisione");
@@ -80,6 +90,9 @@ public class Revisione extends persistentBase {
 
     /**
      * Controlla se la chiave passata come argomento è disponibile o meno
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return true se la chiave e' disponibile. false altrimenti
+     * @throws Exception
      */
     public static boolean checkAvailable(RevisionePrimaryKey key) throws Exception
     {
@@ -98,6 +111,9 @@ public class Revisione extends persistentBase {
 
     /**
      * interfaccia per la classe precedente
+     * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
+     * @return true se la chiave e' disponibile
+     * @throws Exception
      */
     public static boolean checkAvailable(String idRischio, int numeroRevisione) throws Exception
     {
@@ -107,7 +123,10 @@ public class Revisione extends persistentBase {
         return checkAvailable(pk);
     }
 
-    //XXX funzione usata per debug
+    /**
+     * Funzione utile in fase di debug
+     * @return stringa con il contenuto della revisione
+     */
     @Override
     public String toString()
     {
@@ -118,7 +137,9 @@ public class Revisione extends persistentBase {
     }
     
     /**
-     * calcola IR per la revisione in questione
+     * calcola IR per la revisione in questione.
+     * Da specifica, l'IR e' il prodotto tra indice prbabilita' ed indice impatto.
+     * @return intero corrispondente all'IR calcolato
      */
     public int getIr(){
         return probabilita*indiceImpatto;
