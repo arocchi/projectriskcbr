@@ -9,6 +9,8 @@ package persistentclasses.attributes;
  *  La classe descrive gli attributi inerenti l'impatto strategico di un progetto
  */
 public class ImpattoStrategico {
+	public static final Integer RANGE = 5;
+	
     private int value;
 
     //costruttori

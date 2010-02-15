@@ -1,10 +1,14 @@
 package persistentclasses.attributes;
 
+import jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;
+
 /**
  * La classe descrive i livelli di rischio per un progetto
  */
-public class LivelloDiRischio {
-
+public class LivelloDiRischio 
+		implements projectriskcbr.config.SelfNNConfigurator {
+	public static final Integer RANGE = 5;
+	
     private int R1;
     private int R2;
     private int R3;
@@ -50,4 +54,8 @@ public class LivelloDiRischio {
         String s = new String(R1 + " " + R2 +" "+ R3);
         return s;
     }
+
+	public Object getSimilarityFunction(String arg0) {
+		return new Interval(LivelloDiRischio.RANGE);
+	}
 }
