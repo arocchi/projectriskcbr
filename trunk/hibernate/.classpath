@@ -3,11 +3,19 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="dist/lib/antlr-2.7.6.jar"/>
+	<classpathentry kind="lib" path="dist/lib/arq.jar"/>
 	<classpathentry kind="lib" path="dist/lib/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="dist/lib/asm.jar"/>
+	<classpathentry kind="lib" path="dist/lib/aterm-java-1.6.jar"/>
+	<classpathentry kind="lib" path="dist/lib/c3p0-0.9.0.jar"/>
 	<classpathentry kind="lib" path="dist/lib/cglib-2.1.3.jar"/>
+	<classpathentry kind="lib" path="dist/lib/cglib-nodep-2.2.jar"/>
 	<classpathentry kind="lib" path="dist/lib/commons-collections-2.1.1.jar"/>
+	<classpathentry kind="lib" path="dist/lib/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="dist/lib/commons-configuration-1.6.jar"/>
+	<classpathentry kind="lib" path="dist/lib/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="dist/lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="dist/lib/concurrent.jar"/>
 	<classpathentry kind="lib" path="dist/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="dist/lib/ehcache-1.2.3.jar"/>
 	<classpathentry kind="lib" path="dist/lib/ejb3-persistence.jar"/>
@@ -16,9 +24,32 @@
 	<classpathentry kind="lib" path="dist/lib/hibernate-entitymanager.jar"/>
 	<classpathentry kind="lib" path="dist/lib/hibernate-tools.jar"/>
 	<classpathentry kind="lib" path="dist/lib/hibernate3.jar"/>
+	<classpathentry kind="lib" path="dist/lib/hsqldb.jar"/>
+	<classpathentry kind="lib" path="dist/lib/icu4j_3_4.jar"/>
+	<classpathentry kind="lib" path="dist/lib/iri.jar"/>
 	<classpathentry kind="lib" path="dist/lib/javassist.jar"/>
+	<classpathentry kind="lib" path="dist/lib/jcolibri2.1.jar" sourcepath="/jCOLIBRI2/src"/>
 	<classpathentry kind="lib" path="dist/lib/jdbc2_0-stdext.jar"/>
+	<classpathentry kind="lib" path="dist/lib/jdom-1.1.jar"/>
+	<classpathentry kind="lib" path="dist/lib/jena.jar"/>
+	<classpathentry kind="lib" path="dist/lib/jenatest.jar"/>
+	<classpathentry kind="lib" path="dist/lib/jettison-1.0.1.jar"/>
+	<classpathentry kind="lib" path="dist/lib/joda-time-1.6.jar"/>
+	<classpathentry kind="lib" path="dist/lib/json.jar"/>
 	<classpathentry kind="lib" path="dist/lib/jta.jar"/>
+	<classpathentry kind="lib" path="dist/lib/junit.jar"/>
+	<classpathentry kind="lib" path="dist/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="dist/lib/mysql-connector-java-3.0.11-stable-bin.jar"/>
 	<classpathentry kind="lib" path="dist/lib/mysql-connector-java-5.1.6-bin.jar"/>
+	<classpathentry kind="lib" path="dist/lib/stax-1.2.0.jar"/>
+	<classpathentry kind="lib" path="dist/lib/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="dist/lib/wstx-asl-2.8.jar"/>
+	<classpathentry kind="lib" path="dist/lib/wstx-asl-3.2.7.jar"/>
+	<classpathentry kind="lib" path="dist/lib/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="dist/lib/xml-writer-0.2.jar"/>
+	<classpathentry kind="lib" path="dist/lib/xom-1.1.jar"/>
+	<classpathentry kind="lib" path="dist/lib/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="dist/lib/xstream-1.3.1.jar"/>
+	<classpathentry kind="lib" path="dist/lib/projectRiskCbr.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

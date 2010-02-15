@@ -2,10 +2,18 @@ package persistentclasses;
 
 import persistentclasses.attributes.ImpattoStrategico;
 import persistentclasses.attributes.LivelloDiRischio;
+
+import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import jcolibri.cbrcore.Attribute;
+import jcolibri.method.retrieve.NNretrieval.similarity.local.Equal;
+import jcolibriext.method.retrieve.NNretrieval.similarity.global.AdvancedAverage;
+import jcolibriext.method.retrieve.NNretrieval.similarity.local.IntervalImpattoStrategico;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -14,15 +22,17 @@ import org.hibernate.cfg.Configuration;
 /**
  * Classe che rappresenta un singolo progetto nel database.
  */
-public class Progetto extends persistentBase{
+public class Progetto 
+			extends persistentBase 
+			implements jcolibri.cbrcore.CaseComponent, projectriskcbr.config.SelfNNConfigurator {
     private boolean isCase; //indica se il progetto va usato come caso per successivi retrieve
     private boolean isOpen; //indica se il progetto e' ancora aperto o è gia' stato chiuso
     
-    private String  codice; //id programma
-    private int reparto;
-    private int classeRischio;
-    private Double   valoreEconomico;
-    private int durataContratto; //anni durata progetto
+    private String 	codice; //id programma
+    private int		reparto;
+    private int		classeRischio;
+    private Double  valoreEconomico;
+    private int 	durataContratto; //anni durata progetto
     private String  oggettoFornitura; //oggetto nel DB
     private String  nomeCliente; //cliente nel DB
 
@@ -468,7 +478,7 @@ public class Progetto extends persistentBase{
      * @return  Lista di oggetti Progetto
      * @throws Exception
      */
-    public static List getAllProjects() throws Exception
+    public static List<?> getAllProjects() throws Exception
     {
         return executeQuery("from Progetto");
     }
@@ -479,7 +489,7 @@ public class Progetto extends persistentBase{
      * @return  Lista di progetti aperti (ancora modificabili)
      * @throws Exception
      */
-    public static List getOpenProjects() throws Exception
+    public static List<?> getOpenProjects() throws Exception
     {
         return executeQuery("from Progetto where isOpen = true");
     }
@@ -490,7 +500,7 @@ public class Progetto extends persistentBase{
      * @return Lista di progetti costituenti la base di casi
      * @throws Exception
      */
-    public static List getCases() throws Exception
+    public static List<?> getCases() throws Exception
     {
         return executeQuery("from Progetto where isCase = true");
     }
@@ -509,4 +519,31 @@ public class Progetto extends persistentBase{
         salvaRischi();
         return this;
     }
+    
+    public jcolibri.cbrcore.Attribute getIdAttribute() {
+    	return new Attribute("codice", this.getClass());
+    }
+
+	public Object getSimilarityFunction(String arg0) {
+		Class<?> internalFieldClass = null;
+		try {
+			Field internalField = this.getClass().getDeclaredField(arg0);
+			internalFieldClass = internalField.getType();
+		} catch(NoSuchFieldException e) {
+			System.err.println("Error getting similarity function for Progetto." + arg0 );
+		}
+		
+		if(internalFieldClass == null)
+			return null;
+		else if(internalFieldClass.equals(ImpattoStrategico.class))
+			return new IntervalImpattoStrategico(ImpattoStrategico.RANGE);
+		else if(internalFieldClass.equals(LivelloDiRischio.class))
+			return new AdvancedAverage();
+		else {
+			System.err.println("Error getting unknown field Progetto." + arg0
+								+ " : returning Equal() similarity function");
+			
+			return new Equal();
+		}
+	}
 }
