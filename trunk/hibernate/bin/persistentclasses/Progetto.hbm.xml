@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class name="persistentclasses.Progetto" table="PROGETTO">
+    <id column="ID_PROGRAMMA" name="codice">
+      <generator class="assigned"/>
+    </id>
+    <property column="REPARTO" name="reparto"/>
+    <property column="CLASSE_DI_RISCHIO" name="classeRischio"/>
+    <property column="VALORE_ECONOMICO" name="valoreEconomico"/>
+    <property column="DURATA_CONTRATTO" name="durataContratto"/>
+    <property column="OGGETTO_FORNITURA" name="oggettoFornitura"/>
+    <property column="NOME_CLIENTE" name="nomeCliente"/>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="paese">
+      <property column="PAESE_R1" name="R1"/>
+      <property column="PAESE_R2" name="R2"/>
+      <property column="PAESE_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="mercatoCliente">
+      <property column="MERCATO_CLIENTE_R1" name="R1"/>
+      <property column="MERCATO_CLIENTE_R2" name="R2"/>
+      <property column="MERCATO_CLIENTE_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="contratto">
+      <property column="CONTRATTO_R1" name="R1"/>
+      <property column="CONTRATTO_R2" name="R2"/>
+      <property column="CONTRATTO_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="composizionePartnership">
+      <property column="COMPOSIZIONE_PARTNERSHIP_R1" name="R1"/>
+      <property column="COMPOSIZIONE_PARTNERSHIP_R2" name="R2"/>
+      <property column="COMPOSIZIONE_PARTNERSHIP_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="ingegneria">
+      <property column="INGEGNERIA_R1" name="R1"/>
+      <property column="INGEGNERIA_R2" name="R2"/>
+      <property column="INGEGNERIA_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="approvvigionamento">
+      <property column="APPROVVIGIONAMENTO_R1" name="R1"/>
+      <property column="APPROVVIGIONAMENTO_R2" name="R2"/>
+      <property column="APPROVVIGIONAMENTO_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="fabbricazione">
+      <property column="FABBRICAZIONE_R1" name="R1"/>
+      <property column="FABBRICAZIONE_R2" name="R2"/>
+      <property column="FABBRICAZIONE_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="montaggio">
+      <property column="MONTAGGIO_R1" name="R1"/>
+      <property column="MONTAGGIO_R2" name="R2"/>
+      <property column="MONTAGGIO_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.LivelloDiRischio" name="avviamento">
+      <property column="AVVIAMENTO_R1" name="R1"/>
+      <property column="AVVIAMENTO_R2" name="R2"/>
+      <property column="AVVIAMENTO_R3" name="R3"/>
+    </component>
+    <component class="persistentclasses.attributes.ImpattoStrategico" name="im">
+      <property column="IM" name="value"/>
+    </component>
+    <component class="persistentclasses.attributes.ImpattoStrategico" name="ic">
+      <property column="IC" name="value"/>
+    </component>
+    <component class="persistentclasses.attributes.ImpattoStrategico" name="ip">
+      <property column="IP" name="value"/>
+    </component>
+    <component class="persistentclasses.attributes.ImpattoStrategico" name="ia">
+      <property column="IA" name="value"/>
+    </component>
+    <component class="persistentclasses.attributes.ImpattoStrategico" name="ipp">
+      <property column="IPP" name="value"/>
+    </component>
+    <!-- campi aggiunti, ma non usati. togliere il commento per attivarne il salvataggio
+    <property column="DATA_INIZIO" name="dataInizio"/>
+    <property column="DATA_FINE" name="dataFine"/>
+    -->
+    <property column="IS_CASE" name="isCase"/>
+    <property column="IS_OPEN" name="isOpen"/>
+  </class>
+</hibernate-mapping>
