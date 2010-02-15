@@ -4,12 +4,16 @@ import persistentclasses.attributes.ImpattoStrategico;
 import persistentclasses.attributes.LivelloDiRischio;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import jcolibri.cbrcore.Attribute;
+import jcolibri.method.retrieve.NNretrieval.NNConfig;
+import jcolibri.method.retrieve.NNretrieval.similarity.GlobalSimilarityFunction;
+import jcolibri.method.retrieve.NNretrieval.similarity.LocalSimilarityFunction;
 import jcolibri.method.retrieve.NNretrieval.similarity.local.Equal;
 import jcolibriext.method.retrieve.NNretrieval.similarity.global.AdvancedAverage;
 import jcolibriext.method.retrieve.NNretrieval.similarity.local.IntervalImpattoStrategico;
@@ -24,7 +28,7 @@ import org.hibernate.cfg.Configuration;
  */
 public class Progetto 
 			extends persistentBase 
-			implements jcolibri.cbrcore.CaseComponent, projectriskcbr.config.SelfNNConfigurator {
+			implements jcolibri.cbrcore.CaseComponent, projectriskcbr.config.SelfNNConfigurator, projectriskcbr.config.SelfNNTotalSimilarityConfigurator {
     private boolean isCase; //indica se il progetto va usato come caso per successivi retrieve
     private boolean isOpen; //indica se il progetto e' ancora aperto o è gia' stato chiuso
     
@@ -545,5 +549,30 @@ public class Progetto
 			
 			return new Equal();
 		}
+	}
+
+	@Override
+	public NNConfig getTotalSimilarityConfig(NNConfig simConfig) {
+		if(simConfig == null)
+			simConfig = new NNConfig();
+		
+		Field[] allFields = this.getClass().getDeclaredFields();
+		for(Field field : allFields) {
+			Class<?> fieldClass = field.getClass();
+			String fieldName = field.getName();
+			if(	fieldClass.equals(LivelloDiRischio.class) ||
+				fieldClass.equals(ImpattoStrategico.class)) {
+				Object similarityFunction = this.getSimilarityFunction(fieldName);
+				if(similarityFunction instanceof LocalSimilarityFunction)
+					simConfig.addMapping(new Attribute(fieldName, fieldClass), (LocalSimilarityFunction)this.getSimilarityFunction(fieldName));
+				else
+					simConfig.addMapping(new Attribute(fieldName, fieldClass), (GlobalSimilarityFunction)this.getSimilarityFunction(fieldName));
+			}				
+		}
+		
+		LivelloDiRischio dummy = new LivelloDiRischio();
+		dummy.getTotalSimilarityConfig(simConfig);
+		
+		return simConfig;
 	}
 }

@@ -1,13 +1,16 @@
 package persistentclasses.attributes;
 
+import jcolibri.cbrcore.Attribute;
+import jcolibri.method.retrieve.NNretrieval.NNConfig;
+import jcolibri.method.retrieve.NNretrieval.similarity.LocalSimilarityFunction;
 import jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;
 
 /**
  * La classe descrive i livelli di rischio per un progetto
  */
 public class LivelloDiRischio 
-		implements projectriskcbr.config.SelfNNConfigurator {
-	public static final Integer RANGE = 5;
+		implements projectriskcbr.config.SelfNNConfigurator, projectriskcbr.config.SelfNNTotalSimilarityConfigurator {
+	public static final Integer RANGE = 3;
 	
     private int R1;
     private int R2;
@@ -57,5 +60,17 @@ public class LivelloDiRischio
 
 	public Object getSimilarityFunction(String arg0) {
 		return new Interval(LivelloDiRischio.RANGE);
+	}
+
+	@Override
+	public NNConfig getTotalSimilarityConfig(NNConfig simConfig) {
+		if(simConfig == null)
+			simConfig = new NNConfig();
+		
+		simConfig.addMapping(new Attribute("R1", this.getClass()), (LocalSimilarityFunction)this.getSimilarityFunction("R1"));
+		simConfig.addMapping(new Attribute("R2", this.getClass()), (LocalSimilarityFunction)this.getSimilarityFunction("R2"));
+		simConfig.addMapping(new Attribute("R3", this.getClass()), (LocalSimilarityFunction)this.getSimilarityFunction("R3"));
+
+		return simConfig;
 	}
 }
