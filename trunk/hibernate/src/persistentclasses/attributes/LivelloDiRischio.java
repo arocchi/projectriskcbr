@@ -15,41 +15,43 @@ public class LivelloDiRischio
 					projectriskcbr.config.SelfNNTotalSimilarityConfigurator {
 	public static final Integer RANGE = 3;
 	
-    private int R1;
-    private int R2;
-    private int R3;
+    private Integer R1;
+    private Integer R2;
+    private Integer R3;
 
     public LivelloDiRischio(int a, int b ,int c){
 
-        R1 = a;
-        R2 = b;
-        R3 = c;
+        R1 = new Integer(a);
+        R2 = new Integer(b);
+        R3 = new Integer(c);
     }
 
     //default constructor
     public LivelloDiRischio(){
+    	/*
         //di default sono impostati a -1 (campo non valido)
         R1 = -1;
         R2 = -1;
         R3 = -1;
+        */
     }
 
     public void setR1(int x){
-        R1 = x;
+        R1 = new Integer(x);
     }
     public int getR1(){
         return R1;
     }
 
     public void setR2(int x){
-        R2 = x;
+        R2 = new Integer(x);
     }
     public int getR2(){
         return R2;
     }
 
     public void setR3(int x){
-        R3 = x;
+        R3 = new Integer(x);
     }
     public int getR3(){
         return R3;
