@@ -9,6 +9,6 @@ public class SimpleParser {
     public static void main(String[] args)
     {
         DesktopParser dp = new DesktopParser();
-        dp.parser("/home/narduz/Scaricati/DataBaseNew.xls");
+        dp.parser("C:\\Users\\nihil\\Desktop\\projSisInt\\DataBaseNew.xls");
     }
 }
