@@ -1,10 +1,6 @@
 package persistentclasses;
 
-import persistentclasses.attributes.ImpattoStrategico;
-import persistentclasses.attributes.LivelloDiRischio;
-
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,6 +18,9 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+
+import persistentclasses.attributes.ImpattoStrategico;
+import persistentclasses.attributes.LivelloDiRischio;
 
 /**
  * Classe che rappresenta un singolo progetto nel database.
