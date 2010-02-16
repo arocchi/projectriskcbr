@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import persistentclasses.*;
 import persistentclasses.attributes.*;
-import funzioniprova.*;
 
 /**
  *
@@ -26,8 +25,8 @@ public class dataFromDB {
             out.println("PART3");
              * */
 
-            Elemento.setIntero(1);
-            out.print(Elemento.getIntero());
+    //        Elemento.setIntero(1);
+      //      out.print(Elemento.getIntero());
             switch(type) {
 
                 // Getting the checklist of CLIENTE

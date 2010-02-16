@@ -62,7 +62,7 @@ public abstract class persistentBase {
      * @return lista di oggetti prodotti dalla query
      * @throws Exception
      */
-    protected static List<?> executeQuery(String queryString) throws Exception
+    public static List<?> executeQuery(String queryString) throws Exception
     {
         if(SessionObject.session == null)// || tx == null)
             throw new Exception("executeQuery() operation needs a previous newTransaction() operation\n");

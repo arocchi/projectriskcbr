@@ -15,7 +15,7 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            switch(16)
+            switch(17)
             {
                 //con mie funzioni
                 case 1:
@@ -424,6 +424,19 @@ public class Main {
                     SessionObject.endTransaction();
                     //System.out.println("|| -> \n" + p.getClass().getName()+"||");
                     break;
+                }
+                case 17:
+                {
+                    Rischio r = new Rischio();
+                    r.setCodice("R3");
+                    SessionObject.getStarted();
+                    SessionObject.newTransaction();
+                    //r.caricaAzioni();
+                    //r.aggiungiAzione(7, action);
+                    //r.salvaAzioni();
+                    r.write();
+                    //System.out.println(r.getAzioni());
+                    SessionObject.endTransaction();
                 }
             }
 
