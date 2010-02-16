@@ -225,9 +225,6 @@ public class ProgettoTest {
 		
 		// testing totalSimilaritySimConfig for similarity results on group A results and group B results
 		Collection<RetrievalResult> globallySortedGroupA = NNScoringMethod.evaluateSimilarity(groupATop2, query, totalSimilaritySimConfig);
-		for(RetrievalResult rr : globallySortedGroupA) {
-			System.out.println(rr.get_case().getID() + " : " + rr.getEval());
-		}
 		RetrievalResult[] globallySortedGroupAAsArray = new RetrievalResult[3]; 
 		globallySortedGroupAAsArray = globallySortedGroupA.toArray(globallySortedGroupAAsArray);
 		Assert.assertEquals("cbrCaseO should be first ranked for globally sorted groupA", 

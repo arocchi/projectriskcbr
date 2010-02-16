@@ -52,12 +52,22 @@ public abstract class AdvancedGlobalSimilarityFunction implements GlobalSimilari
 		Attribute at2 = new Attribute(at1.getName(), componentOfQuery.getClass());
 		
 		try{
-			if((gsf = numSimConfig.getGlobalSimilFunction(at1)) != null)
+//			java.beans.PropertyDescriptor pd = new java.beans.PropertyDescriptor(at1.getName(),at1.getDeclaringClass());
+//			pd.getReadMethod().invoke(componentOfCase, (Object[])null);
+			
+			if(	(	((gsf = numSimConfig.getGlobalSimilFunction(at1)) != null) || 
+					((lsf = numSimConfig.getLocalSimilFunction(at1))  != null)) &&
+				at1.getValue(componentOfCase) == null) 
+			{
+				values[ivalue] = 0;
+				weights[ivalue++] = 0;
+			} 
+			else if(gsf != null)
 			{
 				values[ivalue] = gsf.compute((CaseComponent)at1.getValue(componentOfCase), (CaseComponent)at2.getValue(componentOfQuery), _case, _query, numSimConfig);
-				weights[ivalue++] = numSimConfig.getWeight(at1) * localSimConfig.getWeight(at1); 
+				weights[ivalue++] = numSimConfig.getWeight(at1) * localSimConfig.getWeight(at1);
 			}
-			else if((lsf = numSimConfig.getLocalSimilFunction(at1))  != null)
+			else if(lsf != null)
 			{
 	       		    	if(lsf instanceof InContextLocalSimilarityFunction)
 	       		    	{
