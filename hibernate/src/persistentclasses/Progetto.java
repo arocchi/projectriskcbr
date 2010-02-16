@@ -555,6 +555,8 @@ public class Progetto
 		if(simConfig == null)
 			simConfig = new NNConfig();
 		
+		simConfig.setDescriptionSimFunction(new AdvancedAverage());
+		
 		Field[] allFields = this.getClass().getDeclaredFields();
 		for(Field field : allFields) {
 			Class<?> fieldClass = field.getClass();
