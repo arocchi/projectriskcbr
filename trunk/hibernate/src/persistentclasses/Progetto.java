@@ -94,6 +94,21 @@ public class Progetto
         ia = new ImpattoStrategico();
         ipp = new ImpattoStrategico();
         */
+        
+        paese 					= null;
+        mercatoCliente 			= null;
+        contratto 				= null;
+        composizionePartnership = null;
+        ingegneria 				= null;
+        approvvigionamento		= null;
+        fabbricazione			= null;
+        montaggio 				= null;
+        avviamento				= null;
+        im 						= null;
+        ic						= null;
+        ip						= null;
+        ia						= null;
+        ipp						= null;
     }
 
     //setters e getters
@@ -561,16 +576,20 @@ public class Progetto
 		
 		Field[] allFields = this.getClass().getDeclaredFields();
 		for(Field field : allFields) {
-			Class<?> fieldClass = field.getClass();
+			Class<?> fieldClass = field.getType();
 			String fieldName = field.getName();
 			if(	fieldClass.equals(LivelloDiRischio.class) ||
 				fieldClass.equals(ImpattoStrategico.class)) {
 				Object similarityFunction = this.getSimilarityFunction(fieldName);
 				if(similarityFunction instanceof LocalSimilarityFunction)
-					simConfig.addMapping(new Attribute(fieldName, fieldClass), (LocalSimilarityFunction)similarityFunction);
+					simConfig.addMapping(new Attribute(fieldName, this.getClass()), (LocalSimilarityFunction)similarityFunction);
+				else if(similarityFunction instanceof GlobalSimilarityFunction)
+					simConfig.addMapping(new Attribute(fieldName, this.getClass()), (GlobalSimilarityFunction)similarityFunction);
 				else
-					simConfig.addMapping(new Attribute(fieldName, fieldClass), (GlobalSimilarityFunction)similarityFunction);
-			}				
+					System.err.println(	"Error in " + this.getClass().getName() 
+										+ ".getTotalSimilarityConfig(): " + "similarityFunction for "
+										+ fieldName + " is not a LocalSimilarityFunction nor a GlobalSimilarityFunction");
+			}
 		}
 		
 		LivelloDiRischio dummy = new LivelloDiRischio();
