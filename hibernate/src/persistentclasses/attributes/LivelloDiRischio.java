@@ -34,6 +34,10 @@ public class LivelloDiRischio
         R2 = -1;
         R3 = -1;
         */
+    	
+    	R1 = null;
+        R2 = null;
+        R3 = null;
     }
 
     public void setR1(int x){
