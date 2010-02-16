@@ -1,12 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 import persistentclasses.*;
-import persistentclasses.attributes.*;
 
 /**
  *
@@ -17,34 +12,26 @@ public class dataFromDB {
 
         //parte provvisoria, va sostituita col meccanismo delle sessioni
         try{
-            /*
-            out.println("PART1");
+            
             SessionObject.getStarted();
-            out.println("PART2");
-            SessionObject.newTransaction();
-            out.println("PART3");
-             * */
+            SessionObject.newTransaction();           
 
-    //        Elemento.setIntero(1);
-      //      out.print(Elemento.getIntero());
+            List lista;
+            Iterator it;
+            int index;
             switch(type) {
 
                 // Getting the checklist of CLIENTE
                 case 0:
-
-
-
-                    // HIBERNATE => Select nome FROM cliente
-                    /*
-                    List clienti = Progetto.executeQuery("select distinct nomeCliente from Progetto");
-                    Iterator it = clienti.iterator();
-                    int index = 0;
+                    lista = Progetto.executeQuery("select distinct nomeCliente from Progetto");
+                    it = lista.iterator();
+                    index = 0;
                     while(it.hasNext()) {
                         String cl = (String) it.next();
                         out.println("<nome idName=\""+index+"\">"+cl+"</nome>");
                         index++;
-                    }*/
-                    /*
+                    }
+                    /* EXAMPLE OUTPUT
                      * OUTPUT (for each record):
                      * out.println("<nome idName="idCliente">nomeCliente</nome>");
                      * out.println("<nome idName="1">nomeCliente1</nome>");
@@ -54,26 +41,41 @@ public class dataFromDB {
                 // Getting the checklist of OGGETTOFORNITURA
                 case 1:
                     // The same of above
+                    lista = Progetto.executeQuery("select distinct oggettoFornitura from Progetto");
+                    it = lista.iterator();
+                    index = 0;
+                    while(it.hasNext()) {
+                        String of = (String) it.next();
+                        out.println("<oggettoFornitura idName=\""+index+"\">"+of+"</oggettoFornitura>");
+                        index++;
+                    }
                     //out.println("<oggettoFornitura idName="1">nomeCliente1</oggettoFornitura>");
                     break;
 
                 // Getting the checklist of REPARTO
                 case 2:
                     // The same of above
+                    lista = Progetto.executeQuery("select distinct reparto from Progetto");
+                    it = lista.iterator();
+                    index = 0;
+                    while(it.hasNext()) {
+                        int rep = (Integer) it.next();
+                        out.println("<reparto idName=\""+index+"\">"+rep+"</reparto>");
+                        index++;
+                    }
                     //out.println("<reparto idName="1">nomeCliente1</reparto>");
                     break;
             }
-            out.println("PART4");
             SessionObject.endTransaction();
-            out.println("PART5");
         } catch (Exception e){out.println(e);}
 
+        //out.println("END");
         //out.println("Hai richiesto: " + type + "\n");
         
-        out.println("<name>Franci</name>");
+        /*out.println("<name>Franci</name>");
         out.println("<name>Luigi</name>");
         out.println("<name>Maria</name>");
-        out.println("<name>Ettore</name>");
+        out.println("<name>Ettore</name>");*/
         
     }
 }
