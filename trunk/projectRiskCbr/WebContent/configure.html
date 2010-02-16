@@ -1,0 +1,146 @@
+<html>
+<head>
+<title>jCOLIBRI 2 TravelExample</title>
+</head>
+<body>
+<table border="0" cellpadding="2" cellspacing="" width="100%">
+
+  <tr>
+  <td>
+	<a href="http://gaia.fdi.ucm.es"><img src="img/gaia.gif" border="0"></a>
+  </td>
+  <td colspan="2" valign="middle" bgcolor="#738EAB">
+
+       <h2><font face="arial" color="#ffffff"> GAIA - Group for Artificial Intelligence Applications</font></h2>
+
+	<hr color="White">
+  </td>
+  </tr>
+</table>
+<p>
+Configure application:
+<center>
+<form action="configure.jsp" method="post">
+
+<table border="0">
+
+<tr>
+       <td>Connector:</td>
+       <td>
+	    <select name="connector">
+	     <option>Data Base</option>
+        </select>
+	   </td>
+</tr>
+
+<tr>
+       <td>Configuration file:</td>
+       <td>
+	    <select name="configfile">
+	     <option>Test4</option>
+        </select>
+	   </td>
+</tr>
+
+
+<tr>
+       <td>In memory organization:</td>
+       <td>
+	    <select name="inmemory">
+	     <option>Lineal Case Base</option>
+        </select>
+	   </td>
+</tr>
+</table>
+
+<br>
+
+<input type="submit" value="Configure"></form>
+
+</center>
+
+<hr>
+<h3>databaseconfig.xml</h3>
+<pre>
+&lt;DataBaseConfiguration&gt;
+	&lt;HibernateConfigFile&gt;jcolibri/test/test4/hibernate.cfg.xml&lt;/HibernateConfigFile&gt;
+	&lt;DescriptionMappingFile&gt;jcolibri/test/test4/TravelDescription.hbm.xml&lt;/DescriptionMappingFile&gt;
+	&lt;DescriptionClassName&gt;jcolibri.test.test4.TravelDescription&lt;/DescriptionClassName&gt;
+	&lt;SolutionMappingFile&gt;jcolibri/test/test4/TravelSolution.hbm.xml&lt;/SolutionMappingFile&gt;
+	&lt;SolutionClassName&gt;jcolibri.test.test4.TravelSolution&lt;/SolutionClassName&gt;
+&lt;/DataBaseConfiguration&gt;
+</pre>
+
+<h3>hibernate.cfg.xml Hibernate Configuration</h3>
+<pre>
+&lt;hibernate-configuration>
+
+    &lt;session-factory>
+
+        &lt;!-- Database connection settings -->
+        &lt;property name="connection.driver_class">com.mysql.jdbc.Driver&lt;/property>
+        &lt;property name="connection.url">jdbc:mysql://localhost:3306/travelext&lt;/property>
+        &lt;property name="connection.username">xxxx&lt;/property>
+        &lt;property name="connection.password">yyyy&lt;/property>
+
+        &lt;!-- JDBC connection pool (use the built-in) -->
+        &lt;property name="connection.pool_size">1&lt;/property>
+
+        &lt;!-- SQL dialect -->
+        &lt;property name="dialect">org.hibernate.dialect.MySQLDialect&lt;/property>
+
+        &lt;!-- Enable Hibernate's automatic session context management -->
+        &lt;property name="current_session_context_class">thread&lt;/property>
+
+        &lt;!-- Disable the second-level cache  -->
+        &lt;property name="cache.provider_class">org.hibernate.cache.NoCacheProvider&lt;/property>
+
+        &lt;!-- Echo all executed SQL to stdout -->
+        &lt;property name="show_sql">true&lt;/property>
+    
+    &lt;/session-factory&gt;
+</pre>
+<h3>TravelDescription.hbm.xml Travel Description Mapping</h3>
+<pre>
+&lt;hibernate-mapping default-lazy="false">
+&lt;class name="jcolibri.test.test4.TravelDescription" table="travel">
+	&lt;id name="caseId" column="caseId">
+	&lt;/id>
+	&lt;property name="HolidayType" column="HolidayType"/>
+	&lt;property name="NumberOfPersons" column="NumberOfPersons"/>
+	&lt;many-to-one name="Region" column="regionId" not-null="true" cascade="save-update"/> 
+	&lt;property name="Transportation" column="Transportation"/>
+	&lt;property name="Duration" column="Duration"/>
+	&lt;property name="Season" column="Season"/>
+	&lt;property name="Accommodation" column="Accommodation">
+		&lt;type name="jcolibri.connector.databaseutils.EnumUserType">
+			&lt;param name="enumClassName">jcolibri.test.test4.TravelDescription$AccommodationTypes&lt;/param>
+    	&lt;/type>
+  	&lt;/property>
+&lt;/class>
+
+&lt;class name="jcolibri.test.test4.Region" table="region">
+	&lt;id name="id" column="regionId">
+		&lt;generator class="increment"/>
+	&lt;/id>
+	&lt;property name="region" column="RegionName"/>
+	&lt;property name="city" column="NearestCity"/>
+	&lt;property name="airport" column="Airport"/>
+	&lt;property name="currency" column="Currency"/>
+&lt;/class>
+&lt;/hibernate-mapping>
+</pre>
+<h3>TravelSolution.hbm.xml Travel Solution Mapping</h3>
+<pre>
+&lt;hibernate-mapping default-lazy="false">
+&lt;class name="jcolibri.test.test4.TravelSolution" table="travel">
+	&lt;id name="id" column="caseId">
+	&lt;/id>
+	&lt;property name="price" column="Price"/>
+	&lt;property name="hotel" column="Hotel"/>	
+&lt;/class>
+
+&lt;/hibernate-mapping&gt;
+</pre>
+</body>
+</html>
