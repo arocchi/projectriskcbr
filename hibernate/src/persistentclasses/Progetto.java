@@ -77,6 +77,7 @@ public class Progetto
         oggettoFornitura = new String();
         nomeCliente = new String();
 
+        /*
         //i valori di default per i restanti campi sono assegnati dai relativi costruttori
         paese = new LivelloDiRischio();
         mercatoCliente = new LivelloDiRischio();
@@ -92,6 +93,7 @@ public class Progetto
         ip = new ImpattoStrategico();
         ia = new ImpattoStrategico();
         ipp = new ImpattoStrategico();
+        */
     }
 
     //setters e getters
@@ -565,9 +567,9 @@ public class Progetto
 				fieldClass.equals(ImpattoStrategico.class)) {
 				Object similarityFunction = this.getSimilarityFunction(fieldName);
 				if(similarityFunction instanceof LocalSimilarityFunction)
-					simConfig.addMapping(new Attribute(fieldName, fieldClass), (LocalSimilarityFunction)this.getSimilarityFunction(fieldName));
+					simConfig.addMapping(new Attribute(fieldName, fieldClass), (LocalSimilarityFunction)similarityFunction);
 				else
-					simConfig.addMapping(new Attribute(fieldName, fieldClass), (GlobalSimilarityFunction)this.getSimilarityFunction(fieldName));
+					simConfig.addMapping(new Attribute(fieldName, fieldClass), (GlobalSimilarityFunction)similarityFunction);
 			}				
 		}
 		
