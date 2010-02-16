@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<description>Test configuration</description>
+	<groups>
+  		<group>
+  			<name>group A</name>
+			<attributes>
+    			<attribute>
+     				<name>HolidayType</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+		    </attributes>
+  		</group>
+  		<group>
+  			<name>group B</name>
+    		<attributes>
+    			<attribute>
+    				<name>NumberOfPersons</name>
+		    		<weight>1.0</weight>
+    			</attribute>
+		    </attributes>
+  		</group>
+  		<group>
+  			<name>group C</name>
+  			<attributes>
+  				<attribute>
+  					<name>Region</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>Region.region</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+		  	</attributes>
+  		</group>
+	</groups>
+</config>
