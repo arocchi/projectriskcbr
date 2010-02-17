@@ -375,6 +375,11 @@ public class Progetto
         }
         return this;
     }
+    
+    public List<Rischio> getRischi() {
+    	return this.rischi;
+    }
+    
     /**
      * Aggiunge il rischio al progetto.
      * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
@@ -399,6 +404,20 @@ public class Progetto
         return this;
     }
 
+    /**
+     * Removes specified Rischio r from current Progetto instance
+     * @param r risk to be removed
+     * @return this
+     * @throws Exception if r is null
+     */
+    public Progetto rimuoviRischio(Rischio r) throws Exception
+    {
+    	if(r == null)
+    		throw new Exception("tried to call Progetto.rimuoviRischio() with a null value");
+    	
+    	return this.rimuoviRischio(r.getCodice());
+    }
+    
     /**
      * Rimuove il rischio con codice=id dal progetto e dal DB.
      * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
