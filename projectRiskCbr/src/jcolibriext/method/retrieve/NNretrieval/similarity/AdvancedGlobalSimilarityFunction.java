@@ -57,7 +57,8 @@ public abstract class AdvancedGlobalSimilarityFunction implements GlobalSimilari
 			
 			if(	(	((gsf = numSimConfig.getGlobalSimilFunction(at1)) != null) || 
 					((lsf = numSimConfig.getLocalSimilFunction(at1))  != null)) &&
-				at1.getValue(componentOfCase) == null) 
+				(	at1.getValue(componentOfCase) == null ||
+					at2.getValue(componentOfQuery) == null)) 
 			{
 				values[ivalue] = 0;
 				weights[ivalue++] = 0;
