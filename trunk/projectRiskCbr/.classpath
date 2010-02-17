@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 6.0/lib/jsp-api.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 6.0/lib/servlet-api.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jCOLIBRI2-Classes"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
