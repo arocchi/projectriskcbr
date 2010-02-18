@@ -35,6 +35,12 @@ public class getData extends HttpServlet {
                     dataFromDB cl = new dataFromDB(1, out);
                 } else if (type.equals("reparto")) {
                     dataFromDB cl = new dataFromDB(2, out);
+                } else if (type.equals("risksbygroup")) {
+                    dataFromDB cl = new dataFromDB(3, out);
+                } else if (type.equals("risksnogroup")) {
+                    dataFromDB cl = new dataFromDB(4, out);
+                } else if (type.equals("risksbycategory")) {
+                    dataFromDB cl = new dataFromDB(5, out);
                 } else {
                     out.println("<error>Type not allowed</error>");
                 }
