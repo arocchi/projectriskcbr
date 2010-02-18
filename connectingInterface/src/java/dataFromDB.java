@@ -147,7 +147,7 @@ public class dataFromDB {
         List<Integer> suggested = alreadySuggestedCkRisks();
         Iterator it = suggested.iterator();
         if(it.hasNext())
-            query = query + "where ";
+            query = query + "where ";//XXX REMOVE THE FIRST AND
         while(it.hasNext()){
             Integer current = (Integer) it.next();
             query = query + " and codChecklist != "+current;
