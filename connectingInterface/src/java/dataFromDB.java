@@ -68,8 +68,14 @@ public class dataFromDB {
                     break;
                 //give_newproject
                 case 101:
+                {
                     //reading the data of the new created project to insert them into a session variable
-                    /*XXX*/
+
+                    //reading project from request
+                    Progetto p = extractProjectFromRequestDummy(request);/*XXX sostituire con funzione effettiva*/
+                    //saving it into session variable
+                    session.setAttribute("Progetto", p);
+                }
                     break;
                 //take_risksbygroup
                 case 3:
@@ -145,6 +151,7 @@ public class dataFromDB {
                         break;
 
                     //if so, print
+                    out.println("<root idName=\"Selected\">");
                     for(int i=0; i<ckIds.length; i++){
                         CkRischi r = (CkRischi) CkRischi.getById(CkRischi.class, Integer.parseInt(ckIds[i].trim()));
                         if(r!=null)
@@ -161,56 +168,118 @@ public class dataFromDB {
                                         "\t\t<impattoIniziale></impattoIniziale>"+
                                     "\t</rischio>");
                     }
+                    out.println("</root>");
                 }
                     break;
                 //give_allrisksforproject
                 case 103:
-                    //user give me data about all risks addedto the current project
+                    //user give me data about all risks added to the current project
                     //save them into session
-                    /*XXX*/
 
+                    //reading risks from the current request
+                    lista = extractRisksFromRequestDummy(request);/*XXX sostituire con vera funzione*/
+                    //saving these datas into the current session
+                    session.setAttribute("RisksAddedToProject",lista);
                     break;
                 //take_actionsbyrisk
                 case 6:
+                {
                     //giving user all the suggested actions from previously selected risks
                     /*XXX*/
-                    //dummy
-                    index = 0;
-                    lista = Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P7R1'");
-                    out.println("<rischio idName=\"1\">\n\t<codiceChecklist>CODICE Checklist</codiceChecklist>");
-                    it = lista.iterator();
-                    while(it.hasNext()){
-                        Azioni a = (Azioni) it.next();
-                        out.println("\t<azione idName=\""+(index++)+"\">\n"+
-                                    "\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>"+
-                                    "\t\t<stato>"+a.getStato()+"</stato>"+
-                                    "\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>"+
-                                    "\t\t<revisione>"+a.getRevisione()+"</revisione>"+
-                                    "\t\t<intensita>"+a.getIntensita()+"</intensita>"+
-                                    "\t</azione>");
-                    }
-                    out.println("</rischio>");
 
+                    //reading project from session
+                    Progetto p = (Progetto) session.getAttribute("Progetto");
+                    if(p==null){
+                        //terminating: if a suggestion has to be made, a project has to be previously created
+                        out.println("<error>Erorr: must create a project before request suggestion</error>");
+                        break;
+                    }
+                    //reading given risks from session
+                    List riskList = (List<Rischio>) session.getAttribute("RisksAddedToProject");
+                    if(riskList==null || riskList.isEmpty()){
+                        //terminating: as previuos check
+                        out.println("<error>Erorr: must choose risks before adding actions</error>");
+                        break;
+                    }
+
+                    //if passed previous checks, we have project and risks. Give suggestions
+                    index = 0; //action index
+                    int riskIndex = 0; //risk index
+
+                    //for each risk, giving correspondent suggestion
+                    Iterator riskIt = riskList.iterator();
+                    while(riskIt.hasNext()){
+                        Rischio r = (Rischio) riskIt.next();
+                        lista = suggestActionsDummy(p,r);//XXX replace with real function
+                        out.println("<rischio idName=\""+(riskIndex++)+"\">\n"+
+                                        "\t<codiceChecklist>"+r.getCodiceChecklist()+"</codiceChecklist>");
+                        it = lista.iterator();
+                        while(it.hasNext()){
+                            Azioni a = (Azioni) it.next();
+                            out.println("\t<azione idName=\""+(index++)+"\">\n"+
+                                        "\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>"+
+                                        "\t\t<stato>"+a.getStato()+"</stato>"+
+                                        "\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>"+
+                                        "\t\t<revisione>"+a.getRevisione()+"</revisione>"+
+                                        "\t\t<intensita>"+a.getIntensita()+"</intensita>"+
+                                        "\t</azione>");
+                        }
+                        out.println("</rischio>");
+                    }
+                }
                     break;
                 //give_allactionsforproject
                 case 104:
                     //user gives me all actions added to the current project
                     /*XXX format to define*/
+                    
+                    //reading actions list from request
+                    lista = extractActionsFromRequestDummy(request);
+                    //saving actions into session
+                    session.setAttribute("ActionsAddedToProject",lista);
                     break;
                 //take_digest
                 case 7:
+                {
                     //giving user the entire project, to check it before writing it into DB
-                    /*XXX*/
+                    /*XXX RICORDARSI DI SETTARE LO STORICO IN QUALCHE MODO*/
+
+                    //reading project from session
+                    Progetto p = (Progetto) session.getAttribute("Progetto");
+                    if(p==null){
+                        //terminating: if a suggestion has to be made, a project has to be previously created
+                        out.println("<error>Erorr: must create a project before confirm project creation</error>");
+                        break;
+                    }
+                    //reading given risks from session
+                    List riskList = (List<Rischio>) session.getAttribute("RisksAddedToProject");
+                    if(riskList==null || riskList.isEmpty()){
+                        //terminating: as previuos check
+                        out.println("<error>Erorr: must choose risks before confirm project creation</error>");
+                        break;
+                    }
+                    //reading given actions from session
+                    List actionList = (List<Azioni>) session.getAttribute("ActionsAddedToProject");
+                    if(actionList==null || actionList.isEmpty()){
+                        //terminating: as previuos check
+                        out.println("<error>Erorr: must choose actions before confirm project creation</error>");
+                        break;
+                    }
+
+                    //if here, all checks are passed. Printing the digest
+                    printDigestDummy(p,riskList,actionList,out);
+                }
                     break;
                 //give_confirm
                 case 105:
                     //if data=="true" writes the new project and close session
-                    //if data=="false" exits and close session
+                    //if data=="false" exits and closes session
                     //server will answer "ok" or "error"
                     /*XXX formato della risposta da definire*/
                     break;
                 //take_openedprojects
                 case 8:
+                {
                     //giving the list of all open projects (that can be modified)
 
                     //retrieving open projects from DB
@@ -224,6 +293,7 @@ public class dataFromDB {
                         Progetto p = (Progetto) it.next();
                         out.println(p.getCodice());
                     }
+                }
                     break;
                 //give_whatopenedproject
                 case 106:
@@ -396,7 +466,26 @@ public class dataFromDB {
     private List risksGroup(int groupnumber){
         return new LinkedList();
     }
-
+    //function to create a list of risks from the current request
+    private List extractRisksFromRequest(HttpServletRequest request){
+        return new LinkedList();
+    }
+    //function to extract a project from the current request
+    private Progetto extractProjectFromRequest(HttpServletRequest request){
+        return new Progetto();
+    }
+    //function to suggest actions for the 'p' project and the 'r' risk
+    private List suggestActions(Progetto p, Rischio r){
+        return new LinkedList();
+    }
+    //function to extract actions from the current request
+    private List extractActionsFromRequest(HttpServletRequest request){
+        return new LinkedList();
+    }
+    //writes digest in xml
+    private void printDigest(Progetto p, List riskList, List actionList, PrintWriter out){
+        return;
+    }
     /**    
      * @return List of Risks that were not suggested in any group or in the NoGroup list
      */
@@ -418,7 +507,7 @@ public class dataFromDB {
     }
 
 
-    //dummy functions used as stubs
+    /*DUMMY FUNCTIONS USED AS STUBS*/
     private int getNumberOfGroupsDummy(){
         return 3;
     }
@@ -428,6 +517,40 @@ public class dataFromDB {
         } catch (Exception e){}
 
         return new LinkedList();
+    }
+    private List extractRisksFromRequestDummy(HttpServletRequest request){
+        try{
+            return Rischio.executeQuery("from Rischio where codice = 'P1R1'");
+        } catch (Exception e){}
+        
+        return new LinkedList();
+    }
+    private Progetto extractProjectFromRequestDummy(HttpServletRequest request){
+        try{
+            Progetto p = (Progetto) Progetto.getById(Progetto.class, "P1");
+            p.setCodice(Progetto.generateAutoKey());
+            return p;
+        } catch (Exception e) {}
+
+        return new Progetto();
+    }
+    private List suggestActionsDummy(Progetto p, Rischio r){
+        try{
+            return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P1R1'");
+        } catch (Exception e){}
+
+        return new LinkedList();
+    }
+    private List extractActionsFromRequestDummy(HttpServletRequest request){
+        try{
+            return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P1R1'");
+        }catch(Exception e){}
+
+        return new LinkedList();
+    }
+    private void printDigestDummy(Progetto p, List riskList, List actionList, PrintWriter out){
+        out.println("<description>Descrizione del progetto con tutti i suoi campi</description>");
+        return;
     }
     private List risknoGroup(){
         try{
