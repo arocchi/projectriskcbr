@@ -110,7 +110,7 @@ public class dataFromDB {
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
                                     "\t<node label=\"Rischi non suggeriti\" type=\"categoria\" >");
                     index=0;//xml identifier
-                    lista = notSuggestedCkRisks(out);/*XXX pensare: tutti o solo quelli non selezionati prima?*/
+                    lista = notSuggestedCkRisks();/*XXX pensare: tutti o solo quelli non selezionati prima?*/
                     it = lista.iterator();
                     while(it.hasNext()){
                         CkRischi r = (CkRischi) it.next();
@@ -305,7 +305,7 @@ public class dataFromDB {
     /**    
      * @return List of Risks that were not suggested in any group or in the NoGroup list
      */
-    private List notSuggestedCkRisks(PrintWriter out){
+    private List notSuggestedCkRisks(){
         String query = "from CkRischi ";
         List<Integer> suggested = alreadySuggestedCkRisks();
         Iterator it = suggested.iterator();
@@ -315,7 +315,6 @@ public class dataFromDB {
             Integer current = (Integer) it.next();
             query = query + " and codChecklist != "+current;
         }
-        out.println(query);
         try{
             return Rischio.executeQuery(query);
         } catch (Exception e){}
