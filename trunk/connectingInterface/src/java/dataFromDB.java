@@ -48,7 +48,7 @@ public class dataFromDB {
                     index = 0;
                     while(it.hasNext()) {
                         String of = (String) it.next();
-                        out.println("<oggettoFornitura idName=\""+index+"\">"+of+"</oggettoFornitura>");
+                        out.println("<oggettoFornitura idName=\""+index+"\">"+of.replace('"','\'')+"</oggettoFornitura>");
                         index++;
                     }
                     //out.println("<oggettoFornitura idName="1">nomeCliente1</oggettoFornitura>");
@@ -115,7 +115,7 @@ public class dataFromDB {
                     while(it.hasNext()){
                         CkRischi r = (CkRischi) it.next();
                         out.println("\t\t<node codiceChecklist=\""+r.getCodChecklist()+
-                                    "\" label=\""+r.getDescrizione()+"\" type=\"rischio\" />");
+                                    "\" label=\""+r.getDescrizione().replace('"','\'')+"\" type=\"rischio\" />");
                     }
                     out.println("\t</node>\n</root>");
                     break;
@@ -135,7 +135,7 @@ public class dataFromDB {
                                         "\t\t<stato></stato>"+
                                         "\t\t<categoria></categoria>"+
                                         "\t\t<rVer></rVer>"+
-                                        "\t\t<descrizione>"+r.getDescrizione()+"</descrizione>"+
+                                        "\t\t<descrizione>"+r.getDescrizione().replace('"','\'')+"</descrizione>"+
                                         "\t\t<contingency></contingency>"+
                                         "\t\t<causa></causa>"+
                                         "\t\t<effetto></effetto>"+
@@ -216,7 +216,7 @@ public class dataFromDB {
                     while(it.hasNext()){
                         Descrizione d = (Descrizione) it.next();
                         out.println("\t\t<node codiceChecklist=\""+d.getCodChecklist()+
-                                    "\" label=\""+d.getDescrizione()+"\" type=\"rischio\" />");
+                                    "\" label=\""+d.getDescrizione().replace('"','\'')+"\" type=\"rischio\" />");
                     }
                     out.println("\t</node>\n</root>");
                     break;
@@ -244,7 +244,7 @@ public class dataFromDB {
                     String descrizione = request.getParameter("data");
                     Integer codChecklist = Integer.parseInt(request.getParameter("codicechecklist").trim());
                     CkRischi chk = (CkRischi) CkRischi.getById(CkRischi.class, codChecklist);
-                    chk.setDescrizione(descrizione);
+                    chk.setDescrizione(descrizione.replace('"','\''));
                     chk.update();
                 }
                     break;
@@ -263,7 +263,7 @@ public class dataFromDB {
                         while(it.hasNext()){
                             Descrizione d = (Descrizione) it.next();
                             out.println("\t\t<node codiceChecklist=\""+d.getCodChecklist()+
-                                        "\" label=\""+d.getDescrizione()+"\" type=\""+table+"\" />");
+                                        "\" label=\""+d.getDescrizione().replace('"','\'')+"\" type=\""+table+"\" />");
                         }
                         out.println("\t</node>\n");
                     }
@@ -288,14 +288,15 @@ public class dataFromDB {
     //utility functions
     private void printRisk(Rischio r, PrintWriter out, int index){
         out.println("\t<rischio idName=\""+index+"\">"+
+                        "\t\t<idRischio>"+r.getCodice()+"</idRischio>"+
                         "\t\t<codiceChecklist>"+r.getCodiceChecklist()+"</codiceChecklist>"+
                         "\t\t<stato>"+r.getStato().getStato()+"</stato>"+
                         "\t\t<categoria>"+r.getCategoria()+"</categoria>"+
                         "\t\t<rVer>"+r.getVerificato()+"</rVer>"+
-                        "\t\t<descrizione>"+r.getDescrizione()+"</descrizione>"+
+                        "\t\t<descrizione>"+r.getDescrizione().replace('"','\'')+"</descrizione>"+
                         "\t\t<contingency>"+r.getContingency()+"</contingency>"+
-                        "\t\t<causa>"+r.getCausa()+"</causa>"+
-                        "\t\t<effetto>"+r.getEffetto()+"</effetto>"+
+                        "\t\t<causa>"+r.getCausa().replace('"','\'')+"</causa>"+
+                        "\t\t<effetto>"+r.getEffetto().replace('"','\'')+"</effetto>"+
                         "\t\t<probIniziale>"+r.getProbabilitaIniziale()+"</probIniziale>"+
                         "\t\t<impattoIniziale>"+r.getImpattoIniziale()+"</impattoIniziale>"+
                     "\t</rischio>");
