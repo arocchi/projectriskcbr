@@ -78,7 +78,7 @@ public class dataFromDB {
                     int groupnumber = getNumberOfGroups();//XXX andrà letto da file di configurazione
                     index = 0;//index for the xml object to be created from the interface
                     for(int i=0; i<groupnumber; i++){
-                        out.println("<gruppo idName=\""+i+">\n\t<nomeGruppo>Gruppo "+i+"</nomeGruppo>");
+                        out.println("<gruppo idName=\""+i+"\">\n\t<nomeGruppo>Gruppo "+i+"</nomeGruppo>");
                         lista = risksGroup(groupnumber);
                         it = lista.iterator();
                         while(it.hasNext()){
@@ -227,9 +227,49 @@ public class dataFromDB {
                     break;
                 //give_newchkrisk
                 case 108:
+                {
                     //user gives me the description of the new risk to add to the system
-                    /*DO NOW; POSSO FARLO SUBITO*/
+                    String descrizione = request.getParameter("data");
+                    int newKey = CkRischi.generateAutoKey();
+                    //inserting the new risk in database
+                    CkRischi ckr = new CkRischi();
+                    ckr.setFields(newKey, descrizione);
+                    ckr.write();
+                }
                     break;
+                //give_updatechkrisk
+                case 109:
+                {
+                    //user gives codchecklist and new description for the risk. I will update that decsription
+                    String descrizione = request.getParameter("data");
+                    Integer codChecklist = Integer.parseInt(request.getParameter("codicechecklist").trim());
+                    CkRischi chk = (CkRischi) CkRischi.getById(CkRischi.class, codChecklist);
+                    chk.setDescrizione(descrizione);
+                    chk.update();
+                }
+                    break;
+                //take_allchkactions
+                case 11:
+                    //giving to user all the action in the checklist
+                    index=0;//xml identifier
+                    out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n");
+                    for(int i=0; i<2; i++){
+                        if(i == 0) table="Mitigazione";
+                        else table = "Recovery";
+
+                        lista = CkMitigazione.executeQuery("from Ck"+table);
+                        out.println("\t<node label=\""+table+"\" type=\"categoria\" >");
+                        it = lista.iterator();
+                        while(it.hasNext()){
+                            Descrizione d = (Descrizione) it.next();
+                            out.println("\t\t<node codiceChecklist=\""+d.getCodChecklist()+
+                                        "\" label=\""+d.getDescrizione()+"\" type=\""+table+"\" />");
+                        }
+                        out.println("\t</node>\n");
+                    }
+                    out.println("</root>");
+                    break;
+
 
             }
             SessionObject.endTransaction();
