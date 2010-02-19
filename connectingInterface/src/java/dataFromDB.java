@@ -105,6 +105,7 @@ public class dataFromDB {
                     break;
                 //take_risksbycategory
                 case 5:
+                case 10: //take_allchkrisks
                     //giving to user all the risks in DB, also if not suggested in any other case
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
                                     "\t<node label=\"Rischi non suggeriti\" type=\"categoria\" >");
@@ -207,7 +208,6 @@ public class dataFromDB {
                     if(actiontype.trim().compareTo("r")==0) table = "Recovery";
                     else if(actiontype.trim().compareTo("m")==0) table = "Mitigazione";
                     else break;
-out.println("ESTICAZZI "+actiontype);
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
                                     "\t<node label=\"Azioni "+table+"\" type=\"categoria\" >");
                     /*XXX modificare per fornire separatamente quelle consigliate per il rischio*/
@@ -219,6 +219,16 @@ out.println("ESTICAZZI "+actiontype);
                                     "\" label=\""+d.getDescrizione()+"\" type=\"rischio\" />");
                     }
                     out.println("\t</node>\n</root>");
+                    break;
+                //give_mx
+                case 107:
+                    //user gives me all the project with modifications,i will read it and write on DB
+                    /*XXX definire formato di scambio*/
+                    break;
+                //give_newchkrisk
+                case 108:
+                    //user gives me the description of the new risk to add to the system
+                    /*DO NOW; POSSO FARLO SUBITO*/
                     break;
 
             }
