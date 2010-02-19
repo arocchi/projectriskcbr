@@ -541,7 +541,13 @@ public class Progetto
      */
     public static List<?> getCases() throws Exception
     {
-        return executeQuery("from Progetto where isCase = true");
+        List lista =  executeQuery("from Progetto where isCase = true");
+        Iterator it = lista.iterator();
+        while(it.hasNext()){
+            Progetto p = (Progetto) it.next();
+            p.caricaRischi();
+        }
+        return lista;
     }
 
     /**
