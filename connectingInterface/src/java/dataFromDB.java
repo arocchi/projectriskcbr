@@ -139,8 +139,12 @@ public class dataFromDB {
                         out.println("<error>No risk selected from checklist</error>");
                         break;
                     }
-
                     index = 0;
+                    //checking if array contains at least a number
+                    if(ckIds.length==1 && ckIds[0].trim().compareTo("")==0)
+                        break;
+
+                    //if so, print
                     for(int i=0; i<ckIds.length; i++){
                         CkRischi r = (CkRischi) CkRischi.getById(CkRischi.class, Integer.parseInt(ckIds[i].trim()));
                         if(r!=null)
