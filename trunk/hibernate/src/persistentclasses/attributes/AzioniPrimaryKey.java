@@ -66,4 +66,12 @@ public class AzioniPrimaryKey implements Serializable{
      {
          return new String("idAzione = " + idAzione + "\nidRischio = " + idRischio +"\n" +"tipo = "+tipo+"\n");
      }
+    
+    public String getDefaultStato() {
+		if(this.getTipo() == 'M')
+			return "Planned";
+		else if(this.getTipo() == 'M')
+			return "Back-up";
+		return "Error";
+    }
 }
