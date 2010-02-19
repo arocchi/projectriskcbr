@@ -5,6 +5,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.hibernate.SessionFactory;
+import persistentclasses.SessionObject;
 
 /**
  *
@@ -41,6 +43,9 @@ public class getData extends HttpServlet {
             //setting active the current session
             session.setAttribute("activesession", true);
             activesession = true;
+            //building sessionfactory and storing it into session
+            SessionFactory sf = SessionObject.getStarted();
+            session.setAttribute("sessionfactory", sf);
         }
 
         try {
@@ -59,7 +64,7 @@ public class getData extends HttpServlet {
                 if(type.equals("give_nullrequest"));
 
                 /*TYPES TO CREATE A NEW PROJECT*/
-                else if (type.equals("take_cliente"))                    typenum = 0; //gives all the customers in the database
+                else if (type.equals("take_cliente"))               typenum = 0; //gives all the customers in the database
                 else if (type.equals("take_oggettofornitura"))      typenum = 1; //gives all the items "oggettoFornitura"
                 else if (type.equals("take_reparto"))               typenum = 2; //gives all the "reparto" felds in DB
                 else if (type.equals("give_newproject"))            typenum = 101; //user gives data about the new project created
@@ -67,6 +72,7 @@ public class getData extends HttpServlet {
                 else if (type.equals("take_risksnogroup"))          typenum = 4; //gives all the common risks there are not present in any group
                 else if (type.equals("take_risksbycategory"))       typenum = 5; //gives all the other risks, not suggested before
                 else if (type.equals("give_risksbycategory"))       typenum = 102; //user gives codchecklist for all the selected risks that were not suggested before
+                else if (type.equals("take_selectedrisksbycategory"))typenum = 13; //I give to user the risks corrensponding to the codes previously read
                 else if (type.equals("give_allrisksforproject"))    typenum = 103; //user gives all the risks added to the project
                 else if (type.equals("take_actionsbyrisk"))         typenum = 6; //gives all adapted actions for the previously selected risks
                 else if (type.equals("give_allactionsforproject"))  typenum = 104; //user gives alla actions to add to the project

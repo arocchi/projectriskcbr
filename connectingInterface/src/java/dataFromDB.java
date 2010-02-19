@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.hibernate.SessionFactory;
 import persistentclasses.*;
 
 /**
@@ -13,10 +14,9 @@ import persistentclasses.*;
 public class dataFromDB {
     dataFromDB (int type, PrintWriter out, HttpSession session, HttpServletRequest request) {
 
-        //parte provvisoria, va sostituita col meccanismo delle sessioni
         try{
-            
-            SessionObject.getStarted();
+            //retrieving sessionfactory from session
+            SessionObject.getStarted((SessionFactory) session.getAttribute("sessionfactory"));
             SessionObject.newTransaction();           
 
             List lista;
@@ -75,11 +75,11 @@ public class dataFromDB {
                 case 3:
                     //giving to user the list of suggested risks for each configured group
                     /*XXX da completare suggerimento rischi*/
-                    int groupnumber = getNumberOfGroups();//XXX andrà letto da file di configurazione
+                    int groupnumber = getNumberOfGroupsDummy();//XXX andrà letto da file di configurazione
                     index = 0;//index for the xml object to be created from the interface
                     for(int i=0; i<groupnumber; i++){
                         out.println("<gruppo idName=\""+i+"\">\n\t<nomeGruppo>Gruppo "+i+"</nomeGruppo>");
-                        lista = risksGroup(groupnumber);
+                        lista = risksGroupDummy(groupnumber);//XXX sostituire con la funzione vera
                         it = lista.iterator();
                         while(it.hasNext()){
                             Rischio r = (Rischio) it.next();
@@ -121,12 +121,26 @@ public class dataFromDB {
                     break;
                 //give_risksbycategory
                 case 102:
-                    //re-sending to user empty risks
-                    index = 0;
+                {
+                    //reading selected risks
                     String data = request.getParameter("data");
                     //data contains checklist risk codes separated by #
                     String[] ckIds = data.split(" ");
-                    out.println(ckIds.length+" "+data);
+                    //storing ckIds into session
+                    session.setAttribute("ckIds", ckIds);
+                }
+                    break;
+                //take_selectedrisksbycategory
+                case 13:
+                {
+                    //giving to user risks previously read
+                    String[] ckIds = (String[]) session.getAttribute("ckIds");
+                    if(ckIds == null){
+                        out.println("<error>No risk selected from checklist</error>");
+                        break;
+                    }
+
+                    index = 0;
                     for(int i=0; i<ckIds.length; i++){
                         CkRischi r = (CkRischi) CkRischi.getById(CkRischi.class, Integer.parseInt(ckIds[i].trim()));
                         if(r!=null)
@@ -143,6 +157,7 @@ public class dataFromDB {
                                         "\t\t<impattoIniziale></impattoIniziale>"+
                                     "\t</rischio>");
                     }
+                }
                     break;
                 //give_allrisksforproject
                 case 103:
@@ -317,11 +332,19 @@ public class dataFromDB {
                     //user gives me checklist code and type of action to update. I will update the action description
                     String descrizione = request.getParameter("data");
                     String tipo = request.getParameter("tipo");//'r' or 'm'
+                    Integer codChecklist = Integer.parseInt(request.getParameter("codicechecklist"));
+                    if(tipo.compareTo("r")==0){
+                        CkRecovery rec = (CkRecovery) CkRecovery.getById(CkRecovery.class, codChecklist);
+                        rec.setDescrizione(escapeChars(descrizione));
+                        rec.update();
+                    }else if(tipo.compareTo("m")==0){
+                        CkMitigazione mit = (CkMitigazione) CkMitigazione.getById(CkMitigazione.class, codChecklist);
+                        mit.setDescrizione(escapeChars(descrizione));
+                        mit.update();
+                    }
 
                 }
                     break;
-
-
             }
             SessionObject.endTransaction();
         } catch (Exception e){out.println(e);}
@@ -336,7 +359,9 @@ public class dataFromDB {
         
     }
 
-    //utility functions
+    /*UTILITY FUNCTIONS*/
+
+    //prints a risk in xml format into the stream 'out'
     private void printRisk(Rischio r, PrintWriter out, int index){
         out.println("\t<rischio idName=\""+index+"\">"+
                         "\t\t<idRischio>"+r.getCodice()+"</idRischio>"+
@@ -358,6 +383,16 @@ public class dataFromDB {
         /*XXX finire escaping*/
         return s.replace('"', '\'');
     }
+    //function that returns the number of groups configured by the user
+    private int getNumberOfGroups(){
+        /*XXX FILL*/
+        return 0;
+    }
+    //function that return the suggested risks for the group 'groupnumber' into a List
+    private List risksGroup(int groupnumber){
+        return new LinkedList();
+    }
+
     /**    
      * @return List of Risks that were not suggested in any group or in the NoGroup list
      */
@@ -380,10 +415,10 @@ public class dataFromDB {
 
 
     //dummy functions used as stubs
-    private int getNumberOfGroups(){
+    private int getNumberOfGroupsDummy(){
         return 3;
     }
-    private List risksGroup(int groupnumber){
+    private List risksGroupDummy(int groupnumber){
         try{
             return Rischio.executeQuery("from Rischio where idProgramma = 'P"+groupnumber+"'");
         } catch (Exception e){}
