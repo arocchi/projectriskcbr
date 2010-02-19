@@ -9,6 +9,7 @@ import java.util.Map;
 
 import jcolibri.method.retrieve.RetrievalResult;
 import jcolibriext.method.retrieve.NNretrieval.similarity.global.AdvancedAverage;
+import persistentclasses.Azioni;
 import persistentclasses.Progetto;
 import persistentclasses.Rischio;
 
@@ -21,6 +22,7 @@ import persistentclasses.Rischio;
  */
 public class RischioSuggester implements Comparable<RischioSuggester> {
 	Integer riskType;
+	String	riskDescription;
 	Map<RetrievalResult, List<Rischio>> sortInfo;
 	
 	public RischioSuggester(Integer riskType) {
@@ -50,15 +52,26 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 		return eval;
 	}
 	
+	public Map<RetrievalResult, List<Azioni>> getAzioni() {
+		Map<RetrievalResult, List<Azioni>> azioniMap = new HashMap<RetrievalResult, List<Azioni>>();
+		List<Azioni> azioniList;
+		
+		for(Map.Entry<RetrievalResult, List<Rischio>> entry : sortInfo.entrySet()) {
+			azioniList = new LinkedList<Azioni>();
+			for(Rischio rischio : entry.getValue()) {
+				azioniList.addAll(rischio.getAzioni());
+			}
+			azioniMap.put(entry.getKey(), azioniList);
+		}
+		
+		return azioniMap;
+	}	
+	
+	
 	public List<Rischio> getRischi() {
 		List<Rischio> rischi = new LinkedList<Rischio>();
-		for(RetrievalResult rr : sortInfo.keySet()) {
-			Progetto progetto = (Progetto)rr.get_case().getDescription();
-			List<Rischio> rischiProgetto = progetto.getRischi();
-			for(Rischio rischio : rischiProgetto) {
-				if(this.riskType.equals(rischio.getCodiceChecklist()))
-					rischi.add(rischio);
-			}
+		for(List<Rischio> lr : sortInfo.values()) {
+			rischi.addAll(lr);
 		}
 		return rischi;
 	}
@@ -146,6 +159,8 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 	public Rischio getSuggestion() {
 		Rischio suggestion = new Rischio();
 		suggestion.setCodiceChecklist(this.riskType);
+		//TODO
+		// suggestion.setDescrizione(this.riskDescription);
 		this.adapt(suggestion);
 		return suggestion;
 	}
