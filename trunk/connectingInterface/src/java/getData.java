@@ -4,6 +4,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -23,26 +24,87 @@ public class getData extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         //standard output
         PrintWriter out = response.getWriter();
-        try {
-            // Firstly I examine the type parameter
-            String type = request.getParameter("type");
 
-            if (type != null) {
-                if (type.equals("cliente")){
-                    // Calling a method that gives all the customers in the database
-                    dataFromDB cl = new dataFromDB(0, out);
-                } else if (type.equals("oggettoFornitura")){
-                    dataFromDB cl = new dataFromDB(1, out);
-                } else if (type.equals("reparto")) {
-                    dataFromDB cl = new dataFromDB(2, out);
-                } else if (type.equals("risksbygroup")) {
-                    dataFromDB cl = new dataFromDB(3, out);
-                } else if (type.equals("risksnogroup")) {
-                    dataFromDB cl = new dataFromDB(4, out);
-                } else if (type.equals("risksbycategory")) {
-                    dataFromDB cl = new dataFromDB(5, out);
-                } else {
-                    out.println("<error>Type not allowed</error>");
+        //type parameter
+        String type = request.getParameter("type");
+
+        //checking session
+        HttpSession session = request.getSession();
+        Boolean activesession = (Boolean) session.getAttribute("activesession");
+        if(type.equals("give_nullrequest")){//opening new session
+            if(activesession!=null){
+                //previous session already opened
+                //deleting data from the previous session and opening a new one
+                session.invalidate();
+                session = request.getSession();
+            }
+            //setting active the current session
+            session.setAttribute("activesession", true);
+            activesession = true;
+        }
+
+        try {
+            //integer of the operation to execute
+            int typenum=-1;
+            
+            //if requesting data without an active session, giving error
+            if(activesession==null)
+                out.println("<error>Invalid session</error>");
+            
+            //I examine the type parameter
+
+            
+            else if (type != null) {
+                /*ONLY OPEN SESSION. DO NOTHING*/
+                if(type.equals("give_nullrequest"));
+
+                /*TYPES TO CREATE A NEW PROJECT*/
+                else if (type.equals("take_cliente"))                    typenum = 0; //gives all the customers in the database
+                else if (type.equals("take_oggettofornitura"))      typenum = 1; //gives all the items "oggettoFornitura"
+                else if (type.equals("take_reparto"))               typenum = 2; //gives all the "reparto" felds in DB
+                else if (type.equals("give_newproject"))            typenum = 101; //user gives data about the new project created
+                else if (type.equals("take_risksbygroup"))          typenum = 3; //gives all risks suggested by similarity
+                else if (type.equals("take_risksnogroup"))          typenum = 4; //gives all the common risks there are not present in any group
+                else if (type.equals("take_risksbycategory"))       typenum = 5; //gives all the other risks, not suggested before
+                else if (type.equals("give_risksbycategory"))       typenum = 102; //user gives codchecklist for all the selected risks that were not suggested before
+                else if (type.equals("give_allrisksforproject"))    typenum = 103; //user gives all the risks added to the project
+                else if (type.equals("take_actionsbyrisk"))         typenum = 6; //gives all adapted actions for the previously selected risks
+                else if (type.equals("give_allactionsforproject"))  typenum = 104; //user gives alla actions to add to the project
+                else if (type.equals("take_digest"))                typenum = 7; //gives a summary of all the fields of new project created
+                else if (type.equals("give_confirm"))               typenum = 105; //gives data="true" or "false" for confirmation or discard
+                 
+                    
+                /*TYPES TO MODIFY A PROJECT */
+                else if (type.equals("take_openedprojects"))          typenum = 8; //gives all the projects that can be modified (open projects)
+                else if (type.equals("give_whatopenedproject"))     typenum = 106; //user gives the identifier of the project to modify, I give all project fields
+                else if (type.equals("take_actionsbyutilization"))  typenum = 9; //gives all actions for a risk. Two categories: alreadyused + stillnotused
+                else if (type.equals("give_mx"))                    typenum = 107; //user gives all the changes to the selected project, data="true" or "false" for confirmation or not
+
+                /*TYPES TO ADD NEW RISK*/
+                else if (type.equals("take_allchkrisks")) typenum = 10; //gives codchecklist + description for all risks
+                else if (type.equals("give_newchkrisk")) typenum = 108; //user gives a description for the new risk to create
+
+                /*TYPES TO MODIFY A RISK IN CHECKLIST*/
+                else if (type.equals("give_updatechkrisk")) typenum = 109; //user gives codchecklist of thwe risk to update, and the new description
+
+                /*TYPES TO ADD E NEW ACTION*/
+                else if (type.equals("take_allchkactions")) typenum = 11; //gives two categories of checklist actions: mitigation and recovery
+                else if (type.equals("give_newchkaction")) typenum = 110; //user gives description and type ('r' or 'm') of the new action
+
+                /*TYPES TO MODIFY AN ACTION IN CHECKLIST*/
+                else if (type.equals("give_updatechkaction")) typenum = 111; //user gives codchecklist, type('r' or 'm') and new description for the action
+
+                /*CLOSING SESSION*/
+                else if (type.equals("closesession")) typenum = 12; //deletes all data from session
+
+                /*TESTING TYPES*/
+
+                /*NO TYPE*/
+                else out.println("<error>Type not allowed</error>");
+
+                /*CALLING THE PROCEDURE*/
+                if(typenum != -1){
+                    dataFromDB cl = new dataFromDB(typenum, out, session, request);
                 }
             }
         } finally { 

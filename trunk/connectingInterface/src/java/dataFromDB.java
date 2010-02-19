@@ -2,6 +2,8 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import persistentclasses.*;
 
 /**
@@ -9,7 +11,7 @@ import persistentclasses.*;
  * @author User
  */
 public class dataFromDB {
-    dataFromDB (int type, PrintWriter out) {
+    dataFromDB (int type, PrintWriter out, HttpSession session, HttpServletRequest request) {
 
         //parte provvisoria, va sostituita col meccanismo delle sessioni
         try{
@@ -22,8 +24,8 @@ public class dataFromDB {
             int index;
             switch(type) {
 
-                // Getting the checklist of CLIENTE
-                case 0:
+                //take_cliente
+                case 0:// Getting the checklist of CLIENTE
                     lista = Progetto.executeQuery("select distinct nomeCliente from Progetto");
                     it = lista.iterator();
                     index = 0;
@@ -39,9 +41,8 @@ public class dataFromDB {
                      */
                     break;
 
-                // Getting the checklist of OGGETTOFORNITURA
-                case 1:
-                    // The same of above
+                //take_oggettofornitura
+                case 1: // Getting the checklist of OGGETTOFORNITURA
                     lista = Progetto.executeQuery("select distinct oggettoFornitura from Progetto");
                     it = lista.iterator();
                     index = 0;
@@ -53,9 +54,8 @@ public class dataFromDB {
                     //out.println("<oggettoFornitura idName="1">nomeCliente1</oggettoFornitura>");
                     break;
 
-                // Getting the checklist of REPARTO
-                case 2:
-                    // The same of above
+                //take_reparto
+                case 2:// Getting the checklist of REPARTO
                     lista = Progetto.executeQuery("select distinct reparto from Progetto");
                     it = lista.iterator();
                     index = 0;
@@ -66,8 +66,15 @@ public class dataFromDB {
                     }
                     //out.println("<reparto idName="1">nomeCliente1</reparto>");
                     break;
-                //getting the selected risks by group
+                //give_newproject
+                case 101:
+                    //reading the data of the new created project to insert them into a session variable
+                    /*XXX*/
+                    break;
+                //take_risksbygroup
                 case 3:
+                    //giving to user the list of suggested risks for each configured group
+                    /*XXX da completare suggerimento rischi*/
                     int groupnumber = getNumberOfGroups();//XXX andrà letto da file di configurazione
                     index = 0;//index for the xml object to be created from the interface
                     for(int i=0; i<groupnumber; i++){
@@ -82,8 +89,9 @@ public class dataFromDB {
                         out.println("</gruppo>");
                     }
                     break;
-                //getting the common risks, that not appear in any group
+                //take_risknogroup
                 case 4:
+                    //getting the common risks, that not appear in any group
                     out.println("<root idName=\"NoGroup\">");
                     index=0;//xml identifier
                     lista = risknoGroup();
@@ -95,12 +103,13 @@ public class dataFromDB {
                     }
                     out.println("</root>");
                     break;
-                //getting all the risks in DB, also if not suggested in any other case
+                //take_risksbycategory
                 case 5:
+                    //giving to user all the risks in DB, also if not suggested in any other case
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
                                     "\t<node label=\"Rischi non suggeriti\" type=\"categoria\" >");
                     index=0;//xml identifier
-                    lista = notSuggestedCkRisks();
+                    lista = notSuggestedCkRisks();/*XXX pensare: tutti o solo quelli non selezionati prima?*/
                     it = lista.iterator();
                     while(it.hasNext()){
                         CkRischi r = (CkRischi) it.next();
@@ -109,6 +118,109 @@ public class dataFromDB {
                     }
                     out.println("\t</node>\n</root>");
                     break;
+                //give_risksbycategory
+                case 102:
+                    //re-sending to user empty risks
+                    index = 0;
+                    String data = request.getParameter("data");
+                    //data contains checklist risk codes separated by #
+                    String[] ckIds = data.split(" ");
+                    out.println(ckIds.length+" "+data);
+                    for(int i=0; i<ckIds.length; i++){
+                        CkRischi r = (CkRischi) CkRischi.getById(CkRischi.class, Integer.parseInt(ckIds[i].trim()));
+                        if(r!=null)
+                            out.println("\t<rischio idName=\""+(index++)+"\">"+
+                                        "\t\t<codiceChecklist>"+ckIds[i]+"</codiceChecklist>"+
+                                        "\t\t<stato></stato>"+
+                                        "\t\t<categoria></categoria>"+
+                                        "\t\t<rVer></rVer>"+
+                                        "\t\t<descrizione>"+r.getDescrizione()+"</descrizione>"+
+                                        "\t\t<contingency></contingency>"+
+                                        "\t\t<causa></causa>"+
+                                        "\t\t<effetto></effetto>"+
+                                        "\t\t<probIniziale></probIniziale>"+
+                                        "\t\t<impattoIniziale></impattoIniziale>"+
+                                    "\t</rischio>");
+                    }
+                    break;
+                //give_allrisksforproject
+                case 103:
+                    //user give me data about all risks addedto the current project
+                    //save them into session
+                    /*XXX*/
+
+                    break;
+                //take_actionsbyrisk
+                case 6:
+                    //giving user all the suggested actions from previously selected risks
+                    /*XXX*/
+                    break;
+                //give_allactionsforproject
+                case 104:
+                    //user gives me all actions added to the current project
+                    /*XXX format to define*/
+                    break;
+                //take_digest
+                case 7:
+                    //giving user the entire project, to check it before writing it into DB
+                    /*XXX*/
+                    break;
+                //give_confirm
+                case 105:
+                    //if data=="true" writes the new project and close session
+                    //if data=="false" exits and close session
+                    //server will answer "ok" or "error"
+                    /*XXX formato della risposta da definire*/
+                    break;
+                //take_openedprojects
+                case 8:
+                    //giving the list of all open projects (that can be modified)
+
+                    //retrieving open projects from DB
+                    lista = Progetto.getOpenProjects();
+
+                    //writing a summary to user, to let him choose between them
+                    /*XXX definire formato*/
+                    it=lista.iterator();
+                    out.println("Progetti aperti: ");
+                    while(it.hasNext()){
+                        Progetto p = (Progetto) it.next();
+                        out.println(p.getCodice());
+                    }
+                    break;
+                //give_whatopenedproject
+                case 106:
+                    //user gives me the identifier of the selected project
+                    String idProgramma = (String) request.getAttribute("data");
+
+                    //sending to user all fields of the selected project
+                    /*XXX definire formato*/
+                    break;
+                //take_actionsbyutilization
+                case 9:
+                    //taking ALL actions from DB, selecting between:
+                    //-actions already used for a specified risk
+                    //-all oters
+                    String riskChecklistCode = (String) request.getParameter("data");
+                    String actiontype = (String) request.getParameter("actiontype");
+                    String table;
+                    if(actiontype.trim().compareTo("r")==0) table = "Recovery";
+                    else if(actiontype.trim().compareTo("m")==0) table = "Mitigazione";
+                    else break;
+out.println("ESTICAZZI "+actiontype);
+                    out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
+                                    "\t<node label=\"Azioni "+table+"\" type=\"categoria\" >");
+                    /*XXX modificare per fornire separatamente quelle consigliate per il rischio*/
+                    lista = persistentBase.executeQuery("from Ck"+table);
+                    it = lista.iterator();
+                    while(it.hasNext()){
+                        Descrizione d = (Descrizione) it.next();
+                        out.println("\t\t<node codiceChecklist=\""+d.getCodChecklist()+
+                                    "\" label=\""+d.getDescrizione()+"\" type=\"rischio\" />");
+                    }
+                    out.println("\t</node>\n</root>");
+                    break;
+
             }
             SessionObject.endTransaction();
         } catch (Exception e){out.println(e);}
@@ -147,7 +259,7 @@ public class dataFromDB {
         List<Integer> suggested = alreadySuggestedCkRisks();
         Iterator it = suggested.iterator();
         if(it.hasNext())
-            query = query + "where ";//XXX REMOVE THE FIRST AND
+            query = query + "where "+(Integer) it.next();
         while(it.hasNext()){
             Integer current = (Integer) it.next();
             query = query + " and codChecklist != "+current;
@@ -158,6 +270,7 @@ public class dataFromDB {
 
         return new LinkedList();
     }
+
 
     //dummy functions used as stubs
     private int getNumberOfGroups(){
