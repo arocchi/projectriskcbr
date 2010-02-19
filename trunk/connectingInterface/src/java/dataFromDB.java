@@ -48,7 +48,7 @@ public class dataFromDB {
                     index = 0;
                     while(it.hasNext()) {
                         String of = (String) it.next();
-                        out.println("<oggettoFornitura idName=\""+index+"\">"+of.replace('"','\'')+"</oggettoFornitura>");
+                        out.println("<oggettoFornitura idName=\""+index+"\">"+escapeChars(of)+"</oggettoFornitura>");
                         index++;
                     }
                     //out.println("<oggettoFornitura idName="1">nomeCliente1</oggettoFornitura>");
@@ -115,7 +115,7 @@ public class dataFromDB {
                     while(it.hasNext()){
                         CkRischi r = (CkRischi) it.next();
                         out.println("\t\t<node codiceChecklist=\""+r.getCodChecklist()+
-                                    "\" label=\""+r.getDescrizione().replace('"','\'')+"\" type=\"rischio\" />");
+                                    "\" label=\""+escapeChars(r.getDescrizione())+"\" type=\"rischio\" />");
                     }
                     out.println("\t</node>\n</root>");
                     break;
@@ -135,7 +135,7 @@ public class dataFromDB {
                                         "\t\t<stato></stato>"+
                                         "\t\t<categoria></categoria>"+
                                         "\t\t<rVer></rVer>"+
-                                        "\t\t<descrizione>"+r.getDescrizione().replace('"','\'')+"</descrizione>"+
+                                        "\t\t<descrizione>"+escapeChars(r.getDescrizione())+"</descrizione>"+
                                         "\t\t<contingency></contingency>"+
                                         "\t\t<causa></causa>"+
                                         "\t\t<effetto></effetto>"+
@@ -155,6 +155,23 @@ public class dataFromDB {
                 case 6:
                     //giving user all the suggested actions from previously selected risks
                     /*XXX*/
+                    //dummy
+                    index = 0;
+                    lista = Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P7R1'");
+                    out.println("<rischio idName=\"1\">\n\t<codiceChecklist>CODICE Checklist</codiceChecklist>");
+                    it = lista.iterator();
+                    while(it.hasNext()){
+                        Azioni a = (Azioni) it.next();
+                        out.println("\t<azione idName=\""+(index++)+"\">\n"+
+                                    "\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>"+
+                                    "\t\t<stato>"+a.getStato()+"</stato>"+
+                                    "\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>"+
+                                    "\t\t<revisione>"+a.getRevisione()+"</revisione>"+
+                                    "\t\t<intensita>"+a.getIntensita()+"</intensita>"+
+                                    "\t</azione>");
+                    }
+                    out.println("</rischio>");
+
                     break;
                 //give_allactionsforproject
                 case 104:
@@ -199,6 +216,7 @@ public class dataFromDB {
                     break;
                 //take_actionsbyutilization
                 case 9:
+                {
                     //taking ALL actions from DB, selecting between:
                     //-actions already used for a specified risk
                     //-all oters
@@ -216,9 +234,10 @@ public class dataFromDB {
                     while(it.hasNext()){
                         Descrizione d = (Descrizione) it.next();
                         out.println("\t\t<node codiceChecklist=\""+d.getCodChecklist()+
-                                    "\" label=\""+d.getDescrizione().replace('"','\'')+"\" type=\"rischio\" />");
+                                    "\" label=\""+escapeChars(d.getDescrizione())+"\" type=\"rischio\" />");
                     }
                     out.println("\t</node>\n</root>");
+                }
                     break;
                 //give_mx
                 case 107:
@@ -244,14 +263,16 @@ public class dataFromDB {
                     String descrizione = request.getParameter("data");
                     Integer codChecklist = Integer.parseInt(request.getParameter("codicechecklist").trim());
                     CkRischi chk = (CkRischi) CkRischi.getById(CkRischi.class, codChecklist);
-                    chk.setDescrizione(descrizione.replace('"','\''));
+                    chk.setDescrizione(escapeChars(descrizione));
                     chk.update();
                 }
                     break;
                 //take_allchkactions
                 case 11:
+                {
                     //giving to user all the action in the checklist
                     index=0;//xml identifier
+                    String table;
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n");
                     for(int i=0; i<2; i++){
                         if(i == 0) table="Mitigazione";
@@ -263,11 +284,41 @@ public class dataFromDB {
                         while(it.hasNext()){
                             Descrizione d = (Descrizione) it.next();
                             out.println("\t\t<node codiceChecklist=\""+d.getCodChecklist()+
-                                        "\" label=\""+d.getDescrizione().replace('"','\'')+"\" type=\""+table+"\" />");
+                                        "\" label=\""+escapeChars(d.getDescrizione())+"\" type=\""+table+"\" />");
                         }
                         out.println("\t</node>\n");
                     }
                     out.println("</root>");
+                }
+                    break;
+                //give_newchkaction
+                case 110:
+                {
+                    //user gives me a new action in the checklist to create
+                    String descrizione = request.getParameter("data");
+                    String tipo = request.getParameter("tipo");//'r' or 'm'
+                    Integer codChecklist;
+                    if(tipo.compareTo("r")==0){
+                        codChecklist= (Integer) CkRecovery.generateAutoKey();
+                        CkRecovery rec = new CkRecovery();
+                        rec.setFields(codChecklist, descrizione);
+                        rec.write();
+                    }else if(tipo.compareTo("m")==0){
+                        codChecklist= (Integer) CkMitigazione.generateAutoKey();
+                        CkMitigazione mit = new CkMitigazione();
+                        mit.setFields(codChecklist,descrizione);
+                        mit.write();
+                    }
+                }
+                    break;
+                //give_updatechkaction
+                case 111:
+                {
+                    //user gives me checklist code and type of action to update. I will update the action description
+                    String descrizione = request.getParameter("data");
+                    String tipo = request.getParameter("tipo");//'r' or 'm'
+
+                }
                     break;
 
 
@@ -293,14 +344,19 @@ public class dataFromDB {
                         "\t\t<stato>"+r.getStato().getStato()+"</stato>"+
                         "\t\t<categoria>"+r.getCategoria()+"</categoria>"+
                         "\t\t<rVer>"+r.getVerificato()+"</rVer>"+
-                        "\t\t<descrizione>"+r.getDescrizione().replace('"','\'')+"</descrizione>"+
+                        "\t\t<descrizione>"+escapeChars(r.getDescrizione())+"</descrizione>"+
                         "\t\t<contingency>"+r.getContingency()+"</contingency>"+
-                        "\t\t<causa>"+r.getCausa().replace('"','\'')+"</causa>"+
-                        "\t\t<effetto>"+r.getEffetto().replace('"','\'')+"</effetto>"+
+                        "\t\t<causa>"+escapeChars(r.getCausa())+"</causa>"+
+                        "\t\t<effetto>"+escapeChars(r.getEffetto())+"</effetto>"+
                         "\t\t<probIniziale>"+r.getProbabilitaIniziale()+"</probIniziale>"+
                         "\t\t<impattoIniziale>"+r.getImpattoIniziale()+"</impattoIniziale>"+
                     "\t</rischio>");
         return;
+    }
+    //function that escapes characters to print into xml
+    private String escapeChars(String s){
+        /*XXX finire escaping*/
+        return s.replace('"', '\'');
     }
     /**    
      * @return List of Risks that were not suggested in any group or in the NoGroup list
