@@ -1,4 +1,4 @@
-package projectriskcbr.test.jcolibriext.method.retrieve.NNretrieval.similarity.global;
+package test.jcolibriext.method.retrieve.NNretrieval.similarity.global;
 
 import java.net.URL;
 import java.util.Collection;
