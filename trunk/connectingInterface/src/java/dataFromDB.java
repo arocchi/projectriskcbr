@@ -26,7 +26,7 @@ public class dataFromDB {
             /*END*/
             List lista;
             Iterator it;
-            int index;
+            int index=0;
             switch(type) {
 
                 //take_cliente
@@ -243,6 +243,25 @@ public class dataFromDB {
                     //saving actions into session
                     session.setAttribute("ActionsAddedToProject",lista);
                     break;
+                //give_confirm
+                case 105:
+                {
+                    //if data=="true" writes the new project and close session
+                    //if data=="false" exits and closes session
+                    //server will answer "ok" or "error"
+                    /*XXX formato della risposta da definire E testare da interfaccia con David*/
+
+                    Boolean confirm = Boolean.parseBoolean((String) session.getAttribute("data"));
+                    if(!confirm){
+                        //closing session
+                        session.invalidate();
+                        break;
+                    }
+                    //if confirmed, build the project from session data
+                    //!!!using the next "case" statement
+                    index=1;//using index as a flag
+
+                }
                 //take_digest
                 case 7:
                 {
@@ -272,15 +291,21 @@ public class dataFromDB {
                     }
 
                     //if here, all checks are passed. Printing the digest
-                    printDigestDummy(p,riskList,actionList,out);
+                    if(index == 0) //it means: we are executing "take_digest
+                        printDigestDummy(p,riskList,actionList,out);
+
+
+                    else if(index == 1){//it means: we are executing give_confirm
+                        //building project and storing into DB
+                        Progetto complete = buildProject(p, riskList, actionList);
+                        if(complete == null)
+                            out.println("<error>ERROR</error>");
+                        else{
+                            complete.salvaProgetto();//XXX controllare dove e quando viene generata la chiave del progetto
+                            out.println("OK");
+                        }
+                    }
                 }
-                    break;
-                //give_confirm
-                case 105:
-                    //if data=="true" writes the new project and close session
-                    //if data=="false" exits and closes session
-                    //server will answer "ok" or "error"
-                    /*XXX formato della risposta da definire*/
                     break;
                 //take_openedprojects
                 case 8:
@@ -313,12 +338,12 @@ public class dataFromDB {
                 {
                     //taking ALL actions from DB, selecting between:
                     //-actions already used for a specified risk
-                    //-all oters
+                    //-all others
                     String riskChecklistCode = (String) request.getParameter("data");
                     String actiontype = (String) request.getParameter("actiontype");
                     String table;
-                    if(actiontype.trim().compareTo("r")==0) table = "Recovery";
-                    else if(actiontype.trim().compareTo("m")==0) table = "Mitigazione";
+                    if(actiontype.trim().compareTo("R")==0) table = "Recovery";
+                    else if(actiontype.trim().compareTo("M")==0) table = "Mitigazione";
                     else break;
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
                                     "\t<node label=\"Azioni "+table+"\" type=\"categoria\" >");
@@ -336,7 +361,8 @@ public class dataFromDB {
                 //give_mx
                 case 107:
                     //user gives me all the project with modifications,i will read it and write on DB
-                    /*XXX definire formato di scambio*/
+                    /*XXX definire formato di scambio
+                     considerare di usare formati già usati per azioni e rischi prima*/
                     break;
                 //give_newchkrisk
                 case 108:
@@ -353,7 +379,7 @@ public class dataFromDB {
                 //give_updatechkrisk
                 case 109:
                 {
-                    //user gives codchecklist and new description for the risk. I will update that decsription
+                    //user gives codchecklist and new description for the risk. I will update that description
                     String descrizione = request.getParameter("data");
                     Integer codChecklist = Integer.parseInt(request.getParameter("codicechecklist").trim());
                     CkRischi chk = (CkRischi) CkRischi.getById(CkRischi.class, codChecklist);
@@ -392,12 +418,12 @@ public class dataFromDB {
                     String descrizione = request.getParameter("data");
                     String tipo = request.getParameter("tipo");//'r' or 'm'
                     Integer codChecklist;
-                    if(tipo.compareTo("r")==0){
+                    if(tipo.compareTo("R")==0){
                         codChecklist= (Integer) CkRecovery.generateAutoKey();
                         CkRecovery rec = new CkRecovery();
                         rec.setFields(codChecklist, descrizione);
                         rec.write();
-                    }else if(tipo.compareTo("m")==0){
+                    }else if(tipo.compareTo("M")==0){
                         codChecklist= (Integer) CkMitigazione.generateAutoKey();
                         CkMitigazione mit = new CkMitigazione();
                         mit.setFields(codChecklist,descrizione);
@@ -412,11 +438,11 @@ public class dataFromDB {
                     String descrizione = request.getParameter("data");
                     String tipo = request.getParameter("tipo");//'r' or 'm'
                     Integer codChecklist = Integer.parseInt(request.getParameter("codicechecklist"));
-                    if(tipo.compareTo("r")==0){
+                    if(tipo.compareTo("R")==0){
                         CkRecovery rec = (CkRecovery) CkRecovery.getById(CkRecovery.class, codChecklist);
                         rec.setDescrizione(escapeChars(descrizione));
                         rec.update();
-                    }else if(tipo.compareTo("m")==0){
+                    }else if(tipo.compareTo("M")==0){
                         CkMitigazione mit = (CkMitigazione) CkMitigazione.getById(CkMitigazione.class, codChecklist);
                         mit.setDescrizione(escapeChars(descrizione));
                         mit.update();
@@ -460,7 +486,9 @@ public class dataFromDB {
     //function that escapes characters to print into xml
     private String escapeChars(String s){
         /*XXX finire escaping*/
-        return s.replace('"', '\'');
+        s.replace('"', '\'');
+        s.replace('"', '\'');
+        return s;
     }
     //function that returns the number of groups configured by the user
     private int getNumberOfGroups(){
@@ -486,6 +514,44 @@ public class dataFromDB {
     //function to extract actions from the current request
     private List extractActionsFromRequest(HttpServletRequest request){
         return new LinkedList();
+    }
+    //function to build a project from alla datas passed as argument
+    private Progetto buildProject(Progetto p, List  riskList, List actionList){
+        try{
+            //checking if project has a valid identifier
+            if(!Progetto.checkAvailable(p.getCodice()))
+                return null;
+            //adding all risks to the project
+            Iterator it = riskList.iterator();
+            while(it.hasNext()){
+                Rischio r = (Rischio) it.next();
+                //adding actions to risk
+                Iterator ait = actionList.iterator();
+                int idM = 1;//id for mitigation actions
+                int idR = 1;//id for recovery actions
+                while(it.hasNext()){
+                    Azioni a = (Azioni) ait.next();
+                    //action for the current risk
+                    if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
+                        //setting idAzioni
+                        if(a.getPrimaryKey().getTipo() == 'R')
+                            a.getPrimaryKey().setIdAzione(idR++);
+                        else if(a.getPrimaryKey().getTipo() == 'M')
+                            a.getPrimaryKey().setIdAzione(idM++);
+                        else
+                            return null;
+                        r.aggiungiAzione(0, a);
+                        actionList.remove(a);
+                    }
+                }
+                //added actions to risk
+                /*XXX SUPPONGO OGNI RISCHIO ABBIA GIA' LA GIUSTA CHIAVE!!*/
+                p.aggiungiRischio(r);
+            }
+        } catch (Exception e){
+            return null;
+        }
+        return p;
     }
     //writes digest in xml
     private void printDigest(Progetto p, List riskList, List actionList, PrintWriter out){
@@ -532,7 +598,7 @@ public class dataFromDB {
     }
     private Progetto extractProjectFromRequestDummy(HttpServletRequest request){
         try{
-            Progetto p = (Progetto) Progetto.getById(Progetto.class, "P1");
+            Progetto p = (Progetto) Progetto.getById(Progetto.class, "P2");
             p.setCodice(Progetto.generateAutoKey());
             return p;
         } catch (Exception e) {}
@@ -541,14 +607,14 @@ public class dataFromDB {
     }
     private List suggestActionsDummy(Progetto p, Rischio r){
         try{
-            return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P1R1'");
+            return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P2R1'");
         } catch (Exception e){}
 
         return new LinkedList();
     }
     private List extractActionsFromRequestDummy(HttpServletRequest request){
         try{
-            return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P1R1'");
+            return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P2R1' or primaryKey.idRischio = 'P2R2'");
         }catch(Exception e){}
 
         return new LinkedList();

@@ -43,10 +43,10 @@ public class Rischio extends persistentBase{
     public Rischio()
     {
         //id programma va specificato alla creazione del  rischio
-
+        idProgramma = null;
         //codice viene deciso dall'utente e' presente una funzione
         //generateAutoKey che consente di generarlo automaticamente
-
+        codice = null;
         //codiceChecklist va associato al rischio nel momento in cui e' creato
 
         stato = new StatoRischio("Mitigation");//a causa di alcuni campi vuoti nel DB formito, diamo un valore di default
