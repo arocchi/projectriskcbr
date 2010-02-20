@@ -76,7 +76,7 @@
 		for(RischioSuggester rischioSuggester : entry.getValue()) {
 			Collection<AzioniSuggester> azioniSuggesters = AzioniSuggester.getTopKSuggesters(rischioSuggester, entry.getValue(), configuration.kAzioni);
 			
-			out.println("Best risks for query: " + query + " in group " + entry.getKey().getName());
+			out.println("<br><br><h3>Best risks for risk: " + rischioSuggester.getRiskId() + " in group " + entry.getKey().getName() + "</h3>");
 			out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
 			out.println("<tr><td><b>Action CheckList Id</b></td><td><b>Action</b></td></tr>");
 			for(AzioniSuggester suggester: azioniSuggesters) {

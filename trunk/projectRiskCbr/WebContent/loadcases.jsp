@@ -10,7 +10,8 @@
 <%@page import="projectriskcbr.config.Configuration"%>
 <%@page import="persistentclasses.Progetto"%>
 <%@page import="persistentclasses.SessionObject"%>
-<%@page import="org.hibernate.SessionFactory"%><html>
+<%@page import="org.hibernate.SessionFactory"%>
+<%@page import="org.hibernate.Session"%><html>
 <head></head>
 <body>
 <table border="0" cellpadding="2" cellspacing="7" width="100%">
@@ -40,13 +41,22 @@
   	    Configuration configuration = (Configuration)getServletContext().getAttribute("configuration");
 		SessionFactory factory = SessionObject.getStarted();
 		
+		SessionObject.newTransaction();
+		
 		Collection<CBRCase> cases = new LinkedList<CBRCase>();
 		try {
 			// Progetto extends CBRCase, since a Progetto can be a case
-			cases = (List<CBRCase>)Progetto.getCases();
+			List<Progetto> progetti = (List<Progetto>)Progetto.getCases();
+			for(Progetto progetto : progetti) {
+				CBRCase cbrCase = new CBRCase();
+				cbrCase.setDescription(progetto);
+				cases.add(cbrCase);
+			}
 		} catch(Exception e) {
-			System.out.println("error retrieving cases");
+			out.println("error retrieving cases:" + e.getMessage());
 		}
+		
+		SessionObject.endTransaction();
 		
 		for(CBRCase c: cases)
 		{
