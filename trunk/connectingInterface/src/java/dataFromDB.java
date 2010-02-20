@@ -525,7 +525,7 @@ public class dataFromDB {
     }
     private List extractRisksFromRequestDummy(HttpServletRequest request){
         try{
-            return Rischio.executeQuery("from Rischio where codice = 'P1R1'");
+            return Rischio.executeQuery("from Rischio where idProgramma = 'P2'");
         } catch (Exception e){}
         
         return new LinkedList();
