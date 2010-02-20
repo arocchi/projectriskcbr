@@ -8,6 +8,10 @@ import java.util.List;
  * Classe che rappresenta la singola azione sul DB.
  */
 public class Azioni extends persistentBase{
+	public static String CLOSED = "Closed";
+	public static String PLANNED = "Planned";
+	public static String BACKUP = "Backup";
+	
     private AzioniPrimaryKey    primaryKey;//idRischio + idAzione + tipo
 
     private String      stato;//Planned, Closed, Back-up, In progress
@@ -52,7 +56,7 @@ public class Azioni extends persistentBase{
      public Azioni setIntensita(int x){
         //se non è un valore consentito non faccio nulla
         if(x>=-10 && x<=10)
-            revisione=x;
+            intensita=x;
         return this;
     }
 
@@ -76,6 +80,28 @@ public class Azioni extends persistentBase{
      public int getIntensita(){
          return intensita;
      }
+     
+     public boolean hasIntensita() {
+    	 return (intensita >= -10 && intensita <= 10);
+     }
+     
+     public boolean isClosed() {
+    	 if(this.stato.equals("Closed")) return true;
+    	 return false;
+     }
+     
+     public boolean isPlanned() {
+    	 if(this.stato.equals("Planned")) return true;
+    	 return false;
+     }
+     
+     public boolean isBackUp() {
+    	 if(this.stato.equals("Back-up")) return true;
+    	 return false;
+     }
+     
+     
+     
 
      /**
       * Per poter avere chiavi primarie composte da piu' attributi
