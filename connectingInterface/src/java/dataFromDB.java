@@ -1,7 +1,10 @@
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Formatter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.hibernate.SessionFactory;
@@ -20,7 +23,7 @@ public class dataFromDB {
             SessionObject.newTransaction();           
 
             /*RIGHE DI DEBUG PER TESTING DAVID*/
-            session.setAttribute("Progetto", new Progetto());
+            session.setAttribute("Progetto", Progetto.getById(Progetto.class, "P2"));
             session.setAttribute("RisksAddedToProject", extractRisksFromRequestDummy(request));
             session.setAttribute("ActionsAddedToProject", extractActionsFromRequestDummy(request));
             /*END*/
@@ -84,8 +87,18 @@ public class dataFromDB {
                     break;
                 //take_risksbygroup
                 case 3:
+                {
                     //giving to user the list of suggested risks for each configured group
                     /*XXX da completare suggerimento rischi*/
+
+                    //checking if project already defined
+                    Progetto p = (Progetto) session.getAttribute("Progetto");
+                    if(p==null){
+                        //terminating: if a suggestion has to be made, a project has to be previously created
+                        out.println("<error>Erorr: must create a project before asking suggested risks</error>");
+                        break;
+                    }
+
                     int groupnumber = getNumberOfGroupsDummy();//XXX andrà letto da file di configurazione
                     index = 0;//index for the xml object to be created from the interface
                     for(int i=0; i<groupnumber; i++){
@@ -94,11 +107,15 @@ public class dataFromDB {
                         it = lista.iterator();
                         while(it.hasNext()){
                             Rischio r = (Rischio) it.next();
+                            //filling not suggestable fields
+                            fillRiskNotSuggestableFields(r, session);
+                            //printing risk
                             printRisk(r,out,index);
                             index++;
                         }
                         out.println("</gruppo>");
                     }
+                }
                     break;
                 //take_risknogroup
                 case 4:
@@ -109,6 +126,9 @@ public class dataFromDB {
                     it = lista.iterator();
                     while(it.hasNext()){
                         Rischio r = (Rischio) it.next();
+                        //filling not suggestable fields
+                        fillRiskNotSuggestableFields(r, session);
+                        //printing risk
                         printRisk(r, out, index);
                         index++;
                     }
@@ -221,6 +241,9 @@ public class dataFromDB {
                         it = lista.iterator();
                         while(it.hasNext()){
                             Azioni a = (Azioni) it.next();
+                            //filling not suggestable fields
+                            //Descrizione dobj;
+                            //XXX XXX XXXif(a.getPrimaryKey().getTipo() ==  'M') dobj = CkMitigazione.getById(CkMitigazione.class, a.getPrimaryKey().get)
                             out.println("\t<azione idName=\""+(index++)+"\">\n"+
                                         "\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>"+
                                         "\t\t<stato>"+a.getStato()+"</stato>"+
@@ -262,6 +285,18 @@ public class dataFromDB {
                     index=1;//using index as a flag
 
                 }
+                //take_newidrischio
+                case 14:
+                {
+                    //generating a new id for risk
+                    String riskid = generateRiskId(session);
+                    if(riskid==null){
+                        out.println("<error>Erorr: must create a project before asking risk ids</error>");
+                        break;
+                    }
+                    out.println(riskid);
+                }
+                break;
                 //take_digest
                 case 7:
                 {
@@ -319,6 +354,7 @@ public class dataFromDB {
                     /*XXX definire formato*/
                     it=lista.iterator();
                     out.println("Progetti aperti: ");
+                    //codice, oggettofornitura,nomecliente
                     while(it.hasNext()){
                         Progetto p = (Progetto) it.next();
                         out.println(p.getCodice());
@@ -349,6 +385,7 @@ public class dataFromDB {
                                     "\t<node label=\"Azioni "+table+"\" type=\"categoria\" >");
                     /*XXX modificare per fornire separatamente quelle consigliate per il rischio*/
                     lista = persistentBase.executeQuery("from Ck"+table);
+                    //XXXList preferred = persistentBase.executeQuery("from Ck"+table+" where");
                     it = lista.iterator();
                     while(it.hasNext()){
                         Descrizione d = (Descrizione) it.next();
@@ -468,26 +505,34 @@ public class dataFromDB {
 
     //prints a risk in xml format into the stream 'out'
     private void printRisk(Rischio r, PrintWriter out, int index){
-        out.println("\t<rischio idName=\""+index+"\">"+
-                        "\t\t<idRischio>"+r.getCodice()+"</idRischio>"+
-                        "\t\t<codiceChecklist>"+r.getCodiceChecklist()+"</codiceChecklist>"+
-                        "\t\t<stato>"+r.getStato().getStato()+"</stato>"+
-                        "\t\t<categoria>"+r.getCategoria()+"</categoria>"+
-                        "\t\t<rVer>"+r.getVerificato()+"</rVer>"+
-                        "\t\t<descrizione>"+escapeChars(r.getDescrizione())+"</descrizione>"+
-                        "\t\t<contingency>"+r.getContingency()+"</contingency>"+
-                        "\t\t<causa>"+escapeChars(r.getCausa())+"</causa>"+
-                        "\t\t<effetto>"+escapeChars(r.getEffetto())+"</effetto>"+
-                        "\t\t<probIniziale>"+r.getProbabilitaIniziale()+"</probIniziale>"+
-                        "\t\t<impattoIniziale>"+r.getImpattoIniziale()+"</impattoIniziale>"+
+        out.println("\t<rischio idName=\""+index+"\">\n"+
+                        "\t\t<idRischio>"+r.getCodice()+"</idRischio>\n"+
+                        "\t\t<codiceChecklist>"+r.getCodiceChecklist()+"</codiceChecklist>\n"+
+                        "\t\t<stato>"+r.getStato().getStato()+"</stato>\n"+
+                        "\t\t<categoria>"+r.getCategoria()+"</categoria>\n"+
+                        "\t\t<rVer>"+r.getVerificato()+"</rVer>\n"+
+                        "\t\t<descrizione>"+escapeChars(r.getDescrizione())+"</descrizione>\n"+
+                        "\t\t<contingency>"+r.getContingency()+"</contingency>\n"+
+                        "\t\t<causa>"+escapeChars(r.getCausa())+"</causa>\n"+
+                        "\t\t<effetto>"+escapeChars(r.getEffetto())+"</effetto>\n"+
+                        "\t\t<probIniziale>"+r.getProbabilitaIniziale()+"</probIniziale>\n"+
+                        "\t\t<impattoIniziale>"+r.getImpattoIniziale()+"</impattoIniziale>\n"+
+                        "\t\t<costoPotenzialeImpatto>"+r.getCostoPotenzialeImpatto()+"</costoPotenzialeImpatto>\n"+
                     "\t</rischio>");
         return;
     }
     //function that escapes characters to print into xml
     private String escapeChars(String s){
-        /*XXX finire escaping*/
-        s.replace('"', '\'');
-        //s.replace("\x9D", "\xE0");
+        s=s.replace('"', '\'');
+        s=s.replaceAll("\\ufffd", "a\'");
+        /*XXXString[] splitted = s.split("Valutare l'opportunit");
+        if(!(splitted.length == 1 && splitted[0].trim().compareTo("")!=0)){
+            StringBuilder sb = new StringBuilder();
+
+            Formatter formatter = new Formatter(sb, Locale.US);
+            formatter.format("%h",""+splitted[1].charAt(0)+"");
+            return sb.toString();
+        }*/
         return s;
     }
     //function that returns the number of groups configured by the user
@@ -552,6 +597,39 @@ public class dataFromDB {
             return null;
         }
         return p;
+    }
+    //generates risk ids
+    private String generateRiskId(HttpSession session) throws Exception {
+        //checking if project already defined
+        Progetto p = (Progetto) session.getAttribute("Progetto");
+        if(p==null){
+            //terminating: if a suggestion has to be made, a project has to be previously created
+            return null;
+        }
+        //project defined,charging the list of already given risk ids from session
+        LinkedList<String> givenRiskIds = (LinkedList<String>) session.getAttribute("givenRiskIds");
+        if(givenRiskIds== null)
+            givenRiskIds = new LinkedList<String>();
+
+        String riskid = new String();
+        //generating id
+        for(int i=1;;i++){
+            riskid = p.getCodice()+"R"+i;
+            if(Rischio.checkAvailable(riskid) &&
+                    !givenRiskIds.contains(riskid)){
+                givenRiskIds.add(riskid);
+                session.setAttribute("givenRiskIds", givenRiskIds);
+                return riskid;
+            }
+        }
+    }
+    //fills risk fields that are not suggestable 
+    private void fillRiskNotSuggestableFields(Rischio r,HttpSession session) throws Exception{
+        //inserting risk identifier into risk
+        r.setCodice(generateRiskId(session));
+        //inserting default description into risk
+        CkRischi ckr = (CkRischi) CkRischi.getById(CkRischi.class, r.getCodiceChecklist());
+        r.setDescrizione(ckr.getDescrizione());
     }
     //writes digest in xml
     private void printDigest(Progetto p, List riskList, List actionList, PrintWriter out){

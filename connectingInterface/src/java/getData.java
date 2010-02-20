@@ -78,6 +78,7 @@ public class getData extends HttpServlet {
                 else if (type.equals("give_allactionsforproject"))  typenum = 104; //user gives alla actions to add to the project
                 else if (type.equals("take_digest"))                typenum = 7; //gives a summary of all the fields of new project created
                 else if (type.equals("give_confirm"))               typenum = 105; //gives data="true" or "false" for confirmation or discard
+                else if (type.equals("take_newidrischio"))          typenum = 14; //generates a new id for risk to give to user
                  
                     
                 /*TYPES TO MODIFY A PROJECT */
