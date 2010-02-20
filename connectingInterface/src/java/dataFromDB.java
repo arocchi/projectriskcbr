@@ -217,7 +217,7 @@ public class dataFromDB {
                         Rischio r = (Rischio) riskIt.next();
                         lista = suggestActionsDummy(p,r);//XXX replace with real function
                         out.println("<rischio idName=\""+(riskIndex++)+"\">\n"+
-                                        "\t<codiceChecklist>"+r.getCodiceChecklist()+"</codiceChecklist>");
+                                        "\t<idRischio>"+r.getCodice()+"</idRischio>");
                         it = lista.iterator();
                         while(it.hasNext()){
                             Azioni a = (Azioni) it.next();
@@ -487,7 +487,7 @@ public class dataFromDB {
     private String escapeChars(String s){
         /*XXX finire escaping*/
         s.replace('"', '\'');
-        s.replace('"', '\'');
+        //s.replace("\x9D", "\xE0");
         return s;
     }
     //function that returns the number of groups configured by the user
