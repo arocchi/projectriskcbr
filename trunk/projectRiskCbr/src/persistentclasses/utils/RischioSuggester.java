@@ -1,5 +1,6 @@
 package persistentclasses.utils;
 
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import jcolibri.cbrcore.CBRCase;
 import jcolibri.method.retrieve.RetrievalResult;
 import jcolibriext.method.retrieve.NNretrieval.similarity.global.AdvancedAverage;
 import persistentclasses.Azioni;
@@ -22,23 +24,34 @@ import persistentclasses.Rischio;
  */
 public class RischioSuggester implements Comparable<RischioSuggester> {
 	Integer riskType;
+	CBRCase query;
+	
 	String	riskDescription;
 	Map<RetrievalResult, List<Rischio>> sortInfo;
 	
 	public RischioSuggester(Integer riskType) {
 		this.riskType = riskType;
 		sortInfo = new HashMap<RetrievalResult, List<Rischio>>();
+		query = null;
+	}
+	
+	public RischioSuggester(Integer riskType, CBRCase query) {
+		this.riskType = riskType;
+		sortInfo = new HashMap<RetrievalResult, List<Rischio>>();
+		this.query = query;
 	}
 	
 	private RischioSuggester addRR(RetrievalResult rr, Rischio r) {
 		List<Rischio> occurrences = null;
-		if((occurrences = sortInfo.get(rr)) != null) {
-			occurrences.add(r);
-		} else {
+		if((occurrences = sortInfo.get(rr)) == null) {
+			//
+			this.riskDescription = r.getDescrizione();
+			
 			occurrences = new LinkedList<Rischio>();
-			occurrences.add(r);
 			sortInfo.put(rr, occurrences);
 		}
+		
+		occurrences.add(r);
 		
 		return this;
 	}
@@ -98,14 +111,24 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 			return 1;
 		else return 0;
 	}
-	
+
 	/**
 	 * Suggests risks from a RetrievalResult collection of cases
 	 * @param cases a Collection<RetrievalResult> where RetrievalResult description is of type Progetto 
 	 * @return a List<RischioSuggester>. Each RischioSuggester represent a risk type.
 	 */	
 	public static List<RischioSuggester> getSuggesters(Collection<RetrievalResult> cases) {
-		return getTopKSuggesters(cases, null);
+		return getTopKSuggesters(null, cases, null);
+	}
+	
+	
+	/**
+	 * Suggests risks from a RetrievalResult collection of cases
+	 * @param cases a Collection<RetrievalResult> where RetrievalResult description is of type Progetto 
+	 * @return a List<RischioSuggester>. Each RischioSuggester represent a risk type.
+	 */	
+	public static List<RischioSuggester> getSuggesters(CBRCase query, Collection<RetrievalResult> cases) {
+		return getTopKSuggesters(query, cases, null);
 	}
 	
 	/**
@@ -114,7 +137,7 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 	 * @param k the number of suggested risks we want to get. Can be null
 	 * @return a List<RischioSuggester>. Each RischioSuggester represent a risk type.
 	 */
-	public static List<RischioSuggester> getTopKSuggesters(Collection<RetrievalResult> cases, Integer k) {
+	public static List<RischioSuggester> getTopKSuggesters(CBRCase query, Collection<RetrievalResult> cases, Integer k) {
 		Map<Integer, RischioSuggester> rischiByType = new HashMap<Integer, RischioSuggester>();
 		List<Rischio> rischi = new LinkedList<Rischio>();
 		
@@ -128,7 +151,10 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 		for(Rischio rischio : rischi) {
 			Integer rischioType = rischio.getCodiceChecklist();
 			if(!rischiByType.containsKey(rischioType)) {
-				rischiByType.put(rischioType, new RischioSuggester(rischioType));
+				if(query == null)
+					rischiByType.put(rischioType, new RischioSuggester(rischioType));
+				else
+					rischiByType.put(rischioType, new RischioSuggester(rischioType, query));
 			}
 		}
 		
@@ -159,8 +185,8 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 	public Rischio getSuggestion() {
 		Rischio suggestion = new Rischio();
 		suggestion.setCodiceChecklist(this.riskType);
-		//TODO
-		// suggestion.setDescrizione(this.riskDescription);
+		suggestion.setDescrizione(this.riskDescription);
+		
 		this.adapt(suggestion);
 		return suggestion;
 	}
@@ -172,9 +198,16 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 	 * @return
 	 */
 	private RischioSuggester adapt(Rischio rischio) {
+		// impatto iniziale
 		AdvancedAverage iiAverage = new AdvancedAverage();
+		
+		// probabilita' iniziale
 		AdvancedAverage piAverage = new AdvancedAverage();
+		
+		// costo potenziale impatto
 		AdvancedAverage cpiAverage = new AdvancedAverage();
+		
+		// contingency
 		AdvancedAverage coAverage = new AdvancedAverage();
 		
 		int iiComputedAverage;
@@ -192,11 +225,22 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 		
 		int index = 0;
 		for(Map.Entry<RetrievalResult, List<Rischio>> entry : sortInfo.entrySet()) {
+			Progetto rrProj = (Progetto)entry.getKey().get_case().getDescription();
+			Progetto qProj 	= (query == null? null : (Progetto)query.getDescription());
+			
 			for(Rischio r: entry.getValue()) {
 				iiArray[index] = r.getImpattoIniziale();
 				piArray[index] = r.getProbabilitaIniziale();
-				cpiArray[index] = r.getCostoPotenzialeImpatto();
-				coArray[index] = r.getContingency();
+				
+				if(query == null) {
+					cpiArray[index] = r.getCostoPotenzialeImpatto();
+					coArray[index] 	= r.getContingency();
+				} else if(qProj.getValoreEconomico() > 0) {
+					Double directProportion = qProj.getValoreEconomico() / rrProj.getValoreEconomico();
+					cpiArray[index] = r.getCostoPotenzialeImpatto() * directProportion;
+					coArray[index] 	= r.getContingency() 			* directProportion;
+				}
+				
 				weightsArray[index++] = entry.getKey().getEval();
 			}
 		}
