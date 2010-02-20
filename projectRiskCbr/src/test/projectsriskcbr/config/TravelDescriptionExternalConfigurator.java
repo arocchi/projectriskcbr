@@ -1,4 +1,4 @@
-package projectriskcbr.test.projectsriskcbr.config;
+package test.projectsriskcbr.config;
 
 import jcolibri.method.retrieve.NNretrieval.similarity.local.Equal;
 import jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;

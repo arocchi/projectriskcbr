@@ -1,4 +1,4 @@
-package projectriskcbr.test.projectsriskcbr.config;
+package test.projectsriskcbr.config;
 
 import org.junit.Assert;
 import org.junit.Test;

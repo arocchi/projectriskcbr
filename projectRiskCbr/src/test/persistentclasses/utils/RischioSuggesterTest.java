@@ -1,4 +1,4 @@
-package projectriskcbr.test.persistentclasses.utils;
+package test.persistentclasses.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package projectriskcbr.test.projectsriskcbr.config;
+package test.projectsriskcbr.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
