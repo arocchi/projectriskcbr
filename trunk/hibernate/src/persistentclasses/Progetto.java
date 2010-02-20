@@ -364,7 +364,7 @@ public class Progetto
      */
     public Progetto caricaRischi() throws Exception
     {
-        rischi = Rischio.executeQuery("from Rischi where idProgramma = '" + codice + "'");
+        rischi = Rischio.executeQuery("from Rischio where idProgramma = '" + codice + "'");
         //carico tutte le azioni e le revisioni per ogni rischio
         Iterator it = rischi.iterator();
         while(it.hasNext())
