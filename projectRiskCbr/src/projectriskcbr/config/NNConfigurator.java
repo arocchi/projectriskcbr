@@ -12,6 +12,14 @@ import jcolibri.method.retrieve.NNretrieval.similarity.LocalSimilarityFunction;
 import jcolibriext.method.retrieve.NNretrieval.similarity.global.AdvancedAverage;
 
 public class NNConfigurator {
+	/**
+	 * configureSimilarity configures a NNConfig configuration needed for the similarity algorithm
+	 * starting from a human-readable configuration loaded from an XML file.
+	 * 
+	 * @param simConfig			the actual NNConfig structure to configure the similarity algorithm
+	 * @param storedSimConfig	the xml-stored configuration for the similarity algorithm 
+	 * @param baseClass			the class type of the instances on which we will calculate similarities
+	 */
 	public static void configureSimilarity(	NNConfig simConfig, 
 											ConfigurationGroup storedSimConfig,
 											Class<?> baseClass) {

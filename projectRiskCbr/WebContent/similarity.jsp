@@ -24,6 +24,15 @@
 
 <%@ page import="java.util.*" %>
 
+
+<%@page import="org.hibernate.SessionFactory"%>
+<%@page import="persistentclasses.Progetto"%>
+<%@page import="persistentclasses.attributes.LivelloDiRischio"%>
+<%@page import="persistentclasses.attributes.ImpattoStrategico"%>
+<%@page import="projectriskcbr.config.NNConfigurator"%>
+<%@page import="projectriskcbr.config.SelfNNConfigurator"%>
+
+<html>
 <head></head>
 <body>
 <table border="0" cellpadding="2" cellspacing="7" width="100%">
@@ -34,7 +43,7 @@
   </td>
   <td colspan="2" valign="middle" bgcolor="#738EAB">
     <font size="-1">
-       <h1><font face="arial" color="#ffffff"> GAIA - Group for Artificial Intelligence Applications</font></h1>
+       <h1><font face="arial" color="#ffffff"> projectRiskCbr - Loading Configuration</font></h1>
 	</font>
 
 	<hr color="White">
@@ -43,119 +52,116 @@
 </table>
 <p><form action="index.html" method="post"><input type="submit" value="Back"></form></p>
 <%
-		
-		jcolibri.test.test4.TravelDescription queryDesc = new jcolibri.test.test4.TravelDescription();		
-		String holidayType		= new String("Bathing");
-		Integer numberOfPersons	= new Integer(2);
-		Region r = new Region();
-		r.setRegion("Bornholm");
-		queryDesc.setHolidayType(holidayType);
-		queryDesc.setNumberOfPersons(numberOfPersons);
-		queryDesc.setRegion(r);
-		CBRQuery query = new CBRQuery();
-		query.setDescription(queryDesc);
-		
-		Integer k = 5;
+		SessionFactory factory = 		(SessionFactory)getServletContext().getAttribute("factory");
+		Collection<CBRCase> cases = 	(Collection<CBRCase>)getServletContext().getAttribute("cases");
+		Configuration configuration = 	(Configuration)getServletContext().getAttribute("configuration");
 
-		CBRCaseBase caseBase = (CBRCaseBase)getServletContext().getAttribute("casebase");
+		/*
+		 * creating the description for the query.
+		 * every CBRCase consists of a Description and a Solution.
+		 * In our case, the Solution part is null, but we have a Description part.
+		 * the Description part is a Progetto instance.
+		 */
+		Progetto queryDesc = new Progetto();
+		queryDesc.setCodice("Nuovo Progetto");
+		queryDesc.setValoreEconomico(10000.0);
+		// we have R1, R2 and R3 for ingegneria
+		LivelloDiRischio ingegneria 	= new LivelloDiRischio(1, 0, 3);
+		queryDesc.setIngegneria(ingegneria);
 		
-		if(caseBase==null) {
-			out.println("case base is null");
+		// the query does not have an R3 set
+		LivelloDiRischio mercatoCliente = new LivelloDiRischio();
+		mercatoCliente.setR1(3);
+		mercatoCliente.setR2(0);
+		queryDesc.setMercatoCliente(mercatoCliente);
+		
+		// the query does not have an R1 set
+		LivelloDiRischio paese = new LivelloDiRischio();
+		paese.setR2(1);
+		paese.setR3(3);
+		queryDesc.setPaese(paese);
+		
+		ImpattoStrategico im = new ImpattoStrategico(2);
+		queryDesc.setIm(im);
+		
+		ImpattoStrategico ip = new ImpattoStrategico(0);
+		queryDesc.setIp(ip);
+		
+		// the query must be a CBRCase, the description of whom is the Progetto just defined
+		CBRCase query = new CBRCase();
+		query.setDescription(queryDesc);
+
+		
+		/* NNConfig is a configuration structure for the similarity algorithm
+		 * We put NNConfigs in a map so that we can have at any moment about the ConfigurationGroup that generated them
+		 */
+		Map<NNConfig, ConfigurationGroup> simConfigs = new HashMap<NNConfig, ConfigurationGroup>();
+		/*
+		 * globalSimConfig is a similarity configuration that gives a global ranking on a project,
+		 * that is it's a ranking that is more "general" to the ranking given in each group.
+		 * It will be used later with more explanations.
+		 */
+		NNConfig globalSimConfig = queryDesc.getTotalSimilarityConfig(null);
+		
+		
+		/*
+		 * NNConfigurator extracts information from a ConfigurationGroup and stores them
+		 * inside a simConfig structure.
+		 * Note you must pass the Progetto class to the configureSimilarity function.
+		 */
+		for(ConfigurationGroup groupConfig : configuration.groups) {
+			NNConfig simConfig = new NNConfig();
+			NNConfigurator.configureSimilarity(simConfig, groupConfig, Progetto.class);
+			simConfigs.put(simConfig, groupConfig);
 		}
 		
-		Collection<CBRCase> allCases = caseBase.getCases();
+	/* ------------------------- */	
+	/* CASES SELECTION IN GROUPS */
+	/* ------------------------- */
 		
-		/* CASES SELECTION IN GROUPS */
+	/* 
+	 * We build a list groupsResults, where each Collection of CBRCases (groupResult) corresponds to the top k results
+	 * of the similarity evaluation according to settings of each group.
+	 * Those k best results (according to the group similarity settings) are then ranked again inside each group
+	 * with the globalSimilarity similarity configuration (global ranking)
+	 *
+	 * RetrievalResult is a structure that contains a numerical evalution of the similarity between the query and a case
+	 * trough the getEval method, and the case for which the similarity towards the query has been calculated,
+	 * available trough the get_case method.
+	 * You can access the corrisponding Progetto instance trough the getDescription method of that case
+	 */
+	 Map<ConfigurationGroup, Collection<RetrievalResult>> groupsResults = new HashMap<ConfigurationGroup, Collection<RetrievalResult>>();
+	
+	/* We calculate similarity according to the similarity criterias specified for each group.
+	 * Then, we get the top k projects for the group. 
+	 */
+	for(Map.Entry<NNConfig, ConfigurationGroup> entry : simConfigs.entrySet()) {
+		NNConfig simConfig = entry.getKey();
+		// we calculate similarity according to the similarity configuratino for this group
+		Collection<RetrievalResult> simEval = NNScoringMethod.evaluateSimilarity(cases, query, simConfig);
+		Collection<CBRCase> bestEval = SelectCases.selectTopK(simEval, configuration.kProgetto);
+		
+		// as last, we give a global ranking to the best kProgetto entries of this group
+		Collection<RetrievalResult> globallyEvaluatedResul = NNScoringMethod.evaluateSimilarity(bestEval, query, globalSimConfig);
 
-		NNConfig simConfig1 = new NNConfig();
-		NNConfig simConfig2 = new NNConfig();
-		NNConfig simConfig3 = new NNConfig();
-		NNConfig globalSimConfig = new NNConfig();
+		out.println("Most similar cases with: " + query + " for group " + entry.getValue().getName());
+		out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
+		out.println("<tr><td><b>Similarity</b></td><td><b>Case</b></td></tr>");
+		for(RetrievalResult nse: globallyEvaluatedResul)
+			out.println("<tr><td>"+nse.getEval()+"</td><td>"+nse.get_case()+"</td></tr>");
+		out.println("</table>");
 		
-		simConfig1.setDescriptionSimFunction(new Average());
-		simConfig2.setDescriptionSimFunction(new Average());
-		simConfig3.setDescriptionSimFunction(new Average());
-		globalSimConfig.setDescriptionSimFunction(new Average());
-
-		Attribute at1 = new Attribute("HolidayType", TravelDescription.class);
-		simConfig1.addMapping(at1, new Equal());
-		simConfig1.setWeight(at1, 1.0);
-		globalSimConfig.addMapping(at1, new Equal());
-		
-		Attribute at3 = new Attribute("NumberOfPersons", TravelDescription.class);
-		simConfig2.addMapping(at3, new Equal());
-		simConfig2.setWeight(at3, 1.0);
-		globalSimConfig.addMapping(at3, new Equal());
-		
-		Attribute at9 = new Attribute("Region", TravelDescription.class); 
-		simConfig3.addMapping(at9, new Average());
-		simConfig3.setWeight(at9, 1.0);
-		globalSimConfig.addMapping(at9, new Average());
-
-		Attribute at10 = new Attribute("region", Region.class);
-		simConfig3.addMapping(at10, new Equal());
-		simConfig3.setWeight(at10, 1.0);
-		globalSimConfig.addMapping(at10, new Equal());
-		
-		globalSimConfig.addMapping(new Attribute("city", Region.class),		new Equal());
-		globalSimConfig.addMapping(new Attribute("airport", Region.class),	new Equal());
-		globalSimConfig.addMapping(new Attribute("currency", Region.class),	new Equal());
-		
-		globalSimConfig.addMapping(new Attribute("Transportation", TravelDescription.class), new Equal());
-		globalSimConfig.addMapping(new Attribute("Duration", TravelDescription.class), new Interval(31));
-		globalSimConfig.addMapping(new Attribute("Season", TravelDescription.class), new Equal());
+		groupsResults.put(entry.getValue(), globallyEvaluatedResul);
+	}
 	
-	Collection<RetrievalResult> eval1 = NNScoringMethod.evaluateSimilarity(allCases, query, simConfig1);
-	Collection<RetrievalResult> eval2 = NNScoringMethod.evaluateSimilarity(allCases, query, simConfig2);
-	Collection<RetrievalResult> eval3 = NNScoringMethod.evaluateSimilarity(allCases, query, simConfig3);
-			
-	out.println("Most similar cases with: " + query);
-	out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
-	out.println("<tr><td><b>Similarity</b></td><td><b>Case</b></td></tr>");
-	for(RetrievalResult nse: eval1)
-		out.println("<tr><td>"+nse.getEval()+"</td><td>"+nse.get_case()+"</td></tr>");
-	out.println("</table>");
-	
-	out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
-	out.println("<tr><td><b>Similarity</b></td><td><b>Case</b></td></tr>");
-	for(RetrievalResult nse: eval2)
-		out.println("<tr><td>"+nse.getEval()+"</td><td>"+nse.get_case()+"</td></tr>");
-	out.println("</table>");
-		
-	out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
-	out.println("<tr><td><b>Similarity</b></td><td><b>Case</b></td></tr>");
-	for(RetrievalResult nse: eval3)
-		out.println("<tr><td>"+nse.getEval()+"</td><td>"+nse.get_case()+"</td></tr>");
-	out.println("</table>");
-		
-	Collection<CBRCase> eval1TopK = SelectCases.selectTopK(eval1, k);
-	Collection<CBRCase> eval2TopK = SelectCases.selectTopK(eval2, k);
-	Collection<CBRCase> eval3TopK = SelectCases.selectTopK(eval3, k);
-	
-	Collection<RetrievalResult> eval1Global = NNScoringMethod.evaluateSimilarity(eval1TopK, query, globalSimConfig);
-	Collection<RetrievalResult> eval2Global = NNScoringMethod.evaluateSimilarity(eval2TopK, query, globalSimConfig);
-	Collection<RetrievalResult> eval3Global = NNScoringMethod.evaluateSimilarity(eval3TopK, query, globalSimConfig);
-	
-	out.println("<br><br>Most k similar cases with: " + query + "scored using global scoring method");
-	out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
-	out.println("<tr><td><b>Similarity</b></td><td><b>Case</b></td></tr>");
-	for(RetrievalResult nse: eval1Global)
-		out.println("<tr><td>"+nse.getEval()+"</td><td>"+nse.get_case()+"</td></tr>");
-	out.println("</table>");
-	
-	out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
-	out.println("<tr><td><b>Similarity</b></td><td><b>Case</b></td></tr>");
-	for(RetrievalResult nse: eval2Global)
-		out.println("<tr><td>"+nse.getEval()+"</td><td>"+nse.get_case()+"</td></tr>");
-	out.println("</table>");
-		
-	out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
-	out.println("<tr><td><b>Similarity</b></td><td><b>Case</b></td></tr>");
-	for(RetrievalResult nse: eval3Global)
-		out.println("<tr><td>"+nse.getEval()+"</td><td>"+nse.get_case()+"</td></tr>");
-	out.println("</table>");
-
+	getServletContext().setAttribute("factory", factory);
+	getServletContext().setAttribute("cases", cases);
+	getServletContext().setAttribute("query", query);
+	getServletContext().setAttribute("configuration", configuration);
+	getServletContext().setAttribute("simConfigs", simConfigs);
+	getServletContext().setAttribute("groupsResults", groupsResults);
 %>
 <p><form action="index.html" method="post"><input type="submit" value="Back"></form></p>
 </body>
+
 </html>
