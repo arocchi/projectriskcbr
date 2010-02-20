@@ -1,34 +1,187 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
 	<description>Test configuration</description>
+	<kProgetto>5</kProgetto>
+	<kRischio>5</kRischio>
+	<kAzioni>5</kAzioni>
+	<adaptIntensita>false</adaptIntensita>
+	
 	<groups>
   		<group>
-  			<name>group A</name>
+  			<name>mercato-cliente</name>
 			<attributes>
     			<attribute>
-     				<name>HolidayType</name>
+     				<name>paese</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>paese.R1</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>paese.R2</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>paese.R3</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>mercatoCliente</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>mercatoCliente.R1</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>mercatoCliente.R2</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>mercatoCliente.R3</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>contratto</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>contratto.R1</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>contratto.R2</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>contratto.R3</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+				<attribute>
+     				<name>im</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+				<attribute>
+     				<name>ic</name>
 		     		<weight>1.0</weight>
     			</attribute>
 		    </attributes>
   		</group>
   		<group>
-  			<name>group B</name>
+  			<name>progetto</name>
     		<attributes>
     			<attribute>
-    				<name>NumberOfPersons</name>
+    				<name>composizionePartnership</name>
 		    		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+    				<name>composizionePartnership.R1</name>
+		    		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+    				<name>composizionePartnership.R2</name>
+		    		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+    				<name>composizionePartnership.R3</name>
+		    		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+    				<name>ingegneria</name>
+		    		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+    				<name>ingegneria.R1</name>
+		    		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+    				<name>ingegneria.R2</name>
+		    		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+    				<name>ingegneria.R3</name>
+		    		<weight>1.0</weight>
+    			</attribute>
+    			<attribute>
+     				<name>ip</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+				<attribute>
+     				<name>ia</name>
+		     		<weight>1.0</weight>
+    			</attribute>
+				<attribute>
+     				<name>ipp</name>
+		     		<weight>1.0</weight>
     			</attribute>
 		    </attributes>
   		</group>
   		<group>
-  			<name>group C</name>
+  			<name>realizzazione</name>
   			<attributes>
   				<attribute>
-  					<name>Region</name>
+  					<name>approvvigionamento</name>
 		  			<weight>1.0</weight>
   				</attribute>
   				<attribute>
-  					<name>Region.region</name>
+  					<name>approvvigionamento.R1</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>approvvigionamento.R2</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>approvvigionamento.R3</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>fabbricazione</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>fabbricazione.R1</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>fabbricazione.R2</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>fabbricazione.R3</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>montaggio</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>montaggio.R1</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>montaggio.R2</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>montaggio.R3</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>avviamento</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>avviamento.R1</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>avviamento.R2</name>
+		  			<weight>1.0</weight>
+  				</attribute>
+  				<attribute>
+  					<name>avviamento.R3</name>
 		  			<weight>1.0</weight>
   				</attribute>
 		  	</attributes>
