@@ -13,6 +13,12 @@ public class Configuration {
 	public List<ConfigurationGroup> groups = new ArrayList<ConfigurationGroup>();
 	public String description = new String();
 	
+	public Integer kProgetto;
+	public Integer kRischio;
+	public Integer kAzioni;
+	
+	public Boolean adaptIntensita = false;
+	
 	public void save(FileOutputStream configFile) {
         XStream xs = new XStream();
         xs.alias("config", Configuration.class);
