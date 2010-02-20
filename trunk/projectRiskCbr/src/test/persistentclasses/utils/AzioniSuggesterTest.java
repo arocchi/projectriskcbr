@@ -3,14 +3,10 @@ package test.persistentclasses.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-
-import javax.swing.plaf.basic.BasicSliderUI.ActionScroller;
 
 import jcolibri.cbrcore.CBRCase;
 import jcolibri.method.retrieve.RetrievalResult;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
