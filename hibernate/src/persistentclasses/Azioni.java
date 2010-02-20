@@ -10,7 +10,7 @@ import java.util.List;
 public class Azioni extends persistentBase{
 	public static String CLOSED = "Closed";
 	public static String PLANNED = "Planned";
-	public static String BACKUP = "Backup";
+	public static String BACKUP = "Back-up";
 	
     private AzioniPrimaryKey    primaryKey;//idRischio + idAzione + tipo
 
@@ -86,17 +86,17 @@ public class Azioni extends persistentBase{
      }
      
      public boolean isClosed() {
-    	 if(this.stato.equals("Closed")) return true;
+    	 if(this.stato.equals(CLOSED)) return true;
     	 return false;
      }
      
      public boolean isPlanned() {
-    	 if(this.stato.equals("Planned")) return true;
+    	 if(this.stato.equals(PLANNED)) return true;
     	 return false;
      }
      
      public boolean isBackUp() {
-    	 if(this.stato.equals("Back-up")) return true;
+    	 if(this.stato.equals(BACKUP)) return true;
     	 return false;
      }
      
