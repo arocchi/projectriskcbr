@@ -2,6 +2,8 @@ package persistentclasses.attributes;
 
 import java.io.Serializable;
 
+import persistentclasses.Azioni;
+
 /**
  * Chiave primaria delle azioni
  */
@@ -79,10 +81,10 @@ public class AzioniPrimaryKey implements Serializable{
      }
     
     public String getDefaultStato() {
-		if(this.getTipo() == 'M')
-			return "Planned";
-		else if(this.getTipo() == 'M')
-			return "Back-up";
+		if(this.getTipo() == MITIGATION)
+			return Azioni.PLANNED;
+		else if(this.getTipo() == RECOVERY)
+			return Azioni.BACKUP;
 		return "Error";
     }
 }
