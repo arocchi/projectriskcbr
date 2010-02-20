@@ -283,6 +283,15 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 	 * @return a suggestion for selected risk
 	 */
 	public Azioni getSuggestion() {
+		return getSuggestion(true);
+	}
+	
+
+	/**
+	 * @param adaptImpact adapt Intensita for suggested risk
+	 * @return an action suggestion for selected risk
+	 */
+	public Azioni getSuggestion(boolean adaptImpact) {
 		Azioni suggestedAction = new Azioni();
 		
 		suggestedAction.setDescrizione(this.actionDescription);
@@ -291,8 +300,10 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 		suggestedAction.getPrimaryKey().setTipo(this.actionType);
 		suggestedAction.setStato(this.actionStatus);
 		
-		//TODO i valori di intensità dovrebbero essere calcolati dal rischio
-		this.adapt(suggestedAction);
+		if(adaptImpact == true) {
+			//TODO i valori di intensità dovrebbero essere calcolati dal rischio
+			this.adapt(suggestedAction);
+		}
 		
 		return suggestedAction;		
 	}
