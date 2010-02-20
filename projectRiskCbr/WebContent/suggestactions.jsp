@@ -81,6 +81,8 @@
 			out.println("<tr><td><b>Action CheckList Id</b></td><td><b>Action</b></td></tr>");
 			for(AzioniSuggester suggester: azioniSuggesters) {
 				Azioni azione = suggester.getSuggestion();
+				if(!configuration.adaptIntensita)
+					azione.unsetIntensita();
 				out.println("<tr><td>" + suggester.getActionId()+"</td><td>" + azione + "</td></tr>");
 			}
 			out.println("</table>");
