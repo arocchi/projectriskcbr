@@ -19,6 +19,11 @@ public class dataFromDB {
             SessionObject.getStarted((SessionFactory) session.getAttribute("sessionfactory"));
             SessionObject.newTransaction();           
 
+            /*RIGHE DI DEBUG PER TESTING DAVID*/
+            session.setAttribute("Progetto", new Progetto());
+            session.setAttribute("RisksAddedToProject", extractRisksFromRequestDummy(request));
+            session.setAttribute("ActionsAddedToProject", extractActionsFromRequestDummy(request));
+            /*END*/
             List lista;
             Iterator it;
             int index;
