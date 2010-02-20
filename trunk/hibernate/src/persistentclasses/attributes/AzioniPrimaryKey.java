@@ -6,6 +6,9 @@ import java.io.Serializable;
  * Chiave primaria delle azioni
  */
 public class AzioniPrimaryKey implements Serializable{
+	public static char MITIGATION = 'M';
+	public static char RECOVERY = 'R';
+	
     private int         idAzione;
     private String      idRischio;//univoco in tutto il db
     private char        tipo;//M o R per mitigazione o recovery
@@ -47,6 +50,14 @@ public class AzioniPrimaryKey implements Serializable{
      public char getTipo()
      {
          return tipo;
+     }
+     
+     public boolean isRecovery() {
+    	 return (tipo == RECOVERY);
+     }
+     
+     public boolean isMitigation() {
+    	 return (tipo == MITIGATION);
      }
 
      //serve per i confronti fatti da hibernate
