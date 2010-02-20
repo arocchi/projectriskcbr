@@ -34,6 +34,9 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 		this.perfectMatch = false;
 	}
 	
+	/*
+	 * @return the id of the action from the checklist
+	 */
 	public Integer getActionId() {
 		return actionId;
 	}

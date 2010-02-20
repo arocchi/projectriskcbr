@@ -35,6 +35,13 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 		query = null;
 	}
 	
+	/**
+	 * @return the id of the risk from the checklist
+	 */
+	public Integer getRiskId() {
+		return this.riskType;
+	}
+	
 	public RischioSuggester(Integer riskType, CBRCase query) {
 		this.riskType = riskType;
 		sortInfo = new HashMap<RetrievalResult, List<Rischio>>();
