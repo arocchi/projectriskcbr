@@ -59,6 +59,11 @@ public class Azioni extends persistentBase{
             intensita=x;
         return this;
     }
+     
+    public Azioni unsetIntensita() {
+    	intensita = -50;
+    	return this;
+    }
 
     public AzioniPrimaryKey getPrimaryKey()
     {
