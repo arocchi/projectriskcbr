@@ -144,7 +144,7 @@
 		// as last, we give a global ranking to the best kProgetto entries of this group
 		Collection<RetrievalResult> globallyEvaluatedResul = NNScoringMethod.evaluateSimilarity(bestEval, query, globalSimConfig);
 
-		out.println("Most similar cases with: " + query + " for group " + entry.getValue().getName());
+		out.println("<br><br><h3>Most similar cases with: " + query + " for group " + entry.getValue().getName() + "</h3>");
 		out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
 		out.println("<tr><td><b>Similarity</b></td><td><b>Case</b></td></tr>");
 		for(RetrievalResult nse: globallyEvaluatedResul)

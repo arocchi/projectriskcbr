@@ -38,19 +38,19 @@
 		// loading configuration
 		Configuration configuration = Configuration.load(configFile);
 		
-		System.out.println("Loaded configuration file from assets/groupsConfig.xml");
-		System.out.println("Printing basic configuration informations:<br>" +
+		out.println("Loaded configuration file from assets/groupsConfig.xml");
+		out.println("Printing basic configuration informations:<br>" +
 								"Number of progetti to gather per group: " + configuration.kProgetto + "<br>" +
 								"Number of rischi to suggest per group: " + configuration.kRischio + "<br>" +
 								"Number of azioni to suggest per risk: " + configuration.kAzioni + "<br>" +
 								"Do we have to adapt intensita for each azione?: " + configuration.adaptIntensita + "<br>" +
 								"Number of groups in this configuration: " + configuration.groups.size() + "<br>");
 		
-		System.out.println("Printing basic information for each group:<br>");
+		out.println("<br>Printing basic information for each group:<br>");
 		for(ConfigurationGroup group : configuration.groups) {
-			System.out.println("Group " + group.getName() + ":<br>");
+			out.println("<br>Group " + group.getName() + ":<br>");
 			for(ConfigurationAttribute attr : group.attributes) {
-				System.out.println("-- " + attr.getName() + "\t\t-" + attr.getWeight() + "<br>");	
+				out.println("-- name:" + attr.getName() + "\t\t- weight: " + attr.getWeight() + "<br>");	
 			}
 		}
 	    

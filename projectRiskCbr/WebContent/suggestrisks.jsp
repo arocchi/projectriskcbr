@@ -71,7 +71,7 @@
 		Collection<RischioSuggester> rischioSuggesters = RischioSuggester.getTopKSuggesters(query, entry.getValue(), configuration.kRischio);
 		rischioSuggestersByGroup.put(entry.getKey(), rischioSuggesters);
 		
-		out.println("Best risks for query: " + query + " in group " + entry.getKey().getName());
+		out.println("<br><br><h3>Best risks for query: " + query + " in group " + entry.getKey().getName() + "</h3>");
 		out.println("<p><table border=\"1\" cellpadding=\"2\" cellspacing=\"2\" width=\"100%\">");			
 		out.println("<tr><td><b>Risk CheckList Id</b></td><td><b>Risk</b></td></tr>");
 		for(RischioSuggester suggester: rischioSuggesters) {
