@@ -10,6 +10,7 @@
     </id>
     -->
     <composite-id class="persistentclasses.attributes.AzioniPrimaryKey" name="primaryKey">
+      <key-property column="IDENTIFIER" name="identifier"/>
       <key-property column="ID_AZIONE" name="idAzione"/>
       <key-property column="ID_RISCHIO" name="idRischio"/>
       <key-property column="TIPO" name="tipo"/>

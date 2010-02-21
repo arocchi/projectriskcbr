@@ -8,23 +8,29 @@ import persistentclasses.Azioni;
  * Chiave primaria delle azioni
  */
 public class AzioniPrimaryKey implements Serializable{
-	public static char MITIGATION = 'M';
-	public static char RECOVERY = 'R';
-	
-    private int         idAzione;
+    public static char MITIGATION = 'M';
+    public static char RECOVERY = 'R';
+
+    private int         identifier; //idAzione nel database fornito
+    private int         idAzione; //codice checklist
     private String      idRischio;//univoco in tutto il db
     private char        tipo;//M o R per mitigazione o recovery
 
 
     public AzioniPrimaryKey(){}
 
-    public AzioniPrimaryKey(int a, String r, char t)
+    public AzioniPrimaryKey(int i, int a, String r, char t)
     {
+        identifier = i;
         idAzione = a;
         idRischio = r;
         tipo = t;
     }
-    
+
+    public AzioniPrimaryKey setIdentifier(int x){
+        identifier = x;
+        return this;
+    }
     public AzioniPrimaryKey setIdRischio(String x){
         idRischio = x;
         return this;
@@ -41,6 +47,9 @@ public class AzioniPrimaryKey implements Serializable{
         return this;
     }
 
+    public int getIdentifier(){
+        return identifier;
+    }
     public String getIdRischio(){
          return idRischio;
      }
@@ -66,6 +75,7 @@ public class AzioniPrimaryKey implements Serializable{
      public boolean equals(AzioniPrimaryKey x)
      {
             if(x instanceof AzioniPrimaryKey &&
+               x.identifier == identifier &&
                x.idRischio.compareTo(idRischio) == 0 &&
                x.idAzione == idAzione &&
                x.tipo == tipo)
@@ -77,7 +87,7 @@ public class AzioniPrimaryKey implements Serializable{
     @Override
      public String toString()
      {
-         return new String("idAzione = " + idAzione + "\nidRischio = " + idRischio +"\n" +"tipo = "+tipo+"\n");
+         return new String("identifier = "+identifier+"\nidAzione = " + idAzione + "\nidRischio = " + idRischio +"\n" +"tipo = "+tipo+"\n");
      }
     
     public String getDefaultStato() {

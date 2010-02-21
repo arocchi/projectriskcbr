@@ -182,9 +182,10 @@ public class Azioni extends persistentBase{
      * @return          false: chiave occupata; true: chiave libera
      * @throws Exception
      */
-    public static boolean checkAvailable(int idAzione, String idRischio, char tipo) throws Exception
+    public static boolean checkAvailable(int identifier, int idAzione, String idRischio, char tipo) throws Exception
     {
         AzioniPrimaryKey pk = new AzioniPrimaryKey();
+        pk.setIdentifier(identifier);
         pk.setIdAzione(idAzione);
         pk.setIdRischio(idRischio);
         pk.setTipo(tipo);
