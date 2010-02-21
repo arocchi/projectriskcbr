@@ -29,10 +29,20 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 	String	riskDescription;
 	Map<RetrievalResult, List<Rischio>> sortInfo;
 	
+	Rischio storedSuggestion;
+	
 	public RischioSuggester(Integer riskType) {
 		this.riskType = riskType;
 		sortInfo = new HashMap<RetrievalResult, List<Rischio>>();
 		query = null;
+		storedSuggestion = null;
+	}
+	
+	public RischioSuggester(Integer riskType, CBRCase query) {
+		this.riskType = riskType;
+		sortInfo = new HashMap<RetrievalResult, List<Rischio>>();
+		this.query = query;
+		storedSuggestion = null;
 	}
 	
 	/**
@@ -40,12 +50,6 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 	 */
 	public Integer getRiskId() {
 		return this.riskType;
-	}
-	
-	public RischioSuggester(Integer riskType, CBRCase query) {
-		this.riskType = riskType;
-		sortInfo = new HashMap<RetrievalResult, List<Rischio>>();
-		this.query = query;
 	}
 	
 	private RischioSuggester addRR(RetrievalResult rr, Rischio r) {
@@ -198,6 +202,18 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 		return suggestion;
 	}
 	
+	public boolean hasStoredSuggestion() {
+		return (storedSuggestion != null);
+	}
+	
+	public Rischio getStoredSuggestion() {
+		return storedSuggestion;
+	}
+
+	public void setStoredSuggestion(Rischio storedSuggestion) {
+		this.storedSuggestion = storedSuggestion;
+	}
+
 	/**
 	 * Adapts impattoIniziale, probabilitaIniziale and contingency
 	 * for the specified risk according to info in this suggester 
