@@ -10,6 +10,7 @@ import java.util.Map;
 import jcolibri.method.retrieve.RetrievalResult;
 import jcolibriext.method.retrieve.NNretrieval.similarity.global.AdvancedAverage;
 import persistentclasses.Azioni;
+import persistentclasses.Rischio;
 import persistentclasses.attributes.AzioniPrimaryKey;
 
 /**
@@ -26,21 +27,18 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 	
 	Boolean perfectMatch;
 	
+	Azioni storedSuggestion;
+	
 	Map<RetrievalResult, List<Azioni>> sortInfo;
 	
 	public AzioniSuggester(Integer actionId) {
 		this.actionId = actionId;
 		sortInfo = new HashMap<RetrievalResult, List<Azioni>>();
 		this.perfectMatch = false;
+		storedSuggestion = null;
 	}
 	
-	/*
-	 * @return the id of the action from the checklist
-	 */
-	public Integer getActionId() {
-		return actionId;
-	}
-	
+
 	private AzioniSuggester addRR(RetrievalResult rr, Azioni a) {
 		List<Azioni> occurrences = null;
 		if((occurrences = sortInfo.get(rr)) == null) {
@@ -51,9 +49,17 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 			this.actionStatus = a.getPrimaryKey().getDefaultStato();
 			// TODO dove sono le informazioni della checklist?
 			this.actionDescription = a.getDescrizione();
+			storedSuggestion = null;
 		}
 		occurrences.add(a);
 		return this;
+	}
+	
+	/*
+	 * @return the id of the action from the checklist
+	 */
+	public Integer getActionId() {
+		return actionId;
 	}
 	
 	
@@ -288,10 +294,9 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 	public Azioni getSuggestion() {
 		return getSuggestion(true);
 	}
-	
 
 	/**
-	 * @param adaptImpact adapt Intensita for suggested risk
+	 * @param adaptImpact if true, suggestion has an adapted Intensita
 	 * @return an action suggestion for selected risk
 	 */
 	public Azioni getSuggestion(boolean adaptImpact) {
@@ -310,6 +315,19 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 		
 		return suggestedAction;		
 	}
+	
+	public boolean hasStoredSuggestion() {
+		return (storedSuggestion != null);
+	}
+	
+	public Azioni getStoredSuggestion() {
+		return storedSuggestion;
+	}
+
+	public void setStoredSuggestion(Azioni storedSuggestion) {
+		this.storedSuggestion = storedSuggestion;
+	}
+	
 	
 	/**
 	 * Adapts an Azioni instance by calculating weighted sum of Intensita
