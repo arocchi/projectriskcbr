@@ -178,7 +178,7 @@ public class ProgettoTest {
 		NNConfigurator.configureSimilarity(groupASimConfig, manualConfiguration.groups.get(0) , Progetto.class);
 		Collection<RetrievalResult> groupAresults = NNScoringMethod.evaluateSimilarity(cases, query, groupASimConfig);
 		Iterator<RetrievalResult> groupAresultsIterator = groupAresults.iterator();
-		Assert.assertTrue(	"groupA should containt two cases with similarity 1.0, and the third should have similarity 0.0", 
+		Assert.assertTrue(	"groupA should contain two cases with similarity 1.0, and the third should have similarity 0.0", 
 							groupAresultsIterator.next().getEval() == 1.0 &&
 							groupAresultsIterator.next().getEval() == 1.0 &&
 							groupAresultsIterator.next().getEval() == 0.0);
