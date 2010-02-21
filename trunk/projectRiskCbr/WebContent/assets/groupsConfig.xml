@@ -2,7 +2,7 @@
 <config>
 	<description>Test configuration</description>
 	<kProgetto>5</kProgetto>
-	<kRischio>5</kRischio>
+	<kRischio>4</kRischio>
 	<kAzioni>5</kAzioni>
 	<adaptIntensita>false</adaptIntensita>
 	
