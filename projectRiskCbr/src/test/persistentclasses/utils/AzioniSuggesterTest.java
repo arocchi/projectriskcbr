@@ -78,7 +78,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("a");
 			azione.setIntensita(10);
-			azionePK 	= new AzioniPrimaryKey(azioneIdA, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(1, azioneIdA, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -86,14 +86,14 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("b");
 			azione.setIntensita(1);
-			azionePK 	= new AzioniPrimaryKey(azioneIdB, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(2, azioneIdB, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
 			azione 		= new Azioni();
 			azione.setStato("Back-up");
 			azione.setDescrizione("e");
-			azionePK 	= new AzioniPrimaryKey(azioneIdE, null, 'R');
+			azionePK 	= new AzioniPrimaryKey(3, azioneIdE, null, 'R');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -101,7 +101,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("g");
 			azione.setIntensita(3);
-			azionePK 	= new AzioniPrimaryKey(azioneIdG, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(4, azioneIdG, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -109,7 +109,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("h");
 			azione.setIntensita(-1);
-			azionePK 	= new AzioniPrimaryKey(azioneIdH, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(5, azioneIdH, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -117,14 +117,14 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("l");
 			azione.setIntensita(-1);
-			azionePK 	= new AzioniPrimaryKey(azioneIdL, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(6, azioneIdL, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
 			azione 		= new Azioni();
 			azione.setStato("Planned");
 			azione.setDescrizione("m");
-			azionePK 	= new AzioniPrimaryKey(azioneIdM, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(7, azioneIdM, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -132,7 +132,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("n");
 			azione.setIntensita(-3);
-			azionePK 	= new AzioniPrimaryKey(azioneIdN, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(8, azioneIdN, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -149,7 +149,7 @@ public class AzioniSuggesterTest {
 			azione 		= new Azioni();
 			azione.setStato("Planned");
 			azione.setDescrizione("c");
-			azionePK 	= new AzioniPrimaryKey(azioneIdC, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(9, azioneIdC, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -186,7 +186,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("a");
 			azione.setIntensita(5);
-			azionePK 	= new AzioniPrimaryKey(azioneIdA, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(10, azioneIdA, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -194,7 +194,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("b");
 			azione.setIntensita(3);
-			azionePK 	= new AzioniPrimaryKey(azioneIdB, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(11, azioneIdB, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -202,7 +202,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("h");
 			azione.setIntensita(3);
-			azionePK 	= new AzioniPrimaryKey(azioneIdH, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(12, azioneIdH, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -210,7 +210,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("l");
 			azione.setIntensita(-1);
-			azionePK 	= new AzioniPrimaryKey(azioneIdL, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(13, azioneIdL, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -218,14 +218,14 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("g");
 			azione.setIntensita(-50);
-			azionePK 	= new AzioniPrimaryKey(azioneIdG, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(14, azioneIdG, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
 			azione 		= new Azioni();
 			azione.setStato("Planned");
 			azione.setDescrizione("g");
-			azionePK 	= new AzioniPrimaryKey(azioneIdG, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(15, azioneIdG, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -233,7 +233,7 @@ public class AzioniSuggesterTest {
 			azione.setStato("Closed");
 			azione.setDescrizione("n");
 			azione.setIntensita(1);
-			azionePK 	= new AzioniPrimaryKey(azioneIdN, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(16, azioneIdN, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -251,14 +251,14 @@ public class AzioniSuggesterTest {
 			azione 		= new Azioni();
 			azione.setStato("Planned");
 			azione.setDescrizione("c");
-			azionePK 	= new AzioniPrimaryKey(azioneIdC, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(17, azioneIdC, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
 			azione 		= new Azioni();
 			azione.setStato("Back-up");
 			azione.setDescrizione("f");
-			azionePK 	= new AzioniPrimaryKey(azioneIdF, null, 'R');
+			azionePK 	= new AzioniPrimaryKey(18, azioneIdF, null, 'R');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 			
@@ -274,7 +274,7 @@ public class AzioniSuggesterTest {
 			azione 		= new Azioni();
 			azione.setStato("Planned");
 			azione.setDescrizione("d");
-			azionePK 	= new AzioniPrimaryKey(azioneIdD, null, 'M');
+			azionePK 	= new AzioniPrimaryKey(19, azioneIdD, null, 'M');
 			azione.setPrimaryKey(azionePK);
 			rischio.getAzioni().add(azione);
 		} catch(Exception e) {

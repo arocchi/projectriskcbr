@@ -52,9 +52,6 @@ public abstract class AdvancedGlobalSimilarityFunction implements GlobalSimilari
 		Attribute at2 = new Attribute(at1.getName(), componentOfQuery.getClass());
 		
 		try{
-//			java.beans.PropertyDescriptor pd = new java.beans.PropertyDescriptor(at1.getName(),at1.getDeclaringClass());
-//			pd.getReadMethod().invoke(componentOfCase, (Object[])null);
-			
 			if(	(	((gsf = numSimConfig.getGlobalSimilFunction(at1)) != null) || 
 					((lsf = numSimConfig.getLocalSimilFunction(at1))  != null)) &&
 				(	at1.getValue(componentOfCase) == null ||
