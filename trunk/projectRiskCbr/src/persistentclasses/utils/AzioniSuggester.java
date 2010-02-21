@@ -27,7 +27,7 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 	
 	Boolean perfectMatch;
 	
-	Azioni storedSuggestion;
+	Azioni revisedSuggestion;
 	
 	Map<RetrievalResult, List<Azioni>> sortInfo;
 	
@@ -35,7 +35,7 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 		this.actionId = actionId;
 		sortInfo = new HashMap<RetrievalResult, List<Azioni>>();
 		this.perfectMatch = false;
-		storedSuggestion = null;
+		revisedSuggestion = null;
 	}
 	
 
@@ -49,7 +49,7 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 			this.actionStatus = a.getPrimaryKey().getDefaultStato();
 			// TODO dove sono le informazioni della checklist?
 			this.actionDescription = a.getDescrizione();
-			storedSuggestion = null;
+			revisedSuggestion = null;
 		}
 		occurrences.add(a);
 		return this;
@@ -316,16 +316,16 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 		return suggestedAction;		
 	}
 	
-	public boolean hasStoredSuggestion() {
-		return (storedSuggestion != null);
+	public boolean hasRevisedSuggestion() {
+		return (revisedSuggestion != null);
 	}
 	
-	public Azioni getStoredSuggestion() {
-		return storedSuggestion;
+	public Azioni getRevisedSuggestion() {
+		return revisedSuggestion;
 	}
 
-	public void setStoredSuggestion(Azioni storedSuggestion) {
-		this.storedSuggestion = storedSuggestion;
+	public void setRevisedSuggestion(Azioni revisedSuggestion) {
+		this.revisedSuggestion = revisedSuggestion;
 	}
 	
 	

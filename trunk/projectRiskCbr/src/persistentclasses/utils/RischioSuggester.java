@@ -29,20 +29,20 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 	String	riskDescription;
 	Map<RetrievalResult, List<Rischio>> sortInfo;
 	
-	Rischio storedSuggestion;
+	Rischio revisedSuggestion;
 	
 	public RischioSuggester(Integer riskType) {
 		this.riskType = riskType;
 		sortInfo = new HashMap<RetrievalResult, List<Rischio>>();
 		query = null;
-		storedSuggestion = null;
+		revisedSuggestion = null;
 	}
 	
 	public RischioSuggester(Integer riskType, CBRCase query) {
 		this.riskType = riskType;
 		sortInfo = new HashMap<RetrievalResult, List<Rischio>>();
 		this.query = query;
-		storedSuggestion = null;
+		revisedSuggestion = null;
 	}
 	
 	/**
@@ -202,16 +202,16 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 		return suggestion;
 	}
 	
-	public boolean hasStoredSuggestion() {
-		return (storedSuggestion != null);
+	public boolean hasRevisedSuggestion() {
+		return (revisedSuggestion != null);
 	}
 	
-	public Rischio getStoredSuggestion() {
-		return storedSuggestion;
+	public Rischio getRevisedSuggestion() {
+		return revisedSuggestion;
 	}
 
-	public void setStoredSuggestion(Rischio storedSuggestion) {
-		this.storedSuggestion = storedSuggestion;
+	public void setRevisedSuggestion(Rischio revisedSuggestion) {
+		this.revisedSuggestion = revisedSuggestion;
 	}
 
 	/**
