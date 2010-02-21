@@ -43,7 +43,6 @@ public abstract class persistentBase {
          if(SessionObject.session == null)// || tx == null)
             throw new Exception("getById() operation needs a previous newTransaction() operation\n");
 
-        //XXX SessionObject.prova = "getById";
         return (persistentBase) SessionObject.session.get(c,(Serializable) x);
         
     }

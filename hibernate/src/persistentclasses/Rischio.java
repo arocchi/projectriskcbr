@@ -299,7 +299,7 @@ public class Rischio extends persistentBase{
             if(a.getPrimaryKey().equals(key))
                 found = true;
         }
-        //XXX se non trovato, mando eccezione
+        //se non trovato, mando eccezione
         if(!found)
         {
             throw new Exception("Azione "+ key  +" inesistente");
@@ -460,7 +460,7 @@ public class Rischio extends persistentBase{
             if(r.getKey().equals(key))
                 found = true;
         }
-        //XXX se non trovato, mando eccezione
+        //se non trovato, mando eccezione
         if(!found)
         {
             throw new Exception("Revisione "+ key  +" inesistente");

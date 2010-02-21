@@ -123,15 +123,6 @@ public class Azioni extends persistentBase{
      }
 
      /**
-      *
-      * XXX Funzione per debug, mostra la chiave dell'azione
-      */
-     /*public String toString()
-     {
-         return primaryKey.toString();
-     }*/
-
-     /**
       * Funzione che accede al DataBase, e legge tutte le chiavi primarie
       * delle azioni presenti.
       * Serve come utilita' per altre funzioni.

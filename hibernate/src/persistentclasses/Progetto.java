@@ -435,7 +435,7 @@ public class Progetto
             if(r.getCodice().compareTo(id) == 0)
                 found = true;
         }
-        //XXX se non trovato, mando eccezione
+        //se non trovato, mando eccezione
         if(!found)
         {
             throw new Exception("Rischio "+ id  +" inesistente");

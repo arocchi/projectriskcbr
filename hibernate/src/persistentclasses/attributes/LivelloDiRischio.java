@@ -9,11 +9,12 @@ import jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;
 /**
  * La classe descrive i livelli di rischio per un progetto
  */
-public class LivelloDiRischio 
-		implements	jcolibri.cbrcore.CaseComponent, 
-					projectriskcbr.config.SelfNNConfigurator, 
-					projectriskcbr.config.SelfNNTotalSimilarityConfigurator {
-	public static final Integer RANGE = 3;
+public class LivelloDiRischio
+    implements	jcolibri.cbrcore.CaseComponent,
+		projectriskcbr.config.SelfNNConfigurator, 
+		projectriskcbr.config.SelfNNTotalSimilarityConfigurator {
+    
+    public static final Integer RANGE = 3;
 	
     private Integer R1;
     private Integer R2;
@@ -43,21 +44,21 @@ public class LivelloDiRischio
     public void setR1(int x){
         R1 = new Integer(x);
     }
-    public int getR1(){
+    public Integer getR1(){
         return R1;
     }
 
     public void setR2(int x){
         R2 = new Integer(x);
     }
-    public int getR2(){
+    public Integer getR2(){
         return R2;
     }
 
     public void setR3(int x){
         R3 = new Integer(x);
     }
-    public int getR3(){
+    public Integer getR3(){
         return R3;
     }
 
