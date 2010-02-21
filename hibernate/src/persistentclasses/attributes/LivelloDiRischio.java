@@ -41,22 +41,22 @@ public class LivelloDiRischio
         R3 = null;
     }
 
-    public void setR1(int x){
-        R1 = new Integer(x);
+    public void setR1(Integer x){
+        R1 = x;
     }
     public Integer getR1(){
         return R1;
     }
 
-    public void setR2(int x){
-        R2 = new Integer(x);
+    public void setR2(Integer x){
+        R2 = x;
     }
     public Integer getR2(){
         return R2;
     }
 
-    public void setR3(int x){
-        R3 = new Integer(x);
+    public void setR3(Integer x){
+        R3 = x;
     }
     public Integer getR3(){
         return R3;
