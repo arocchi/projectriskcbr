@@ -8,6 +8,7 @@ package desktopparser;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jxl.*;
@@ -533,7 +534,16 @@ public class DesktopParser {
                     }
                 }//for (cells)
                 if(writable && Azioni.checkAvailable(assigned.getPrimaryKey()))
-                    try{assigned.write();}
+                    try{
+                        if(assigned.getIntensita() == -50){
+                            //setting casual value between 10 and -10
+                            Random rg = new Random();
+                            int randomint = rg.nextInt(21) - 10;
+                            assigned.setIntensita(randomint);
+                        }
+
+                        assigned.write();
+                    }
                     catch (Exception ho){
                         //catching the exception due to duplicaet entries
                     }

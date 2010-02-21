@@ -22,7 +22,7 @@ public class dataFromDB {
             SessionObject.getStarted((SessionFactory) session.getAttribute("sessionfactory"));
             SessionObject.newTransaction();           
 
-            /*RIGHE DI DEBUG PER TESTING DAVID*/
+            /*XXX RIGHE DI DEBUG PER TESTING DAVID*/
             session.setAttribute("Progetto", Progetto.getById(Progetto.class, "P2"));
             session.setAttribute("RisksAddedToProject", extractRisksFromRequestDummy(request));
             session.setAttribute("ActionsAddedToProject", extractActionsFromRequestDummy(request));
@@ -99,7 +99,7 @@ public class dataFromDB {
                         break;
                     }
 
-                    int groupnumber = getNumberOfGroupsDummy();//XXX andrà letto da file di configurazione
+                    int groupnumber = getNumberOfGroupsDummy();//XXX sostituire non Dummy
                     index = 0;//index for the xml object to be created from the interface
                     for(int i=0; i<groupnumber; i++){
                         out.println("<gruppo idName=\""+i+"\">\n\t<nomeGruppo>Gruppo "+i+"</nomeGruppo>");
@@ -110,7 +110,7 @@ public class dataFromDB {
                             //filling not suggestable fields
                             fillRiskNotSuggestableFields(r, session);
                             //printing risk
-                            printRisk(r,out,index);
+                            printRisk(r,out,index,false);
                             index++;
                         }
                         out.println("</gruppo>");
@@ -129,7 +129,7 @@ public class dataFromDB {
                         //filling not suggestable fields
                         fillRiskNotSuggestableFields(r, session);
                         //printing risk
-                        printRisk(r, out, index);
+                        printRisk(r, out, index,false);
                         index++;
                     }
                     out.println("</root>");
@@ -139,9 +139,9 @@ public class dataFromDB {
                 case 10: //take_allchkrisks
                     //giving to user all the risks in DB, also if not suggested in any other case
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
-                                    "\t<node label=\"Rischi non suggeriti\" type=\"categoria\" >");
+                                    "\t<node label=\"Tutti i rischi\" type=\"categoria\" >");
                     index=0;//xml identifier
-                    lista = notSuggestedCkRisks();/*XXX pensare: tutti o solo quelli non selezionati prima?*/
+                    lista = CkRischi.executeQuery("from CkRischi");//notSuggestedCkRisks();/*XXX pensare: tutti o solo quelli non selezionati prima?*/
                     it = lista.iterator();
                     while(it.hasNext()){
                         CkRischi r = (CkRischi) it.next();
@@ -210,7 +210,6 @@ public class dataFromDB {
                 case 6:
                 {
                     //giving user all the suggested actions from previously selected risks
-                    /*XXX*/
 
                     //reading project from session
                     Progetto p = (Progetto) session.getAttribute("Progetto");
@@ -239,12 +238,23 @@ public class dataFromDB {
                         out.println("<rischio idName=\""+(riskIndex++)+"\">\n"+
                                         "\t<idRischio>"+r.getCodice()+"</idRischio>");
                         it = lista.iterator();
+                        int identifier = 1;
                         while(it.hasNext()){
                             Azioni a = (Azioni) it.next();
-                            //filling not suggestable fields
-                            //Descrizione dobj;
-                            //XXX XXX XXXif(a.getPrimaryKey().getTipo() ==  'M') dobj = CkMitigazione.getById(CkMitigazione.class, a.getPrimaryKey().get)
+                            //retrieving description
+                            Descrizione dobj;
+                            if(a.getPrimaryKey().getTipo() ==  'M') 
+                                dobj = (Descrizione) CkMitigazione.getById(CkMitigazione.class, a.getPrimaryKey().getIdAzione());
+                            else if(a.getPrimaryKey().getTipo() ==  'R')
+                                dobj = (Descrizione) CkRecovery.getById(CkRecovery.class, a.getPrimaryKey().getIdAzione());
+                            else
+                                break;
+                            //setting description
+                            a.setDescrizione(dobj.getDescrizione());
+
+                            //printing action
                             out.println("\t<azione idName=\""+(index++)+"\">\n"+
+                                        "\t\t<identifier>"+(identifier++)+"<identifier>"+
                                         "\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>"+
                                         "\t\t<stato>"+a.getStato()+"</stato>"+
                                         "\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>"+
@@ -351,23 +361,43 @@ public class dataFromDB {
                     lista = Progetto.getOpenProjects();
 
                     //writing a summary to user, to let him choose between them
-                    /*XXX definire formato*/
                     it=lista.iterator();
-                    out.println("Progetti aperti: ");
-                    //codice, oggettofornitura,nomecliente
+                    index = 1;
                     while(it.hasNext()){
                         Progetto p = (Progetto) it.next();
-                        out.println(p.getCodice());
+                        out.println("<progetto idName=\""+(index++)+"\">"+
+                                        "\t<idProgramma>"+p.getCodice()+"</idProgramma>"+
+                                        "\t<oggettoFornitura>"+p.getOggettoFornitura()+"</oggettoFornitura>"+
+                                        "\t<cliente>"+p.getNomeCliente()+"</cliente>"+
+                                    "</progetto>");
                     }
                 }
                     break;
                 //give_whatopenedproject
                 case 106:
+                {
                     //user gives me the identifier of the selected project
-                    String idProgramma = (String) request.getAttribute("data");
+                    String idProgramma = request.getParameter("data");
+                    session.setAttribute("idProgramma", idProgramma);
+                }
+                    break;
+                //take_whatopenedproject
+                case 15:
+                {
+                    //giving project to user
+                    String idProgramma = (String) session.getAttribute("idProgramma");
+                    if(idProgramma == null || idProgramma.isEmpty()){
+                        out.println("<error>No project requested</error>"+idProgramma);
+                        break;
+                    }
 
-                    //sending to user all fields of the selected project
-                    /*XXX definire formato*/
+                    //retrieving project from DB
+                    Progetto p = (Progetto) Progetto.getById(Progetto.class, idProgramma);
+                    p.caricaRischi();
+
+                    //printing project
+                    printProject(p, out);
+                }
                     break;
                 //take_actionsbyutilization
                 case 9:
@@ -383,16 +413,50 @@ public class dataFromDB {
                     else break;
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
                                     "\t<node label=\"Azioni "+table+"\" type=\"categoria\" >");
-                    /*XXX modificare per fornire separatamente quelle consigliate per il rischio*/
-                    lista = persistentBase.executeQuery("from Ck"+table);
-                    //XXXList preferred = persistentBase.executeQuery("from Ck"+table+" where");
+                    
+                    /*preferred actions for this risk are the actions that were
+                     previously added to a correspondent risk into a previous project
+                     now, building a query to find that actions*/
+                    String preferredQuery = "from Ck"+table+" where "+
+                                            "codChecklist in (" +
+                                            "select primaryKey.idAzione from Azioni where " +
+                                            "primaryKey.idRischio in (" +
+                                            "select codice from Rischio as R where " +
+                                            "R.codiceChecklist = "+riskChecklistCode+") " +
+                                            "and primaryKey.tipo = '"+actiontype.trim()+"')";
+
+                    List preferredActions = persistentBase.executeQuery(preferredQuery);
+
+                    /*taking now all actions not previously taken*/
+                    String otherQuery = "from Ck"+table+" where "+
+                                        "codChecklist not in (" +
+                                        "select primaryKey.idAzione from Azioni where " +
+                                        "primaryKey.idRischio in (" +
+                                        "select codice from Rischio as R where " +
+                                        "R.codiceChecklist = "+riskChecklistCode+") " +
+                                        "and primaryKey.tipo = '"+actiontype.trim()+"')";
+
+                    lista = persistentBase.executeQuery(otherQuery);
+
+                    //printing preferred actions
+                    it = preferredActions.iterator();
+                    out.println("\t\t<node label=\"Azioni comuni per questo rischio\" type=\"comuni\" >");
+                    while(it.hasNext()){
+                        Descrizione d = (Descrizione) it.next();
+                        out.println("\t\t\t<node codiceChecklist=\""+d.getCodChecklist()+
+                                    "\" label=\""+escapeChars(d.getDescrizione())+"\" type=\"azione\" />");
+                    }
+                    out.println("\t\t</node>");
+
+                    //printing other actions
+                    out.println("\t\t<node label=\"Altre azioni\" type=\"altre\" >");
                     it = lista.iterator();
                     while(it.hasNext()){
                         Descrizione d = (Descrizione) it.next();
-                        out.println("\t\t<node codiceChecklist=\""+d.getCodChecklist()+
+                        out.println("\t\t\t<node codiceChecklist=\""+d.getCodChecklist()+
                                     "\" label=\""+escapeChars(d.getDescrizione())+"\" type=\"rischio\" />");
                     }
-                    out.println("\t</node>\n</root>");
+                    out.println("\t\t</node>\n\t</node>\n</root>");
                 }
                     break;
                 //give_mx
@@ -487,6 +551,10 @@ public class dataFromDB {
 
                 }
                     break;
+                //closesession
+                case 12:
+                    session.invalidate();
+                    break;
             }
             SessionObject.endTransaction();
         } catch (Exception e){out.println(e);}
@@ -503,8 +571,80 @@ public class dataFromDB {
 
     /*UTILITY FUNCTIONS*/
 
-    //prints a risk in xml format into the stream 'out'
-    private void printRisk(Rischio r, PrintWriter out, int index){
+    //prints a project in xml format into stream 'out'
+    private void printProject(Progetto p, PrintWriter out){
+        out.println("<progetto idName=\""+0+"\">\n"+
+                        "\t<codice>"+p.getCodice()+"</codice>\n"+
+                        "\t<reparto>"+p.getReparto()+"</reparto>\n"+
+                        "\t<classeDiRischio>"+p.getClasseRischio()+"</classeDiRischio>\n"+
+                        "\t<valoreEconomico>"+p.getValoreEconomico()+"</valoreEconomico>\n"+
+                        "\t<durataContratto>"+p.getDurataContratto()+"</durataContratto>\n"+
+                        "\t<oggettoFornitura>"+p.getOggettoFornitura()+"</oggettoFornitura>\n"+
+                        "\t<nomeCliente>"+p.getNomeCliente()+"</nomeCliente>\n"+
+                        "\t<!-- LIVELLO DI RISCHIO -->\n"+
+                        "\t<rp1>"+p.getPaese().getR1()+"</rp1>" +
+                        " <rp2>"+p.getPaese().getR2()+"</rp2>" +
+                        " <rp3>"+p.getPaese().getR3()+"</rp3>\n"+
+                        "\t<rmc1>"+p.getMercatoCliente().getR1()+"</rmc1>" +
+                        " <rmc2>"+p.getMercatoCliente().getR2()+"</rmc2>" +
+                        " <rmc3>"+p.getMercatoCliente().getR3()+"</rmc3>\n"+
+                        "\t<rc1>"+p.getContratto().getR1()+"</rc1>" +
+                        " <rc2>"+p.getContratto().getR2()+"</rc2>" +
+                        " <rc3>"+p.getContratto().getR3()+"</rc3>\n"+
+                        "\t<rcp1>"+p.getComposizionePartnership().getR1()+"</rcp1>" +
+                        " <rcp2>"+p.getComposizionePartnership().getR2()+"</rcp2>" +
+                        " <rcp3>"+p.getComposizionePartnership().getR3()+"</rcp3>\n"+
+                        "\t<ri1>"+p.getIngegneria().getR1()+"</ri1>" +
+                        " <ri2>"+p.getIngegneria().getR2()+"</ri2>" +
+                        " <ri3>"+p.getIngegneria().getR3()+"</ri3>\n"+
+                        "\t<ra1>"+p.getApprovvigionamento().getR1()+"</ra1>" +
+                        " <ra2>"+p.getApprovvigionamento().getR2()+"</ra2>" +
+                        " <ra3>"+p.getApprovvigionamento().getR3()+"</ra3>\n"+
+                        "\t<rf1>"+p.getFabbricazione().getR1()+"</rf1>" +
+                        " <rf2>"+p.getFabbricazione().getR2()+"</rf2>" +
+                        " <rf3>"+p.getFabbricazione().getR3()+"</rf3>\n"+
+                        "\t<rm1>"+p.getMontaggio().getR1()+"</rm1>" +
+                        " <rm2>"+p.getMontaggio().getR2()+"</rm2>" +
+                        " <rm3>"+p.getMontaggio().getR3()+"</rm3>\n"+
+                        "\t<rav1>"+p.getAvviamento().getR1()+"</rav1>" +
+                        " <rav2>"+p.getAvviamento().getR2()+"</rav2>" +
+                        " <rav3>"+p.getAvviamento().getR3()+"</rav3>\n"+
+                        "\t<!-- IMPATTO STRATEGICO -->\n"+
+                        "\t<IM>"+p.getIm()+"</IM>\n"+
+                        "\t<IC>"+p.getIc()+"</IC>\n"+
+                        "\t<IP>"+p.getIp()+"</IP>\n"+
+                        "\t<IA>"+p.getIa()+"</IA>\n"+
+                        "\t<IPP>"+p.getIpp()+"</IPP>\n"+
+                        "\t<!-- ABILITAZIONE DEI CAMPI -->\n"+
+                        "\t<ckrp1>"+(p.getPaese().getR1() != null)+"</ckrp1> <ckrp2>"+(p.getPaese().getR2() != null)+"</ckrp2> <ckrp3>"+(p.getPaese().getR3() != null)+"</ckrp3>\n"+
+                        "\t<ckrmc1>"+(p.getMercatoCliente().getR1() != null)+"</ckrmc1> <ckrmc2>"+(p.getMercatoCliente().getR2() != null)+"</ckrmc2> <ckrmc3>"+(p.getMercatoCliente().getR3() != null)+"</ckrmc3>\n"+
+                        "\t<ckrc1>"+(p.getContratto().getR1() != null)+"</ckrc1> <ckrc2>"+(p.getContratto().getR2() != null)+"</ckrc2> <ckrc3>"+(p.getContratto().getR3() != null)+"</ckrc3>\n"+
+                        "\t<ckrcp1>"+(p.getComposizionePartnership().getR1() != null)+"</ckrcp1> <ckrcp2>"+(p.getComposizionePartnership().getR2() != null)+"</ckrcp2> <ckrcp3>"+(p.getComposizionePartnership().getR3() != null)+"</ckrcp3>\n"+
+                        "\t<ckri1>"+(p.getIngegneria().getR1() != null)+"</ckri1> <ckri2>"+(p.getIngegneria().getR2() != null)+"</ckri2> <ckri3>"+(p.getIngegneria().getR3() != null)+"</ckri3>\n"+
+                        "\t<ckra1>"+(p.getApprovvigionamento().getR1() != null)+"</ckra1> <ckra2>"+(p.getApprovvigionamento().getR2() != null)+"</ckra2> <ckra3>"+(p.getApprovvigionamento().getR3() != null)+"</ckra3>\n"+
+                        "\t<ckrf1>"+(p.getFabbricazione().getR1() != null)+"</ckrf1> <ckrf2>"+(p.getFabbricazione().getR2() != null)+"</ckrf2> <ckrf3>"+(p.getFabbricazione().getR3() != null)+"</ckrf3>\n"+
+                        "\t<ckrm1>"+(p.getMontaggio().getR1() != null)+"</ckrm1> <ckrm2>"+(p.getMontaggio().getR2() != null)+"</ckrm2> <ckrm3>"+(p.getMontaggio().getR3() != null)+"</ckrm3>\n"+
+                        "\t<ckrav1>"+(p.getAvviamento().getR1() != null)+"</ckrav1> <ckrav2>"+(p.getAvviamento().getR2() != null)+"</ckrav2> <ckrav3>"+(p.getAvviamento().getR3() != null)+"</ckrav3>\n"+
+                        "\t<ckIM>"+(p.getIm().getValue() != -1)+"</ckIM>\n"+
+                        "\t<ckIC>"+(p.getIc().getValue() != -1)+"</ckIC>\n"+
+                        "\t<ckIP>"+(p.getIp().getValue() != -1)+"</ckIP>\n"+
+                        "\t<ckIA>"+(p.getIa().getValue() != -1)+"</ckIA>\n"+
+                        "\t<ckIPP>"+(p.getIpp().getValue() != -1)+"</ckIPP>\n");
+        //writing risks
+        if(p.getRischi() != null){
+            List rischi = p.getRischi();
+            Iterator it = rischi.iterator();
+            int index = 1;
+            while(it.hasNext()){
+                Rischio r = (Rischio) it.next();
+                printRisk(r, out, index++, true);
+            }
+        }
+        out.println("</progetto>");
+        return;
+    }
+    //prints a risk in xml format into the stream 'out'. If printActions == true prints also all actions
+    private void printRisk(Rischio r, PrintWriter out, int index, boolean printActions){
         out.println("\t<rischio idName=\""+index+"\">\n"+
                         "\t\t<idRischio>"+r.getCodice()+"</idRischio>\n"+
                         "\t\t<codiceChecklist>"+r.getCodiceChecklist()+"</codiceChecklist>\n"+
@@ -517,15 +657,38 @@ public class dataFromDB {
                         "\t\t<effetto>"+escapeChars(r.getEffetto())+"</effetto>\n"+
                         "\t\t<probIniziale>"+r.getProbabilitaIniziale()+"</probIniziale>\n"+
                         "\t\t<impattoIniziale>"+r.getImpattoIniziale()+"</impattoIniziale>\n"+
-                        "\t\t<costoPotenzialeImpatto>"+r.getCostoPotenzialeImpatto()+"</costoPotenzialeImpatto>\n"+
-                    "\t</rischio>");
+                        "\t\t<costoPotenzialeImpatto>"+r.getCostoPotenzialeImpatto()+"</costoPotenzialeImpatto>\n");
+        //printing actions
+        if(printActions && r.getAzioni() != null){
+            List actions = r.getAzioni();
+            Iterator it = actions.iterator();
+            int actIndex = 1;
+            while(it.hasNext()){
+                Azioni a = (Azioni) it.next();
+                printAction(a,out,actIndex++);
+            }
+        }
+        out.println("\t</rischio>");
+        return;
+    }
+    //prints an action in xml format into the stream 'out'
+    private void printAction(Azioni a, PrintWriter out, int index){
+        out.println("\t<azione idName=\""+index+"\">\n"+
+			"\t\t<idAzione>"+a.getPrimaryKey().getIdAzione()+"</idAzione>\n" +
+                        "\t\t<identifier>"+a.getPrimaryKey().getIdentifier()+"</identifier>\n"+
+			"\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>\n"+
+			"\t\t<stato>"+a.getStato()+"</stato>\n"+
+			"\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>\n"+
+			"\t\t<revisione>"+a.getRevisione()+"</revisione>\n"+
+			"\t\t<intensita>"+a.getIntensita()+"</intensita>\n"+
+                    "\t</azione>");
         return;
     }
     //function that escapes characters to print into xml
     private String escapeChars(String s){
         s=s.replace('"', '\'');
         s=s.replaceAll("\\ufffd", "a\'");
-        /*XXXString[] splitted = s.split("Valutare l'opportunit");
+        /*XXXString[] splitted = s.split("Monitoring costante delle attivit");
         if(!(splitted.length == 1 && splitted[0].trim().compareTo("")!=0)){
             StringBuilder sb = new StringBuilder();
 
@@ -638,7 +801,7 @@ public class dataFromDB {
     /**    
      * @return List of Risks that were not suggested in any group or in the NoGroup list
      */
-    private List notSuggestedCkRisks(){
+    /*XXXprivate List notSuggestedCkRisks(){
         String query = "from CkRischi ";
         List<Integer> suggested = alreadySuggestedCkRisks();
         Iterator it = suggested.iterator();
@@ -654,7 +817,7 @@ public class dataFromDB {
 
         return new LinkedList();
     }
-
+*/
 
     /*DUMMY FUNCTIONS USED AS STUBS*/
     private int getNumberOfGroupsDummy(){
@@ -709,12 +872,12 @@ public class dataFromDB {
         return new LinkedList();
     }
     //returns a list of checklists codes of all previously suggested risks. Dummy function
-    private List<Integer> alreadySuggestedCkRisks(){
+    /*XXXprivate List<Integer> alreadySuggestedCkRisks(){
         try{
             return (List<Integer>) Rischio.executeQuery("select codChecklist from CkRischi where codChecklist <= 10");
         } catch (Exception e) {}
 
         return new LinkedList();
-    }
+    }*/
 
 }

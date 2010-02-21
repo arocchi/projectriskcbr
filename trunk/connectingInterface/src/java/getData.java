@@ -82,8 +82,9 @@ public class getData extends HttpServlet {
                  
                     
                 /*TYPES TO MODIFY A PROJECT */
-                else if (type.equals("take_openedprojects"))          typenum = 8; //gives all the projects that can be modified (open projects)
-                else if (type.equals("give_whatopenedproject"))     typenum = 106; //user gives the identifier of the project to modify, I give all project fields
+                else if (type.equals("take_openedprojects"))        typenum = 8; //gives all the projects that can be modified (open projects)
+                else if (type.equals("give_whatopenedproject"))     typenum = 106; //user gives the identifier of the project to modify, I store project id into session
+                else if (type.equals("take_whatopenedproject"))     typenum = 15; //I give user the project previously stored
                 else if (type.equals("take_actionsbyutilization"))  typenum = 9; //gives all actions for a risk. Two categories: alreadyused + stillnotused
                 else if (type.equals("give_mx"))                    typenum = 107; //user gives all the changes to the selected project, data="true" or "false" for confirmation or not
 

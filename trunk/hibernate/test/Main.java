@@ -328,7 +328,7 @@ public class Main {
                     String key;
                     SessionObject.getStarted();
                     SessionObject.newTransaction();
-                    boolean b = Azioni.checkAvailable(250,"250risk",'m');
+                    boolean b = Azioni.checkAvailable(1,250,"250risk",'m');
                     SessionObject.endTransaction();
 
                     System.out.print(b + "\n");
@@ -391,7 +391,7 @@ public class Main {
                     action.setIntensita(9);
                     action.setRevisione(0);
                     action.setStato("Planned");
-                    action.setPrimaryKey(new AzioniPrimaryKey(1,"R3", 'M'));
+                    action.setPrimaryKey(new AzioniPrimaryKey(1,1,"R3", 'M'));
                     SessionObject.getStarted();
                     SessionObject.newTransaction();
                     r.caricaAzioni();
@@ -409,7 +409,7 @@ public class Main {
                     SessionObject.newTransaction();
                     r.caricaAzioni();
                     //System.out.println(r.getAzioni());
-                    r.rimuoviAzione(new AzioniPrimaryKey(3,"R3", 'M'));
+                    r.rimuoviAzione(new AzioniPrimaryKey(1,3,"R3", 'M'));
                     r.salvaAzioni();
                     System.out.println(r.getAzioni());
                     SessionObject.endTransaction();
