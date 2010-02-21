@@ -500,10 +500,10 @@ public class DesktopParser {
                             // Giving the content to a particular variable by the column number
                             switch(j) {
                                 case 0:
-                                    
+                                    assigned.setPrimaryKey(new AzioniPrimaryKey());
+                                    assigned.getPrimaryKey().setIdentifier(toInt(current));
                                     break;
                                 case 1:
-                                    assigned.setPrimaryKey(new AzioniPrimaryKey());
                                     assigned.getPrimaryKey().setIdAzione(toInt(current));
                                     break;
                                 case 2:

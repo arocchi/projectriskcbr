@@ -318,9 +318,9 @@ public class Rischio extends persistentBase{
      * @return      puntatore al rischio
      * @throws Exception
      */
-    public Rischio rimuoviAzione(String idR, int idA, char t) throws Exception
+    public Rischio rimuoviAzione(int id, String idR, int idA, char t) throws Exception
     {
-        rimuoviAzione(new AzioniPrimaryKey(idA, idR, t));
+        rimuoviAzione(new AzioniPrimaryKey(id, idA, idR, t));
         return this;
     }
     
