@@ -1,14 +1,35 @@
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.hibernate.SessionFactory;
 import persistentclasses.*;
+
+//similarity imports
+import projectriskcbr.config.*;
+import jcolibri.casebase.*;
+import jcolibri.cbrcore.*;
+import jcolibri.connector.*;
+import jcolibri.method.retrieve.NNretrieval.NNScoringMethod;
+import jcolibri.test.*;
+import jcolibri.test.test4.*;
+import jcolibri.method.retrieve.*;
+import jcolibri.method.retrieve.NNretrieval.*;
+import jcolibri.method.retrieve.NNretrieval.similarity.global.*;
+import jcolibri.method.retrieve.NNretrieval.similarity.local.*;
+import jcolibri.method.retrieve.selection.SelectCases;
+import persistentclasses.utils.RischioSuggester;
 
 /**
  *
@@ -399,14 +420,24 @@ public class dataFromDB {
                     printProject(p, out);
                 }
                     break;
+                //give_actionsbyutilization
+                case 112:
+                {
+                    String riskChecklistCode = (String) request.getParameter("data");
+                    String actiontype = (String) request.getParameter("actiontype");
+
+                    session.setAttribute("actiontype", actiontype);
+                    session.setAttribute("data", riskChecklistCode);
+                }
+                    break;
                 //take_actionsbyutilization
                 case 9:
                 {
                     //taking ALL actions from DB, selecting between:
                     //-actions already used for a specified risk
                     //-all others
-                    String riskChecklistCode = (String) request.getParameter("data");
-                    String actiontype = (String) request.getParameter("actiontype");
+                    String riskChecklistCode = (String) session.getAttribute("data");
+                    String actiontype = (String) session.getAttribute("actiontype");
                     String table;
                     if(actiontype.trim().compareTo("R")==0) table = "Recovery";
                     else if(actiontype.trim().compareTo("M")==0) table = "Mitigazione";
@@ -555,6 +586,18 @@ public class dataFromDB {
                 case 12:
                     session.invalidate();
                     break;
+                case 666:
+                {
+                    //reading project from session
+                    Progetto p = (Progetto) session.getAttribute("Progetto");
+                    if(p==null){
+                        //terminating: if a suggestion has to be made, a project has to be previously created
+                        out.println("<error>Erorr: must create a project before confirm project creation</error>");
+                        break;
+                    }
+                    openConfigFile(out,p);
+                }
+                break;
             }
             SessionObject.endTransaction();
         } catch (Exception e){out.println(e);}
@@ -675,12 +718,14 @@ public class dataFromDB {
     private void printAction(Azioni a, PrintWriter out, int index){
         out.println("\t<azione idName=\""+index+"\">\n"+
 			"\t\t<idAzione>"+a.getPrimaryKey().getIdAzione()+"</idAzione>\n" +
-                        "\t\t<identifier>"+a.getPrimaryKey().getIdentifier()+"</identifier>\n"+
+                        "\t\t<identifier>"+a.getPrimaryKey().getIdentifier()+"</identifier>\n" +
+                        "\t\t<idRischio>"+a.getPrimaryKey().getIdRischio()+"</idRischio>\n"+
 			"\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>\n"+
 			"\t\t<stato>"+a.getStato()+"</stato>\n"+
 			"\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>\n"+
 			"\t\t<revisione>"+a.getRevisione()+"</revisione>\n"+
-			"\t\t<intensita>"+a.getIntensita()+"</intensita>\n"+
+			"\t\t<intensita>"+a.getIntensita()+"</intensita>\n" +
+                        "\t\t<ckintensita>"+(a.getIntensita()==-50)+"</ckintensita>\n"+
                     "\t</azione>");
         return;
     }
@@ -709,7 +754,36 @@ public class dataFromDB {
     }
     //function to create a list of risks from the current request
     private List extractRisksFromRequest(HttpServletRequest request){
-        return new LinkedList();
+        //reading the number of risks to load
+        Integer cnt = Integer.parseInt(request.getParameter("cnt"));
+        if(cnt == null)
+            return null;
+
+        //reading fields and building objects
+        LinkedList<Rischio> list = new LinkedList<Rischio>();
+        for(int i=0; i<cnt; i++){
+            Rischio r = new Rischio();
+            r.setCodice((String) request.getParameter("idrischio_"+i));
+            r.setDescrizione((String) request.getParameter("descrizione_"+i));
+            r.setCausa((String) request.getParameter("causa_"+i));
+            r.setEffetto((String) request.getParameter("effetto_"+i));
+            r.setCodiceChecklist(Integer.parseInt(request.getParameter("codicechecklist_"+i)));
+            r.setStato((String) request.getParameter("stato_"+i));
+            r.setVerificato(Integer.parseInt(request.getParameter("rver_"+i)));
+            r.setContingency(Double.parseDouble(request.getParameter("contingency_"+i)));
+            r.setProbabilitaIniziale(Integer.parseInt(request.getParameter("probiniziale_"+i)));
+            r.setImpattoIniziale(Integer.parseInt(request.getParameter("impattoiniziale_"+i)));
+            
+            //XXXcategoriaRischio
+            //XXXrevisione
+            //XXXcostopotenzialeimpatto
+            //azioni
+
+            //filled fields
+            list.add(r);
+        }
+
+        return list;
     }
     //function to extract a project from the current request
     private Progetto extractProjectFromRequest(HttpServletRequest request){
@@ -818,6 +892,140 @@ public class dataFromDB {
         return new LinkedList();
     }
 */
+
+    /*SIMILARITY UTILITIES*/
+    private void openConfigFile(PrintWriter out, Progetto queryDesc) throws Exception {
+        String file = "/media/gutzy/home/narduz/Documenti/Università/Sistemi intelligenti/Progetto/repository03/connectingInterface/similarityconfig/groupsConfig.xml";
+        FileInputStream configFile = new FileInputStream(file);
+        // LOAD CONFIGURATION
+        Configuration configuration = Configuration.load(configFile);
+        out.println("PEPSI");
+        configFile.close();
+
+        /*PRINTING FILE TO VERIFY CORRECTLY OPENED
+        configFile = new FileInputStream(file);
+        DataInputStream in = new DataInputStream(configFile);
+        out.println("PEPSI");
+        while(in.available() != 0){
+            out.println(in.readLine());
+        }
+        out.println("PEPSI");
+        */
+
+        //LOAD CASES
+        Collection<CBRCase> cases = new LinkedList<CBRCase>();
+        // Progetto extends CBRCase, since a Progetto can be a case
+        List<Progetto> progetti = (List<Progetto>)Progetto.getCases();
+        for(Progetto progetto : progetti) {
+                CBRCase cbrCase = new CBRCase();
+                cbrCase.setDescription(progetto);
+                cases.add(cbrCase);
+        }
+
+        //CONFIGURE SIMILARITY
+        // the query must be a CBRCase, the description of whom is the Progetto just defined
+        CBRCase query = new CBRCase();
+        query.setDescription(queryDesc);
+
+        /* NNConfig is a configuration structure for the similarity algorithm
+         * We put NNConfigs in a map so that we can have at any moment about the ConfigurationGroup that generated them
+         */
+        Map<NNConfig, ConfigurationGroup> simConfigs = new HashMap<NNConfig, ConfigurationGroup>();
+        /*
+         * globalSimConfig is a similarity configuration that gives a global ranking on a project,
+         * that is it's a ranking that is more "general" to the ranking given in each group.
+         * It will be used later with more explanations.
+         */
+        NNConfig globalSimConfig = queryDesc.getTotalSimilarityConfig(null);
+
+
+        /*
+         * NNConfigurator extracts information from a ConfigurationGroup and stores them
+         * inside a simConfig structure.
+         * Note you must pass the Progetto class to the configureSimilarity function.
+         */
+        for(ConfigurationGroup groupConfig : configuration.groups) {
+                NNConfig simConfig = new NNConfig();
+                NNConfigurator.configureSimilarity(simConfig, groupConfig, Progetto.class);
+                simConfigs.put(simConfig, groupConfig);
+        }
+
+        /* ------------------------- */
+	/* CASES SELECTION IN GROUPS */
+	/* ------------------------- */
+
+	/*
+	 * We build a list groupsResults, where each Collection of CBRCases (groupResult) corresponds to the top k results
+	 * of the similarity evaluation according to settings of each group.
+	 * Those k best results (according to the group similarity settings) are then ranked again inside each group
+	 * with the globalSimilarity similarity configuration (global ranking)
+	 *
+	 * RetrievalResult is a structure that contains a numerical evalution of the similarity between the query and a case
+	 * trough the getEval method, and the case for which the similarity towards the query has been calculated,
+	 * available trough the get_case method.
+	 * You can access the corrisponding Progetto instance trough the getDescription method of that case
+	 */
+	 Map<ConfigurationGroup, Collection<RetrievalResult>> groupsResults = new HashMap<ConfigurationGroup, Collection<RetrievalResult>>();
+
+         /* We calculate similarity according to the similarity criterias specified for each group.
+	 * Then, we get the top k projects for the group.
+	 */
+	for(Map.Entry<NNConfig, ConfigurationGroup> entry : simConfigs.entrySet()) {
+		NNConfig simConfig = entry.getKey();
+		// we calculate similarity according to the similarity configuratino for this group
+		Collection<RetrievalResult> simEval = NNScoringMethod.evaluateSimilarity(cases, query, simConfig);
+		Collection<CBRCase> bestEval = SelectCases.selectTopK(simEval, configuration.kProgetto);
+
+		// as last, we give a global ranking to the best kProgetto entries of this group
+		Collection<RetrievalResult> globallyEvaluatedResul = NNScoringMethod.evaluateSimilarity(bestEval, query, globalSimConfig);
+
+                groupsResults.put(entry.getValue(), globallyEvaluatedResul);
+	}
+
+        /* ----------------- */
+	/* RISKS EXTRACTION  */
+	/* ----------------- */
+	Map<ConfigurationGroup, Collection<RischioSuggester>>  rischioSuggestersByGroup = new HashMap<ConfigurationGroup, Collection<RischioSuggester>>();
+
+
+        //int groupNumber = config.groups.size();
+        int groupIndex = 0;
+        //LinkedList<Rischio> gruppi[groupNumber];
+
+	// for each group, we will now extract all risks, and get the most relevant ones
+	for(Map.Entry<ConfigurationGroup, Collection<RetrievalResult>> entry : groupsResults.entrySet()) {
+		Collection<RischioSuggester> rischioSuggesters = RischioSuggester.getTopKSuggesters(query, entry.getValue(), configuration.kRischio);
+		rischioSuggestersByGroup.put(entry.getKey(), rischioSuggesters);
+
+		for(RischioSuggester suggester: rischioSuggesters) {
+			Rischio rischio = suggester.getSuggestion();
+			//XXX AGGIUNTA RISCHIO ALLA LISTA IDENTIFICATA DA GROUPID
+
+         /*tipo:
+            gruppi[numGruppo] = new LinkedList();
+            gruppi[numGruppo].add(rischio);
+
+         //numero gruppi
+         config.groups.size()
+
+
+         */
+		}
+
+	}
+
+        return;
+    }
+
+
+
+
+
+
+
+
+
+
 
     /*DUMMY FUNCTIONS USED AS STUBS*/
     private int getNumberOfGroupsDummy(){

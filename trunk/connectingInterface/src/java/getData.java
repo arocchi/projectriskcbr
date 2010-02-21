@@ -85,13 +85,14 @@ public class getData extends HttpServlet {
                 else if (type.equals("take_openedprojects"))        typenum = 8; //gives all the projects that can be modified (open projects)
                 else if (type.equals("give_whatopenedproject"))     typenum = 106; //user gives the identifier of the project to modify, I store project id into session
                 else if (type.equals("take_whatopenedproject"))     typenum = 15; //I give user the project previously stored
+                else if (type.equals("give_actionsbyutilization"))  typenum = 112; //user gives me codchecklist for a risk and type of action. i store them and build response for the next request
                 else if (type.equals("take_actionsbyutilization"))  typenum = 9; //gives all actions for a risk. Two categories: alreadyused + stillnotused
                 else if (type.equals("give_mx"))                    typenum = 107; //user gives all the changes to the selected project, data="true" or "false" for confirmation or not
 
                 /*TYPES TO ADD NEW RISK*/
                 else if (type.equals("take_allchkrisks")) typenum = 10; //gives codchecklist + description for all risks
                 else if (type.equals("give_newchkrisk")) typenum = 108; //user gives a description for the new risk to create
-
+                
                 /*TYPES TO MODIFY A RISK IN CHECKLIST*/
                 else if (type.equals("give_updatechkrisk")) typenum = 109; //user gives codchecklist of thwe risk to update, and the new description
 
@@ -104,6 +105,9 @@ public class getData extends HttpServlet {
 
                 /*CLOSING SESSION*/
                 else if (type.equals("closesession")) typenum = 12; //deletes all data from session
+
+                /*TESTS*/
+                else if(type.equals("test")) typenum = 666;
 
                 /*TESTING TYPES*/
 
