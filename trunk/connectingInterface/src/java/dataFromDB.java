@@ -397,14 +397,14 @@ public class dataFromDB {
                     //if here, all checks are passed. Printing the digest
                     if(index == 0){ //it means: we are executing "take_digest
                         //printDigestDummy(p,riskList,actionList,out);
-                        //Progetto c = buildProject(p, riskList, actionList);
+                        Progetto c = buildProject(p, riskList, actionList, out);
                         printProject(c, out);
                     }
 
 
                     else if(index == 1){//it means: we are executing give_confirm
                         //building project and storing into DB
-                        Progetto complete = buildProject(p, riskList, actionList);
+                        Progetto complete = buildProject(p, riskList, actionList, out);
                         if(complete == null)
                             out.println("<error>ERROR</error>");
                         else{
@@ -545,7 +545,7 @@ public class dataFromDB {
                     Progetto pg = extractProjectFromRequest(request, out);
                     List rg = extractRisksFromRequest(request,true);
                     List ag = extractActionsFromRequest(request,true,out);
-                    pg = buildProject(pg, rg, ag);
+                    pg = buildProject(pg, rg, ag, out);
 
                     //old project
                     Progetto p = (Progetto) session.getAttribute("Progetto_ch");
@@ -1138,7 +1138,7 @@ public class dataFromDB {
         return list;
     }
     //function to build a project from alla datas passed as argument
-    private Progetto buildProject(Progetto p, List  riskList, List actionList){
+    private Progetto buildProject(Progetto p, List  riskList, List actionList, PrintWriter out){
         try{
             //checking if project has a valid identifier
             if(!Progetto.checkAvailable(p.getCodice()))
@@ -1169,6 +1169,7 @@ public class dataFromDB {
                 //added actions to risk
                 /*XXX SUPPONGO OGNI RISCHIO ABBIA GIA' LA GIUSTA CHIAVE!!*/
                 p.aggiungiRischio(r);
+                printRisk(r, out, 0, true);
             }
         } catch (Exception e){
             return null;
