@@ -247,6 +247,7 @@ public class dataFromDB {
                     };
                     //saving these datas into the current session
                     session.setAttribute("RisksAddedToProject",lista);
+                    out.println("ok");
 
                     break;
                 //take_actionsbyrisk
