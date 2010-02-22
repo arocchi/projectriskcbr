@@ -102,18 +102,19 @@ public class dataFromDB {
                     //reading project from request
                     out.println(request.toString());
                     Progetto p = extractProjectFromRequest(request, out);/*XXX sostituire con funzione effettiva*/
+                    out.println("qui");
                     p.setIsCase(false);
                     out.println("qui");
                     p.setIsOpen(true);
-                    out.println("qui");
+                 
                     p.setCodice(Progetto.generateAutoKey());
-out.println("qui");
+
                     //saving it into session variable
                     session.setAttribute("Progetto", p);
                     //making suggestions
-                    out.println("qui");
+                   
                     suggestions(p, session);
-                    out.println("qui");
+                    
                 }
                     break;
                 //take_risksbygroup
