@@ -395,7 +395,7 @@ public class dataFromDB {
                         Azioni a = (Azioni) m1.next();
                         printAction(a, out, 0);
                     }*/
-                    out.println("END");
+                    //out.println("END");
                     /****************/
                     //if here, all checks are passed. Printing the digest
                     if(index == 0){ //it means: we are executing "take_digest
@@ -1161,15 +1161,19 @@ public class dataFromDB {
             //checking if project has a valid identifier
             if(!Progetto.checkAvailable(p.getCodice()))
                 return null;
+            
+            out.println("puppa");
             //adding all risks to the project
             Iterator it = riskList.iterator();
             while(it.hasNext()){
                 Rischio r = (Rischio) it.next();
+                out.println("puppa");
                 //adding actions to risk
                 Iterator ait = actionList.iterator();
                 int idM = 1;//id for mitigation actions
                 int idR = 1;//id for recovery actions
                 while(ait.hasNext()){
+                    out.println("puppa");
                     Azioni a = (Azioni) ait.next();
                     //action for the current risk
                     if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
@@ -1179,7 +1183,7 @@ public class dataFromDB {
                         else if(a.getPrimaryKey().getTipo() == 'M')
                             a.getPrimaryKey().setIdentifier(idM++);
                         else
-                            return null;
+                            continue;
                         r.aggiungiAzione(0, a);
                         actionList.remove(a);
                     }
@@ -1190,6 +1194,7 @@ public class dataFromDB {
                 printRisk(r, out, 0, true);
             }
         } catch (Exception e){
+            out.println(e);
             return null;
         }
         return p;
