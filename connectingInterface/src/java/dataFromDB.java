@@ -282,9 +282,13 @@ public class dataFromDB {
                         out.println("<rischio idName=\""+(riskIndex++)+"\">\n"+
                                         "\t<idRischio>"+r.getCodice()+"</idRischio>");
                         it = lista.iterator();
+out.println("puppa");
                         int identifier = 1;
+out.println("puppa");
                         while(it.hasNext()){
+out.println("puppa");
                             Azioni a = (Azioni) it.next();
+out.println("puppa");
                             //retrieving description
                             Descrizione dobj;
                             if(a.getPrimaryKey().getTipo() ==  'M') 
@@ -1082,7 +1086,7 @@ public class dataFromDB {
             Azioni a = (Azioni) it.next();
             if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
                 azioniDelRischio.add(a);
-                printAction(a, out, 0);
+                //printAction(a, out, 0);
             }
         }
         return azioniDelRischio;
