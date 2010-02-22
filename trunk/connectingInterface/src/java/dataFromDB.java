@@ -384,7 +384,7 @@ public class dataFromDB {
                     }
 
                     /*PRINTING LISTS*/
-                    out.println("BEGIN");
+                    /*out.println("BEGIN");
                     Iterator m1 = riskList.iterator();
                     while(m1.hasNext()){
                         Rischio r = (Rischio) m1.next();
@@ -394,7 +394,7 @@ public class dataFromDB {
                     while(m1.hasNext()){
                         Azioni a = (Azioni) m1.next();
                         printAction(a, out, 0);
-                    }
+                    }*/
                     out.println("END");
                     /****************/
                     //if here, all checks are passed. Printing the digest
@@ -1169,7 +1169,7 @@ public class dataFromDB {
                 Iterator ait = actionList.iterator();
                 int idM = 1;//id for mitigation actions
                 int idR = 1;//id for recovery actions
-                while(it.hasNext()){
+                while(ait.hasNext()){
                     Azioni a = (Azioni) ait.next();
                     //action for the current risk
                     if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
