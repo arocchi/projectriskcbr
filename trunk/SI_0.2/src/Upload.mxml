@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init();">
+	<mx:Script>
+		<![CDATA[
+		
+			private var urlRequest:URLRequest;
+			private var fileReferenceList:FileReferenceList;
+			private var serverSideScript:String = "http://localhost:8080/Upload/index.jsp";
+		
+			private function init():void {
+				urlRequest = new URLRequest(serverSideScript);
+				fileReferenceList = new FileReferenceList();
+				fileReferenceList.addEventListener(Event.SELECT, fileSelectedHandler);
+			}
+			
+			private function uploadFile():void {
+				fileReferenceList.browse();
+			}
+			
+			private function fileSelectedHandler(event:Event):void {
+				var fileReference:FileReference;
+				var fileReferenceList:FileReferenceList = FileReferenceList(event.target);
+				var fileList:Array = fileReferenceList.fileList;
+
+				// get the first file that the user chose
+				fileReference = FileReference(fileList[0]);
+				
+				// upload the file to the server side script
+				fileReference.addEventListener(Event.COMPLETE, uploadCompleteHandler);
+				fileReference.upload(urlRequest);
+				
+				// update the status text
+				statusText.text = "Uploading...";
+			}
+			
+			private function uploadCompleteHandler(event:Event):void {
+				statusText.text = "File Uploaded: " + event.target.name;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Label text="Upload File From Flex to Tomcat server" fontWeight="bold"/>
+	<mx:Label text="Choose a file..." id="statusText"/>
+	<mx:Button click="uploadFile();" label="Upload File"/>
+	
+</mx:Application>
