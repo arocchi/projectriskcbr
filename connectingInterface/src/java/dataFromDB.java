@@ -318,7 +318,8 @@ public class dataFromDB {
                 case 104:
                     //user gives me all actions added to the current project
                     /*XXX format to define*/
-                    
+
+
                     //reading actions list from request
                     lista = extractActionsFromRequest(request,false,out);
 
@@ -1162,7 +1163,7 @@ public class dataFromDB {
             if(!Progetto.checkAvailable(p.getCodice()))
                 return null;
 
-            out.println("BEGIN");
+            /*out.println("BEGIN");
             Iterator m1 = riskList.iterator();
             while(m1.hasNext()){
                 Rischio r = (Rischio) m1.next();
@@ -1173,7 +1174,7 @@ public class dataFromDB {
                 Azioni a = (Azioni) m1.next();
                 printAction(a, out, 0);
             }
-            
+            */
             out.println("puppa");
             //adding all risks to the project
             Iterator it = riskList.iterator();
@@ -1191,6 +1192,8 @@ public class dataFromDB {
                         int ident = generateIdentifier(session, a.getPrimaryKey());
                         a.getPrimaryKey().setIdentifier(ident);
                         out.println("generato identifier "+ident);
+                        if(r==null) out.println("ERRENULL");
+                        if(a==null) out.println("ANULL");
                         r.aggiungiAzione(0, a);
                         actionList.remove(a);
                     }
