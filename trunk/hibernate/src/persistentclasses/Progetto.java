@@ -311,6 +311,16 @@ public class Progetto
         return dataFine;
     }
 
+    public int getMaxRevisione(){
+        int max = 0;
+        Iterator it = rischi.iterator();
+        while(it.hasNext()){
+            Rischio r = (Rischio) it.next();
+            int rev = r.getMaxRevisione();
+            max = (rev>max)?rev:max;
+        }
+        return max;
+    }
     /**
      * Preleva dal DB le chiavi primarie di tutti i progetti.
      * RICHIEDE CHE SIA APERTA UNA SESSIONE (vedi SessionObject)
