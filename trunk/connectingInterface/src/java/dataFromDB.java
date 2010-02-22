@@ -323,7 +323,7 @@ public class dataFromDB {
 
                     //checking if any action was modified
                     LinkedList<Azioni> prev = (LinkedList<Azioni>) session.getAttribute("azioni");
-                    if(compareModificationsActions(prev, lista)){
+                    if(compareModificationsActions(prev, lista, out)){
                         Progetto p = (Progetto) session.getAttribute("Progetto");
                         p.setIsCase(true);
                         session.setAttribute("Progetto", p);
@@ -1242,7 +1242,7 @@ public class dataFromDB {
         return false;
     }
     //same as above, but for actions
-    private boolean compareModificationsActions(List<Azioni> prev, List<Azioni> current){
+    private boolean compareModificationsActions(List<Azioni> prev, List<Azioni> current, PrintWriter out){
         //XXX test
         Iterator it = current.iterator();
 
@@ -1254,6 +1254,8 @@ public class dataFromDB {
                     Azioni c = (Azioni) t.next();
 
                     if(c.getPrimaryKey().equals(a.getPrimaryKey())){
+                        printAction(a, out, 0);
+                        printAction(c, out, 1);
                         //is the same action
                         if(c.getIntensita() != a.getIntensita()){
                             //if different
