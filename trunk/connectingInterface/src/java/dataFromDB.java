@@ -101,7 +101,7 @@ public class dataFromDB {
 
                     //reading project from request
                     out.println(request.toString());
-                    Progetto p = extractProjectFromRequest(request);/*XXX sostituire con funzione effettiva*/
+                    Progetto p = extractProjectFromRequest(request, out);/*XXX sostituire con funzione effettiva*/
                     p.setIsCase(false);
                     p.setIsOpen(true);
                     p.setCodice(Progetto.generateAutoKey());
@@ -525,7 +525,7 @@ public class dataFromDB {
                      considerare di usare formati già usati per azioni e rischi prima*/
 
                     //reading project from request
-                    Progetto pg = extractProjectFromRequest(request);
+                    Progetto pg = extractProjectFromRequest(request, out);
                     List rg = extractRisksFromRequest(request);
                     List ag = extractActionsFromRequest(request);
                     pg = buildProject(pg, rg, ag);
@@ -953,15 +953,16 @@ public class dataFromDB {
         return list;
     }
     //function to extract a project from the current request
-    private Progetto extractProjectFromRequest(HttpServletRequest request){
+    private Progetto extractProjectFromRequest(HttpServletRequest request, PrintWriter out){
         Progetto p = new Progetto();
 
 
         try{
-            //p.setIsCase(Boolean.parseBoolean(request.getParameter("iscase")));
-            //p.setIsOpen(Boolean.parseBoolean(request.getParameter("isopen")));
+            p.setIsCase(Boolean.parseBoolean(request.getParameter("iscase")));
+            p.setIsOpen(Boolean.parseBoolean(request.getParameter("isopen")));
         }catch (Exception e){}
-        
+
+        out.println("QUI");
         p.setCodice(request.getParameter("codice"));
         p.setReparto(Integer.parseInt(request.getParameter("reparto")));
         p.setClasseRischio(Integer.parseInt(request.getParameter("classeDiRischio")));
@@ -982,7 +983,7 @@ public class dataFromDB {
         l.setR2(Boolean.parseBoolean(request.getParameter("ckrmc2"))?Integer.parseInt(request.getParameter("rmc2")):null);
         l.setR3(Boolean.parseBoolean(request.getParameter("ckrmc3"))?Integer.parseInt(request.getParameter("rmc3")):null);
         p.setMercatoCliente(l);
-
+out.println("QUI");
          l = new LivelloDiRischio();
         l.setR1(Boolean.parseBoolean(request.getParameter("ckrc1"))?Integer.parseInt(request.getParameter("rc1")):null);
         l.setR2(Boolean.parseBoolean(request.getParameter("ckrc2"))?Integer.parseInt(request.getParameter("rc2")):null);
@@ -1006,7 +1007,7 @@ public class dataFromDB {
         l.setR2(Boolean.parseBoolean(request.getParameter("ckra2"))?Integer.parseInt(request.getParameter("ra2")):null);
         l.setR3(Boolean.parseBoolean(request.getParameter("ckra3"))?Integer.parseInt(request.getParameter("ra3")):null);
         p.setApprovvigionamento(l);
-
+out.println("QUI");
          l = new LivelloDiRischio();
         l.setR1(Boolean.parseBoolean(request.getParameter("ckrf1"))?Integer.parseInt(request.getParameter("rf1")):null);
         l.setR2(Boolean.parseBoolean(request.getParameter("ckrf2"))?Integer.parseInt(request.getParameter("rf2")):null);
@@ -1024,14 +1025,14 @@ public class dataFromDB {
         l.setR2(Boolean.parseBoolean(request.getParameter("ckrav2"))?Integer.parseInt(request.getParameter("rav2")):null);
         l.setR3(Boolean.parseBoolean(request.getParameter("ckrav3"))?Integer.parseInt(request.getParameter("rav3")):null);
         p.setAvviamento(l);
-
+out.println("QUI");
         p.setIm(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIM"))?Integer.parseInt(request.getParameter("IM")):null));
         p.setIc(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIC"))?Integer.parseInt(request.getParameter("IC")):null));
         p.setIp(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIP"))?Integer.parseInt(request.getParameter("IP")):null));
         p.setIa(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIA"))?Integer.parseInt(request.getParameter("IA")):null));
         p.setIpp(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIPP"))?Integer.parseInt(request.getParameter("IPP")):null));
 
-        return new Progetto();
+        return p;
     }
     //function to suggest actions for the 'p' project and the 'r' risk
     private List suggestActions(HttpSession session, Rischio r){
