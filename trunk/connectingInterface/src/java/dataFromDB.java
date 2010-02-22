@@ -1082,7 +1082,7 @@ public class dataFromDB {
             Azioni a = (Azioni) it.next();
             if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
                 azioniDelRischio.add(a);
-                out.println(a.getPrimaryKey().getIdAzione());
+                printAction(a, out, 0);
             }
         }
         return azioniDelRischio;
