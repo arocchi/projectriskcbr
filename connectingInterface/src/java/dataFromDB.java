@@ -319,7 +319,10 @@ public class dataFromDB {
                     /*XXX format to define*/
                     
                     //reading actions list from request
-                    lista = extractActionsFromRequest(request,false);
+out.println("puppa");
+out.print(request.toString());
+                    lista = extractActionsFromRequest(request,false,out);
+out.println("puppa");
                     //checking if any action was modified
                     LinkedList<Azioni> prev = (LinkedList<Azioni>) session.getAttribute("azioni");
                     if(compareModificationsActions(prev, lista)){
@@ -540,7 +543,7 @@ public class dataFromDB {
                     //reading project from request
                     Progetto pg = extractProjectFromRequest(request, out);
                     List rg = extractRisksFromRequest(request,true);
-                    List ag = extractActionsFromRequest(request,true);
+                    List ag = extractActionsFromRequest(request,true,out);
                     pg = buildProject(pg, rg, ag);
 
                     //old project
@@ -1094,7 +1097,7 @@ public class dataFromDB {
         return azioniDelRischio;
     }
     //function to extract actions from the current request
-    private List extractActionsFromRequest(HttpServletRequest request, boolean enable){
+    private List extractActionsFromRequest(HttpServletRequest request, boolean enable, PrintWriter out){
         
         LinkedList<Azioni> list = new LinkedList<Azioni>();
         String what = "";
@@ -1108,7 +1111,7 @@ public class dataFromDB {
             Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
             if(cnt == null)
                 return list;
-
+out.println("puppa");
             //temporary identifier
             int identif = 1;
 
