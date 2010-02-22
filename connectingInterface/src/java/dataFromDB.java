@@ -235,7 +235,7 @@ public class dataFromDB {
                 case 103:
                     //user give me data about all risks added to the current project
                     //save them into session
-
+out.println(request.toString());
                     //reading risks from the current request
                     lista = extractRisksFromRequest(request);/*XXX testare*/
                     //XXX compare given risks to decide if store the project as a case
@@ -247,6 +247,7 @@ public class dataFromDB {
                     };
                     //saving these datas into the current session
                     session.setAttribute("RisksAddedToProject",lista);
+
                     break;
                 //take_actionsbyrisk
                 case 6:
