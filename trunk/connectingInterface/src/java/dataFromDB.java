@@ -397,7 +397,7 @@ public class dataFromDB {
                     //if here, all checks are passed. Printing the digest
                     if(index == 0){ //it means: we are executing "take_digest
                         //printDigestDummy(p,riskList,actionList,out);
-                        Progetto c = buildProject(p, riskList, actionList);
+                        //Progetto c = buildProject(p, riskList, actionList);
                         printProject(c, out);
                     }
 
