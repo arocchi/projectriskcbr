@@ -108,13 +108,13 @@ public class dataFromDB {
                     p.setIsOpen(true);
                  
                     p.setCodice(Progetto.generateAutoKey());
-out.println("ok");
+
                     //saving it into session varaiable
                     session.setAttribute("Progetto", p);
                     //making suggestions
 
-                    out.println("ok");
-                    suggestions(p, session);
+                    
+                    suggestions(p, session, out);
                     out.println("ok");
                     
                 }
@@ -1261,13 +1261,13 @@ out.println("puppa");
 */
 
     /*SIMILARITY UTILITIES*/
-    private void suggestions(Progetto queryDesc, HttpSession session) throws Exception {
+    private void suggestions(Progetto queryDesc, HttpSession session,PrintWriter out) throws Exception {
         String file = "/media/gutzy/home/narduz/Documenti/Università/Sistemi intelligenti/Progetto/repository03/connectingInterface/similarityconfig/groupsConfig.xml";
         FileInputStream configFile = new FileInputStream(file);
         // LOAD CONFIGURATION
         Configuration configuration = Configuration.load(configFile);
         configFile.close();
-
+out.println("ok");
         //LOAD CASES
         Collection<CBRCase> cases = new LinkedList<CBRCase>();
         // Progetto extends CBRCase, since a Progetto can be a case
@@ -1277,7 +1277,7 @@ out.println("puppa");
                 cbrCase.setDescription(progetto);
                 cases.add(cbrCase);
         }
-
+out.println("ok");
         //CONFIGURE SIMILARITY
         // the query must be a CBRCase, the description of whom is the Progetto just defined
         CBRCase query = new CBRCase();
@@ -1294,7 +1294,7 @@ out.println("puppa");
          */
         NNConfig globalSimConfig = queryDesc.getTotalSimilarityConfig(null);
 
-
+out.println("ok");
         /*
          * NNConfigurator extracts information from a ConfigurationGroup and stores them
          * inside a simConfig structure.
@@ -1322,7 +1322,7 @@ out.println("puppa");
 	 * You can access the corrisponding Progetto instance trough the getDescription method of that case
 	 */
 	 Map<ConfigurationGroup, Collection<RetrievalResult>> groupsResults = new HashMap<ConfigurationGroup, Collection<RetrievalResult>>();
-
+out.println("ok");
          /* We calculate similarity according to the similarity criterias specified for each group.
 	 * Then, we get the top k projects for the group.
 	 */
@@ -1337,7 +1337,7 @@ out.println("puppa");
 
                 groupsResults.put(entry.getValue(), globallyEvaluatedResul);
 	}
-
+out.println("ok");
         /* ----------------- */
 	/* RISKS EXTRACTION  */
 	/* ----------------- */
@@ -1386,7 +1386,7 @@ out.println("puppa");
             }
             groupIndex++;
         }
-
+out.println("ok");
         //storing data into session
         session.setAttribute("gruppi", gruppi);
         session.setAttribute("azioni",azioni);
