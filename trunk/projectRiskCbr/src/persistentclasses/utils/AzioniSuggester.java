@@ -306,6 +306,7 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 		
 		suggestedAction.setPrimaryKey(new AzioniPrimaryKey());
 		suggestedAction.getPrimaryKey().setTipo(this.actionType);
+		suggestedAction.getPrimaryKey().setIdAzione(this.actionId);
 		suggestedAction.setStato(this.actionStatus);
 		
 		if(adaptImpact == true) {
