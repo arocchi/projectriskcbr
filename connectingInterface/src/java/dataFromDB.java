@@ -319,7 +319,7 @@ public class dataFromDB {
                     /*XXX format to define*/
                     
                     //reading actions list from request
-                    lista = extractActionsFromRequest(request);
+                    lista = extractActionsFromRequest(request,false);
                     //checking if any action was modified
                     LinkedList<Azioni> prev = (LinkedList<Azioni>) session.getAttribute("azioni");
                     if(compareModificationsActions(prev, lista)){
@@ -540,7 +540,7 @@ public class dataFromDB {
                     //reading project from request
                     Progetto pg = extractProjectFromRequest(request, out);
                     List rg = extractRisksFromRequest(request,true);
-                    List ag = extractActionsFromRequest(request);
+                    List ag = extractActionsFromRequest(request,true);
                     pg = buildProject(pg, rg, ag);
 
                     //old project
@@ -957,11 +957,14 @@ public class dataFromDB {
                 r.setCategoria(request.getParameter(what+"categoria_"+i));
                 r.setCostoPotenzialeImpatto(Integer.parseInt(request.getParameter(what+"costoPotenzialeImpatto_"+i)));
                 r.setNumeroRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
-                //azioni
+                
+
 
                 //filled fields
                 list.add(r);
             }
+            if(!enable)
+                break;
         }
 
         return list;
@@ -1091,16 +1094,18 @@ public class dataFromDB {
         return azioniDelRischio;
     }
     //function to extract actions from the current request
-    private List extractActionsFromRequest(HttpServletRequest request){
+    private List extractActionsFromRequest(HttpServletRequest request, boolean enable){
         
         LinkedList<Azioni> list = new LinkedList<Azioni>();
+        String what = "";
         for(int j=0; j<2; j++){
-            String what;
-            if(j==0) what = "action";
-            else what = "newaction";
+            if(enable){
+                if(j==0) what = "action_";
+                else what = "newaction_";
+            }
 
             //reading the number of actions to load
-            Integer cnt = Integer.parseInt(request.getParameter(what+"_cnt"));
+            Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
             if(cnt == null)
                 return list;
 
@@ -1111,19 +1116,21 @@ public class dataFromDB {
             for(int i=0; i<cnt; i++){
                 Azioni a = new Azioni();
 
-                a.getPrimaryKey().setIdAzione(Integer.parseInt(request.getParameter(what+"_idAzione_"+i)));
-                a.getPrimaryKey().setIdRischio(request.getParameter(what+"_idRischio_"+i));
-                a.getPrimaryKey().setIdentifier(Integer.parseInt(request.getParameter(what+"_identifier_"+i)));//Integer.parseInt(request.getParameter("identifier_"+i)));
-                a.getPrimaryKey().setTipo(request.getParameter(what+"_tipo_"+i).charAt(0));
-                a.setDescrizione(request.getParameter(what+"_descrizione_"+i));
-                a.setRevisione(Integer.parseInt(request.getParameter(what+"_revisione_"+i)));
-                a.setStato(request.getParameter(what+"_stato_"+i));
-                if(!Boolean.parseBoolean(request.getParameter(what+"_ckintensita_"+i)))
+                a.getPrimaryKey().setIdAzione(Integer.parseInt(request.getParameter(what+"idAzione_"+i)));
+                a.getPrimaryKey().setIdRischio(request.getParameter(what+"idRischio_"+i));
+                a.getPrimaryKey().setIdentifier(Integer.parseInt(request.getParameter(what+"identifier_"+i)));//Integer.parseInt(request.getParameter("identifier_"+i)));
+                a.getPrimaryKey().setTipo(request.getParameter(what+"tipo_"+i).charAt(0));
+                a.setDescrizione(request.getParameter(what+"descrizione_"+i));
+                a.setRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
+                a.setStato(request.getParameter(what+"stato_"+i));
+                if(!Boolean.parseBoolean(request.getParameter(what+"ckintensita_"+i)))
                     a.setIntensita(-50);
                 else
-                    a.setIntensita(Integer.parseInt(request.getParameter(what+"_intensita_"+i)));
+                    a.setIntensita(Integer.parseInt(request.getParameter(what+"intensita_"+i)));
                 list.add(a);
             }
+            if(!enable)
+                break;
         }
         return list;
     }
@@ -1292,7 +1299,7 @@ public class dataFromDB {
         } catch (Exception e){}
 
         return new LinkedList();
-    }
+    }out.println("puppa");
 */
 
     /*SIMILARITY UTILITIES*/
