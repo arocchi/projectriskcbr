@@ -195,7 +195,36 @@ public class Rischio extends persistentBase{
 
     public int getMaxRevisione(){
         int max = 0;
+        Iterator it = storico.iterator();
+        while(it.hasNext()){
+            Revisione r = (Revisione) it.next();
+            int rev = r.getNumeroRevisione();
+            max = (rev>max)?rev:max;
+        }
         return max;
+    }
+
+    public int getProbabilitaAttuale(){
+        Iterator it = storico.iterator();
+        while(it.hasNext()){
+            Revisione r = (Revisione) it.next();
+            int rev = r.getNumeroRevisione();
+            if(rev == getMaxRevisione())
+                return r.getProbabilita();
+        }
+        return probabilitaIniziale;
+    }
+
+
+    public int getImpattoAttuale(){
+        Iterator it = storico.iterator();
+        while(it.hasNext()){
+            Revisione r = (Revisione) it.next();
+            int rev = r.getNumeroRevisione();
+            if(rev == getMaxRevisione())
+                return r.getIndiceImpatto();
+        }
+        return impattoIniziale;
     }
 
     /**
