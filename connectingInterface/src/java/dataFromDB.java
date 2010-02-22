@@ -104,15 +104,15 @@ public class dataFromDB {
                     Progetto p = extractProjectFromRequest(request, out);/*XXX sostituire con funzione effettiva*/
 
                     p.setIsCase(false);
-                    
+                    out.println("NULL");
                     p.setIsOpen(true);
-                 
+                 out.println("NULL");
                     p.setCodice(Progetto.generateAutoKey());
-
+out.println("NULL");
                     //saving it into session varaiable
                     session.setAttribute("Progetto", p);
                     //making suggestions
-
+out.println("NULL");
                     printProject(p, out);
                     suggestions(p, session, out);
                     out.println("ok");
