@@ -109,12 +109,12 @@ public class dataFromDB {
                  
                     p.setCodice(Progetto.generateAutoKey());
 
-                    //saving it into session variable
+                    //saving it into session varaiable
                     session.setAttribute("Progetto", p);
                     //making suggestions
                    
                     suggestions(p, session);
-                    out.println("ok");
+                    out.println("ok"+session.getAttribute("groupnumber")+"ciao");
                     
                 }
                     break;
