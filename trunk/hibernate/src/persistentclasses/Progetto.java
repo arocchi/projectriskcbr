@@ -109,6 +109,8 @@ public class Progetto
         ip						= null;
         ia						= null;
         ipp						= null;
+
+        rischi = new LinkedList<Rischio>();
     }
 
     //setters e getters
