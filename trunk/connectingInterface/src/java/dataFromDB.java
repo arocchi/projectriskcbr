@@ -112,8 +112,8 @@ public class dataFromDB {
                     //saving it into session varaiable
                     session.setAttribute("Progetto", p);
                     //making suggestions
-out.println(request.toString());
-                    printProject(p, out);
+                    //XXXout.println(request.toString());
+                    //XXXprintProject(p, out);
                     suggestions(p, session, out);
                     out.println("ok");
                     
@@ -1294,7 +1294,7 @@ out.println("puppa");
         // LOAD CONFIGURATION
         Configuration configuration = Configuration.load(configFile);
         configFile.close();
-out.println("ok");
+
         //LOAD CASES
         Collection<CBRCase> cases = new LinkedList<CBRCase>();
         // Progetto extends CBRCase, since a Progetto can be a case
@@ -1304,7 +1304,7 @@ out.println("ok");
                 cbrCase.setDescription(progetto);
                 cases.add(cbrCase);
         }
-out.println("ok");
+
         //CONFIGURE SIMILARITY
         // the query must be a CBRCase, the description of whom is the Progetto just defined
         CBRCase query = new CBRCase();
@@ -1321,7 +1321,7 @@ out.println("ok");
          */
         NNConfig globalSimConfig = queryDesc.getTotalSimilarityConfig(null);
 
-out.println("ok");
+
         /*
          * NNConfigurator extracts information from a ConfigurationGroup and stores them
          * inside a simConfig structure.
@@ -1349,12 +1349,12 @@ out.println("ok");
 	 * You can access the corrisponding Progetto instance trough the getDescription method of that case
 	 */
 	 Map<ConfigurationGroup, Collection<RetrievalResult>> groupsResults = new HashMap<ConfigurationGroup, Collection<RetrievalResult>>();
-out.println("okPRIMA");
+
          /* We calculate similarity according to the similarity criterias specified for each group.
 	 * Then, we get the top k projects for the group.
 	 */
 	for(Map.Entry<NNConfig, ConfigurationGroup> entry : simConfigs.entrySet()) {
-		NNConfig simConfig = entry.getKey();out.println("ok--");
+		NNConfig simConfig = entry.getKey();
 		// we calculate similarity according to the similarity configuratino for this group
 		Collection<RetrievalResult> simEval = NNScoringMethod.evaluateSimilarity(cases, query, simConfig);
 		Collection<CBRCase> bestEval = SelectCases.selectTopK(simEval, configuration.kProgetto);
@@ -1364,7 +1364,7 @@ out.println("okPRIMA");
 
                 groupsResults.put(entry.getValue(), globallyEvaluatedResul);
 	}
-out.println("okOKOKOK");
+
         /* ----------------- */
 	/* RISKS EXTRACTION  */
 	/* ----------------- */
@@ -1413,7 +1413,7 @@ out.println("okOKOKOK");
             }
             groupIndex++;
         }
-out.println("ok");
+
         //storing data into session
         session.setAttribute("gruppi", gruppi);
         session.setAttribute("azioni",azioni);
