@@ -235,9 +235,12 @@ public class dataFromDB {
                 case 103:
                     //user give me data about all risks added to the current project
                     //save them into session
+out.println("puppa");
 out.println(request.toString());
                     //reading risks from the current request
+out.println("puppa");
                     lista = extractRisksFromRequest(request);/*XXX testare*/
+out.println("puppa");
                     //XXX compare given risks to decide if store the project as a case
                     LinkedList<Rischio>[] gruppi = (LinkedList<Rischio>[]) session.getAttribute("gruppi");
                     if(compareModificationsRisks(gruppi, lista)){
