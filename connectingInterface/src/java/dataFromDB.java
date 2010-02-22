@@ -239,7 +239,7 @@ out.println("puppa");
 out.println(request.toString());
                     //reading risks from the current request
 out.println("puppa");
-                    lista = extractRisksFromRequest(request);/*XXX testare*/
+                    lista = extractRisksFromRequest(request,false);/*XXX testare*/
 out.println("puppa");
                     //XXX compare given risks to decide if store the project as a case
                     LinkedList<Rischio>[] gruppi = (LinkedList<Rischio>[]) session.getAttribute("gruppi");
@@ -538,7 +538,7 @@ out.println("puppa");
 
                     //reading project from request
                     Progetto pg = extractProjectFromRequest(request, out);
-                    List rg = extractRisksFromRequest(request);
+                    List rg = extractRisksFromRequest(request,true);
                     List ag = extractActionsFromRequest(request);
                     pg = buildProject(pg, rg, ag);
 
@@ -925,14 +925,15 @@ out.println("puppa");
         return resultList;
     }
     //function to create a list of risks from the current request
-    private List extractRisksFromRequest(HttpServletRequest request){
+    private List extractRisksFromRequest(HttpServletRequest request, boolean enable){
 
         LinkedList<Rischio> list = new LinkedList<Rischio>();
-
+        String what = "";
         for(int j=0; j<2; j++){
-            String what;
-            if(j==0) what = "risk";
-            else what = "newrisk";
+            if(enable){
+                if(j==0) what = "risk_";
+                else what = "newrisk_";
+            }
 
             //reading the number of risks to load
             Integer cnt = Integer.parseInt(request.getParameter(what+"_cnt"));
@@ -942,19 +943,19 @@ out.println("puppa");
             //reading fields and building objects
             for(int i=0; i<cnt; i++){
                 Rischio r = new Rischio();
-                r.setCodice((String) request.getParameter(what+"_idRischio_"+i));
-                r.setDescrizione((String) request.getParameter(what+"_descrizione_"+i));
-                r.setCausa((String) request.getParameter(what+"_causa_"+i));
-                r.setEffetto((String) request.getParameter(what+"_effetto_"+i));
-                r.setCodiceChecklist(Integer.parseInt(request.getParameter(what+"_codiceChecklist_"+i)));
-                r.setStato((String) request.getParameter(what+"_stato_"+i));
-                r.setVerificato(Integer.parseInt(request.getParameter(what+"_rVer_"+i)));
-                r.setContingency(Double.parseDouble(request.getParameter(what+"_contingency_"+i)));
-                r.setProbabilitaIniziale(Integer.parseInt(request.getParameter(what+"_probIniziale_"+i)));
-                r.setImpattoIniziale(Integer.parseInt(request.getParameter(what+"_impattoIniziale_"+i)));
-                r.setCategoria(request.getParameter(what+"_categoria_"+i));
-                r.setCostoPotenzialeImpatto(Integer.parseInt(request.getParameter(what+"_costoPotenzialeImpatto_"+i)));
-                r.setNumeroRevisione(Integer.parseInt(request.getParameter(what+"_revisione_"+i)));
+                r.setCodice((String) request.getParameter(what+"idRischio_"+i));
+                r.setDescrizione((String) request.getParameter(what+"descrizione_"+i));
+                r.setCausa((String) request.getParameter(what+"causa_"+i));
+                r.setEffetto((String) request.getParameter(what+"effetto_"+i));
+                r.setCodiceChecklist(Integer.parseInt(request.getParameter(what+"codiceChecklist_"+i)));
+                r.setStato((String) request.getParameter(what+"stato_"+i));
+                r.setVerificato(Integer.parseInt(request.getParameter(what+"rVer_"+i)));
+                r.setContingency(Double.parseDouble(request.getParameter(what+"contingency_"+i)));
+                r.setProbabilitaIniziale(Integer.parseInt(request.getParameter(what+"probIniziale_"+i)));
+                r.setImpattoIniziale(Integer.parseInt(request.getParameter(what+"impattoIniziale_"+i)));
+                r.setCategoria(request.getParameter(what+"categoria_"+i));
+                r.setCostoPotenzialeImpatto(Integer.parseInt(request.getParameter(what+"costoPotenzialeImpatto_"+i)));
+                r.setNumeroRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
                 //azioni
 
                 //filled fields
