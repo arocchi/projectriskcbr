@@ -70,15 +70,11 @@
 		queryDesc.setIngegneria(ingegneria);
 		
 		// the query does not have an R3 set
-		LivelloDiRischio mercatoCliente = new LivelloDiRischio();
-		mercatoCliente.setR1(3);
-		mercatoCliente.setR2(0);
+		LivelloDiRischio mercatoCliente = new LivelloDiRischio(3, 0, null);
 		queryDesc.setMercatoCliente(mercatoCliente);
 		
 		// the query does not have an R1 set
-		LivelloDiRischio paese = new LivelloDiRischio();
-		paese.setR2(1);
-		paese.setR3(3);
+		LivelloDiRischio paese = new LivelloDiRischio(null, 1, 3);
 		queryDesc.setPaese(paese);
 		
 		ImpattoStrategico im = new ImpattoStrategico(2);

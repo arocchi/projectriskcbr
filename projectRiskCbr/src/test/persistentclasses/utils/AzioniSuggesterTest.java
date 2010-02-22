@@ -570,6 +570,12 @@ public class AzioniSuggesterTest {
 		suggestedE = suggesterE.getSuggestion();
 		suggestedG = suggesterG.getSuggestion();
 		
+		Assert.assertEquals("action A has same id as suggesterA", suggesterA.getActionId().intValue(), suggestedA.getPrimaryKey().getIdAzione());
+		Assert.assertEquals("action B has same id as suggesterB", suggesterB.getActionId().intValue(), suggestedB.getPrimaryKey().getIdAzione());
+		Assert.assertEquals("action E has same id as suggesterE", suggesterE.getActionId().intValue(), suggestedE.getPrimaryKey().getIdAzione());
+		Assert.assertEquals("action G has same id as suggesterG", suggesterG.getActionId().intValue(), suggestedG.getPrimaryKey().getIdAzione());
+		
+		
 		Assert.assertTrue("action A suggestion verification", suggestedA.isPlanned());
 		Assert.assertTrue("action A suggestion verification", suggestedA.getPrimaryKey().isMitigation());
 		Assert.assertTrue("action A suggestion verification", suggestedA.getDescrizione().equals("a"));
