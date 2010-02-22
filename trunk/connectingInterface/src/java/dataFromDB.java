@@ -319,10 +319,8 @@ public class dataFromDB {
                     /*XXX format to define*/
                     
                     //reading actions list from request
-out.println("puppa");
-out.print(request.toString());
                     lista = extractActionsFromRequest(request,false,out);
-out.println("puppa");
+
                     //checking if any action was modified
                     LinkedList<Azioni> prev = (LinkedList<Azioni>) session.getAttribute("azioni");
                     if(compareModificationsActions(prev, lista)){
@@ -1131,6 +1129,7 @@ out.println("puppa");
                 else
                     a.setIntensita(Integer.parseInt(request.getParameter(what+"intensita_"+i)));
                 list.add(a);
+                printAction(a, out, 0);
             }
             if(!enable)
                 break;
