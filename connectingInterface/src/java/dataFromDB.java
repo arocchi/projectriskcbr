@@ -100,11 +100,11 @@ public class dataFromDB {
                     //reading the data of the new created project to insert them into a session variable
 
                     //reading project from request
-                    out.println(request.toString());
+                    //out.println(request.toString());
                     Progetto p = extractProjectFromRequest(request, out);/*XXX sostituire con funzione effettiva*/
-                    out.println("qui");
+
                     p.setIsCase(false);
-                    out.println("qui");
+                    
                     p.setIsOpen(true);
                  
                     p.setCodice(Progetto.generateAutoKey());
@@ -114,6 +114,7 @@ public class dataFromDB {
                     //making suggestions
                    
                     suggestions(p, session);
+                    out.println("ok");
                     
                 }
                     break;
