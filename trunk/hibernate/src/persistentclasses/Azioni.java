@@ -24,7 +24,7 @@ public class Azioni extends persistentBase{
     {
         //non esistono valori di default per la chiave primaria.
         //vanno settati necessariamente
-
+        primaryKey = new AzioniPrimaryKey();
         stato = "Not specified";
         descrizione = "not specified";
         revisione = 0;
