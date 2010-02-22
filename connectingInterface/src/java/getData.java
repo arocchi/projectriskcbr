@@ -39,6 +39,7 @@ public class getData extends HttpServlet {
                 //deleting data from the previous session and opening a new one
                 session.invalidate();
                 session = request.getSession();
+                session.setMaxInactiveInterval(10000);
             }
             //setting active the current session
             session.setAttribute("activesession", true);
