@@ -298,8 +298,10 @@ out.println("puppa");
                             else
                                 break;
                             //setting description
-                            a.setDescrizione(dobj.getDescrizione());
-
+                            if(dobj!=null){
+                                a.setDescrizione(dobj.getDescrizione());
+                            }else a.setDescrizione("Problem retrieving description for "+a.getPrimaryKey().getIdAzione());
+out.println("puppa");
                             //printing action
                             out.println("\t<azione idName=\""+(index++)+"\">\n"+
                                         "\t\t<identifier>"+(identifier++)+"<identifier>"+
