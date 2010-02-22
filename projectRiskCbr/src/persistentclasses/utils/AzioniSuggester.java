@@ -177,15 +177,15 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 		for(Map.Entry<RetrievalResult, List<Azioni>> entry : rischio.getAzioni().entrySet()) {
 			RetrievalResult rr = entry.getKey();
 			for(Azioni azione: entry.getValue()) {
-				Integer azioneType = azione.getPrimaryKey().getIdAzione();
+				Integer idAzione = azione.getPrimaryKey().getIdAzione();
 				AzioniSuggester azioniSuggester = null;
 				// label matching actions
 				if(	azione.getPrimaryKey().getTipo() == 'R' ||
 					(azione.getPrimaryKey().getTipo() == 'M' &&
 						(azione.getStato().equals("Closed")))) {
-					if((azioniSuggester = azioniByType.get(azioneType)) == null) {
-						azioniSuggester = new AzioniSuggester(azioneType);
-						azioniByType.put(azioneType, azioniSuggester);
+					if((azioniSuggester = azioniByType.get(idAzione)) == null) {
+						azioniSuggester = new AzioniSuggester(idAzione);
+						azioniByType.put(idAzione, azioniSuggester);
 					}
 					azioniSuggester.addRR(rr, azione);
 				}
