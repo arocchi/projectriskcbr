@@ -890,6 +890,9 @@ public class dataFromDB {
     }
     //function that escapes characters to print into xml
     private String escapeChars(String s){
+        if(s==null || s.isEmpty())
+            return "";
+        
         s=s.replace('"', '\'');
         s=s.replaceAll("\\ufffd", "a\'");
         /*XXXString[] splitted = s.split("Monitoring costante delle attivit");
