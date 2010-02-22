@@ -11,7 +11,7 @@ package persistentclasses.attributes;
 public class ImpattoStrategico {
 	public static final Integer RANGE = 3;
 	
-    private Integer value;
+    private int value;
 
     //costruttori
     public ImpattoStrategico(){
@@ -20,7 +20,10 @@ public class ImpattoStrategico {
     }
 
     public ImpattoStrategico(Integer x) {
-        value = x;
+        if(x==null)
+            value = -1;
+        else
+            value = x;
     }
 
 
@@ -29,7 +32,7 @@ public class ImpattoStrategico {
         value = x;
     }
 
-    public Integer getValue(){
+    public int getValue(){
         return value;
     }
 
