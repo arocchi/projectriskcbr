@@ -235,12 +235,9 @@ public class dataFromDB {
                 case 103:
                     //user give me data about all risks added to the current project
                     //save them into session
-out.println("puppa");
-out.println(request.toString());
+                    //XXXout.println(request.toString());
                     //reading risks from the current request
-out.println("puppa");
                     lista = extractRisksFromRequest(request,false);/*XXX testare*/
-out.println("puppa");
                     //XXX compare given risks to decide if store the project as a case
                     LinkedList<Rischio>[] gruppi = (LinkedList<Rischio>[]) session.getAttribute("gruppi");
                     if(compareModificationsRisks(gruppi, lista)){
@@ -280,7 +277,7 @@ out.println("puppa");
                     Iterator riskIt = riskList.iterator();
                     while(riskIt.hasNext()){
                         Rischio r = (Rischio) riskIt.next();
-                        lista = suggestActions(session,r);//XXX testare
+                        lista = suggestActions(session,r,out);//XXX testare
                         out.println("<rischio idName=\""+(riskIndex++)+"\">\n"+
                                         "\t<idRischio>"+r.getCodice()+"</idRischio>");
                         it = lista.iterator();
@@ -1075,15 +1072,17 @@ out.println("puppa");
         return p;
     }
     //function to suggest actions for the 'p' project and the 'r' risk
-    private List suggestActions(HttpSession session, Rischio r){
+    private List suggestActions(HttpSession session, Rischio r, PrintWriter out){
         LinkedList<Azioni> azioni = (LinkedList<Azioni>) session.getAttribute("azioni");
         LinkedList<Azioni> azioniDelRischio = new LinkedList<Azioni>();
 
         Iterator it = azioni.iterator();
         while(it.hasNext()){
             Azioni a = (Azioni) it.next();
-            if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0)
+            if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
                 azioniDelRischio.add(a);
+                out.println(a.getPrimaryKey().getIdAzione());
+            }
         }
         return azioniDelRischio;
     }
