@@ -374,8 +374,11 @@ public class dataFromDB {
                     }
 
                     //if here, all checks are passed. Printing the digest
-                    if(index == 0) //it means: we are executing "take_digest
-                        printDigestDummy(p,riskList,actionList,out);
+                    if(index == 0){ //it means: we are executing "take_digest
+                        //printDigestDummy(p,riskList,actionList,out);
+                        Progetto c = buildProject(p, riskList, actionList);
+                        printProject(c, out);
+                    }
 
 
                     else if(index == 1){//it means: we are executing give_confirm
@@ -513,6 +516,18 @@ public class dataFromDB {
                     //user gives me all the project with modifications,i will read it and write on DB
                     /*XXX definire formato di scambio
                      considerare di usare formati già usati per azioni e rischi prima*/
+
+                    //reading project from request
+                    Progetto pg = extractProjectFromRequest(request);
+                    List rg = extractRisksFromRequest(request);
+                    List ag = extractActionsFromRequest(request);
+                    pg = buildProject(pg, rg, ag);
+
+                    //project read.
+
+
+                    //updating "revisione" field
+                    //filling up storico table for each risk
                     break;
                 //give_newchkrisk
                 case 108:
@@ -633,7 +648,9 @@ public class dataFromDB {
 
     //prints a project in xml format into stream 'out'
     private void printProject(Progetto p, PrintWriter out){
-        out.println("<progetto idName=\""+0+"\">\n"+
+        out.println("<progetto idName=\""+0+"\">\n" +
+                        "\t<isCase>"+p.getIsCase()+"</isCase>\n" +
+                        "\t<isOpen>"+p.getIsOpen()+"</isOpen>\n"+
                         "\t<codice>"+p.getCodice()+"</codice>\n"+
                         "\t<reparto>"+p.getReparto()+"</reparto>\n"+
                         "\t<classeDiRischio>"+p.getClasseRischio()+"</classeDiRischio>\n"+
@@ -805,33 +822,40 @@ public class dataFromDB {
     }
     //function to create a list of risks from the current request
     private List extractRisksFromRequest(HttpServletRequest request){
-        //reading the number of risks to load
-        Integer cnt = Integer.parseInt(request.getParameter("cnt"));
-        if(cnt == null)
-            return null;
 
-        //reading fields and building objects
         LinkedList<Rischio> list = new LinkedList<Rischio>();
-        for(int i=0; i<cnt; i++){
-            Rischio r = new Rischio();
-            r.setCodice((String) request.getParameter("idrischio_"+i));
-            r.setDescrizione((String) request.getParameter("descrizione_"+i));
-            r.setCausa((String) request.getParameter("causa_"+i));
-            r.setEffetto((String) request.getParameter("effetto_"+i));
-            r.setCodiceChecklist(Integer.parseInt(request.getParameter("codicechecklist_"+i)));
-            r.setStato((String) request.getParameter("stato_"+i));
-            r.setVerificato(Integer.parseInt(request.getParameter("rver_"+i)));
-            r.setContingency(Double.parseDouble(request.getParameter("contingency_"+i)));
-            r.setProbabilitaIniziale(Integer.parseInt(request.getParameter("probiniziale_"+i)));
-            r.setImpattoIniziale(Integer.parseInt(request.getParameter("impattoiniziale_"+i)));
-            
-            //XXXcategoriaRischio
-            //XXXrevisione
-            //XXXcostopotenzialeimpatto
-            //azioni
 
-            //filled fields
-            list.add(r);
+        for(int j=0; j<2; j++){
+            String what;
+            if(j==0) what = "risk";
+            else what = "newrisk";
+
+            //reading the number of risks to load
+            Integer cnt = Integer.parseInt(request.getParameter(what+"_cnt"));
+            if(cnt == null)
+                return list;
+
+            //reading fields and building objects
+            for(int i=0; i<cnt; i++){
+                Rischio r = new Rischio();
+                r.setCodice((String) request.getParameter(what+"_idRischio_"+i));
+                r.setDescrizione((String) request.getParameter(what+"_descrizione_"+i));
+                r.setCausa((String) request.getParameter(what+"_causa_"+i));
+                r.setEffetto((String) request.getParameter(what+"_effetto_"+i));
+                r.setCodiceChecklist(Integer.parseInt(request.getParameter(what+"_codiceChecklist_"+i)));
+                r.setStato((String) request.getParameter(what+"_stato_"+i));
+                r.setVerificato(Integer.parseInt(request.getParameter(what+"_rVer_"+i)));
+                r.setContingency(Double.parseDouble(request.getParameter(what+"_contingency_"+i)));
+                r.setProbabilitaIniziale(Integer.parseInt(request.getParameter(what+"_probIniziale_"+i)));
+                r.setImpattoIniziale(Integer.parseInt(request.getParameter(what+"_impattoIniziale_"+i)));
+                r.setCategoria(request.getParameter(what+"_categoria_"+i));
+                r.setCostoPotenzialeImpatto(Integer.parseInt(request.getParameter(what+"_costoPotenzialeImpatto_"+i)));
+                r.setNumeroRevisione(Integer.parseInt(request.getParameter(what+"_revisione_"+i)));
+                //azioni
+
+                //filled fields
+                list.add(r);
+            }
         }
 
         return list;
@@ -839,50 +863,76 @@ public class dataFromDB {
     //function to extract a project from the current request
     private Progetto extractProjectFromRequest(HttpServletRequest request){
         Progetto p = new Progetto();
-        p.setIsCase(Boolean.parseBoolean(request.getParameter("iscase")));
+        p.setIsCase(Boolean.parseBoolean(request.getParameter("iscase")));//XXX
         p.setIsOpen(Boolean.parseBoolean(request.getParameter("isopen")));
         p.setCodice(request.getParameter("codice"));
         p.setReparto(Integer.parseInt(request.getParameter("reparto")));
-        p.setClasseRischio(Integer.parseInt(request.getParameter("classerischio")));
-        p.setValoreEconomico(Double.parseDouble(request.getParameter("valoreeconomico")));
-        p.setDurataContratto(Integer.parseInt(request.getParameter("duratacontratto")));
-        p.setOggettoFornitura(request.getParameter("oggettofornitura"));
-        p.setNomeCliente(request.getParameter("nomecliente"));
+        p.setClasseRischio(Integer.parseInt(request.getParameter("classeDiRischio")));
+        p.setValoreEconomico(Double.parseDouble(request.getParameter("valoreEconomico")));
+        p.setDurataContratto(Integer.parseInt(request.getParameter("durataContratto")));
+        p.setOggettoFornitura(request.getParameter("oggettoFornitura"));
+        p.setNomeCliente(request.getParameter("nomeCliente"));
 
 
-        p.setPaese(new LivelloDiRischio(Integer.parseInt(request.getParameter("rp1")),
-                                        Integer.parseInt(request.getParameter("rp2")),
-                                        Integer.parseInt(request.getParameter("rp3"))));
-        p.setMercatoCliente(new LivelloDiRischio(Integer.parseInt(request.getParameter("rmc1")),
-                                                 Integer.parseInt(request.getParameter("rmc2")),
-                                                 Integer.parseInt(request.getParameter("rmc3"))));
-        p.setContratto(new LivelloDiRischio(Integer.parseInt(request.getParameter("rc1")),
-                                        Integer.parseInt(request.getParameter("rc2")),
-                                        Integer.parseInt(request.getParameter("rc3"))));
-        p.setComposizionePartnership(new LivelloDiRischio(Integer.parseInt(request.getParameter("rcp1")),
-                                        Integer.parseInt(request.getParameter("rcp2")),
-                                        Integer.parseInt(request.getParameter("rcp3"))));
-        p.setIngegneria(new LivelloDiRischio(Integer.parseInt(request.getParameter("ri1")),
-                                        Integer.parseInt(request.getParameter("ri2")),
-                                        Integer.parseInt(request.getParameter("ri3"))));
-        p.setApprovvigionamento(new LivelloDiRischio(Integer.parseInt(request.getParameter("ra1")),
-                                        Integer.parseInt(request.getParameter("ra2")),
-                                        Integer.parseInt(request.getParameter("ra3"))));
-        p.setFabbricazione(new LivelloDiRischio(Integer.parseInt(request.getParameter("rf1")),
-                                        Integer.parseInt(request.getParameter("rf2")),
-                                        Integer.parseInt(request.getParameter("rf3"))));
-        p.setMontaggio(new LivelloDiRischio(Integer.parseInt(request.getParameter("rm1")),
-                                        Integer.parseInt(request.getParameter("rm2")),
-                                        Integer.parseInt(request.getParameter("rm3"))));
-        p.setAvviamento(new LivelloDiRischio(Integer.parseInt(request.getParameter("rav1")),
-                                        Integer.parseInt(request.getParameter("rav2")),
-                                        Integer.parseInt(request.getParameter("rav3"))));
+        LivelloDiRischio l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckrp1"))?Integer.parseInt(request.getParameter("rp1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckrp2"))?Integer.parseInt(request.getParameter("rp2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckrp3"))?Integer.parseInt(request.getParameter("rp3")):null);
+        p.setPaese(l);
 
-        p.setIm(new ImpattoStrategico(Integer.parseInt(request.getParameter("im"))));
-        p.setIc(new ImpattoStrategico(Integer.parseInt(request.getParameter("ic"))));
-        p.setIp(new ImpattoStrategico(Integer.parseInt(request.getParameter("ip"))));
-        p.setIa(new ImpattoStrategico(Integer.parseInt(request.getParameter("ia"))));
-        p.setIpp(new ImpattoStrategico(Integer.parseInt(request.getParameter("ipp"))));
+        l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckrmc1"))?Integer.parseInt(request.getParameter("rmc1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckrmc2"))?Integer.parseInt(request.getParameter("rmc2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckrmc3"))?Integer.parseInt(request.getParameter("rmc3")):null);
+        p.setMercatoCliente(l);
+
+         l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckrc1"))?Integer.parseInt(request.getParameter("rc1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckrc2"))?Integer.parseInt(request.getParameter("rc2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckrc3"))?Integer.parseInt(request.getParameter("rc3")):null);
+        p.setContratto(l);
+
+         l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckrcp1"))?Integer.parseInt(request.getParameter("rcp1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckrcp2"))?Integer.parseInt(request.getParameter("rcp2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckrcp3"))?Integer.parseInt(request.getParameter("rcp3")):null);
+        p.setComposizionePartnership(l);
+
+         l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckri1"))?Integer.parseInt(request.getParameter("ri1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckri2"))?Integer.parseInt(request.getParameter("ri2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckri3"))?Integer.parseInt(request.getParameter("ri3")):null);
+        p.setIngegneria(l);
+
+         l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckra1"))?Integer.parseInt(request.getParameter("ra1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckra2"))?Integer.parseInt(request.getParameter("ra2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckra3"))?Integer.parseInt(request.getParameter("ra3")):null);
+        p.setApprovvigionamento(l);
+
+         l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckrf1"))?Integer.parseInt(request.getParameter("rf1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckrf2"))?Integer.parseInt(request.getParameter("rf2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckrf3"))?Integer.parseInt(request.getParameter("rf3")):null);
+        p.setFabbricazione(l);
+
+         l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckrm1"))?Integer.parseInt(request.getParameter("rm1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckrm2"))?Integer.parseInt(request.getParameter("rm2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckrm3"))?Integer.parseInt(request.getParameter("rm3")):null);
+        p.setMontaggio(l);
+
+         l = new LivelloDiRischio();
+        l.setR1(Boolean.parseBoolean(request.getParameter("ckrav1"))?Integer.parseInt(request.getParameter("rav1")):null);
+        l.setR2(Boolean.parseBoolean(request.getParameter("ckrav2"))?Integer.parseInt(request.getParameter("rav2")):null);
+        l.setR3(Boolean.parseBoolean(request.getParameter("ckrav3"))?Integer.parseInt(request.getParameter("rav3")):null);
+        p.setAvviamento(l);
+
+        p.setIm(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIM"))?Integer.parseInt(request.getParameter("IM")):null));
+        p.setIc(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIC"))?Integer.parseInt(request.getParameter("IC")):null));
+        p.setIp(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIP"))?Integer.parseInt(request.getParameter("IP")):null));
+        p.setIa(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIA"))?Integer.parseInt(request.getParameter("IA")):null));
+        p.setIpp(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIPP"))?Integer.parseInt(request.getParameter("IPP")):null));
 
         return new Progetto();
     }
@@ -901,29 +951,38 @@ public class dataFromDB {
     }
     //function to extract actions from the current request
     private List extractActionsFromRequest(HttpServletRequest request){
-        //reading the number of actions to load
-        Integer cnt = Integer.parseInt(request.getParameter("cnt"));
-        if(cnt == null)
-            return null;
-
-        //temporary identifier
-        int identif = 1;
         
-        //building actions
         LinkedList<Azioni> list = new LinkedList<Azioni>();
-        for(int i=0; i<cnt; i++){
-            Azioni a = new Azioni();
+        for(int j=0; j<2; j++){
+            String what;
+            if(j==0) what = "action";
+            else what = "newaction";
 
-            a.getPrimaryKey().setIdAzione(Integer.parseInt(request.getParameter("codicechecklist_"+i)));
-            a.getPrimaryKey().setIdRischio(request.getParameter("idrischio_"+i));
-            a.getPrimaryKey().setIdentifier(identif++);//Integer.parseInt(request.getParameter("identifier_"+i)));
-            a.getPrimaryKey().setTipo(request.getParameter("tipo_"+i).charAt(0));
-            a.setDescrizione(request.getParameter("descrizione_"+i));
-            a.setIntensita(Integer.parseInt(request.getParameter("intensita_"+i)));
-            a.setRevisione(Integer.parseInt(request.getParameter("revisione_"+i)));
-            a.setStato(request.getParameter("stato_"+i));
+            //reading the number of actions to load
+            Integer cnt = Integer.parseInt(request.getParameter(what+"_cnt"));
+            if(cnt == null)
+                return list;
 
-            list.add(a);
+            //temporary identifier
+            int identif = 1;
+
+            //building actions
+            for(int i=0; i<cnt; i++){
+                Azioni a = new Azioni();
+
+                a.getPrimaryKey().setIdAzione(Integer.parseInt(request.getParameter(what+"_idAzione_"+i)));
+                a.getPrimaryKey().setIdRischio(request.getParameter(what+"_idRischio_"+i));
+                a.getPrimaryKey().setIdentifier(Integer.parseInt(request.getParameter(what+"_identifier_"+i)));//Integer.parseInt(request.getParameter("identifier_"+i)));
+                a.getPrimaryKey().setTipo(request.getParameter(what+"_tipo_"+i).charAt(0));
+                a.setDescrizione(request.getParameter(what+"_descrizione_"+i));
+                a.setRevisione(Integer.parseInt(request.getParameter(what+"_revisione_"+i)));
+                a.setStato(request.getParameter(what+"_stato_"+i));
+                if(!Boolean.parseBoolean(request.getParameter(what+"_ckintensita_"+i)))
+                    a.setIntensita(-50);
+                else
+                    a.setIntensita(Integer.parseInt(request.getParameter(what+"_intensita_"+i)));
+                list.add(a);
+            }
         }
         return list;
     }
