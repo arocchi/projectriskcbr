@@ -846,20 +846,20 @@ public class dataFromDB {
     }
     //prints a risk in xml format into the stream 'out'. If printActions == true prints also all actions
     private void printRisk(Rischio r, PrintWriter out, int index, boolean printActions){
-        out.println("\t<rischio idName=\""+index+"\">\n"+
-                        "\t\t<idRischio>"+r.getCodice()+"</idRischio>\n"+
-                        "\t\t<codiceChecklist>"+r.getCodiceChecklist()+"</codiceChecklist>\n"+
-                        "\t\t<stato>"+r.getStato().getStato()+"</stato>\n"+
-                        "\t\t<categoria>"+r.getCategoria()+"</categoria>\n"+
-                        "\t\t<rVer>"+r.getVerificato()+"</rVer>\n"+
-                        "\t\t<descrizione>"+escapeChars(r.getDescrizione())+"</descrizione>\n"+
-                        "\t\t<contingency>"+r.getContingency()+"</contingency>\n"+
-                        "\t\t<causa>"+escapeChars(r.getCausa())+"</causa>\n"+
-                        "\t\t<effetto>"+escapeChars(r.getEffetto())+"</effetto>\n"+
-                        "\t\t<probIniziale>"+r.getProbabilitaIniziale()+"</probIniziale>\n"+
-                        "\t\t<impattoIniziale>"+r.getImpattoIniziale()+"</impattoIniziale>\n"+
-                        "\t\t<costoPotenzialeImpatto>"+r.getCostoPotenzialeImpatto()+"</costoPotenzialeImpatto>\n" +
-                        "\t\t<revisione>"+r.getNumeroRevisione()+"</revisione>");
+        out.println("\t<rischio idName=\""+index+"\">");
+                    out.println("\t\t<idRischio>"+r.getCodice()+"</idRischio>");
+                    out.println("\t\t<codiceChecklist>"+r.getCodiceChecklist()+"</codiceChecklist>");
+                    out.println("\t\t<stato>"+r.getStato().getStato()+"</stato>");
+                    out.println("\t\t<categoria>"+r.getCategoria()+"</categoria>");
+                    out.println("\t\t<rVer>"+r.getVerificato()+"</rVer>");
+                    out.println("\t\t<descrizione>"+escapeChars(r.getDescrizione())+"</descrizione>");
+                    out.println("\t\t<contingency>"+r.getContingency()+"</contingency>\n");
+                    out.println("\t\t<causa>"+escapeChars(r.getCausa())+"</causa>\n");
+                    out.println("\t\t<effetto>"+escapeChars(r.getEffetto())+"</effetto>\n");
+                    out.println("\t\t<probIniziale>"+r.getProbabilitaIniziale()+"</probIniziale>\n");
+                    out.println("\t\t<impattoIniziale>"+r.getImpattoIniziale()+"</impattoIniziale>\n");
+                    out.println("\t\t<costoPotenzialeImpatto>"+r.getCostoPotenzialeImpatto()+"</costoPotenzialeImpatto>\n");
+                    out.println("\t\t<revisione>"+r.getNumeroRevisione()+"</revisione>");
         //printing actions
         if(printActions && r.getAzioni() != null){
             List actions = r.getAzioni();
