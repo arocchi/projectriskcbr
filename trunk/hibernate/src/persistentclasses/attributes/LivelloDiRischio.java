@@ -22,9 +22,9 @@ public class LivelloDiRischio
 
     public LivelloDiRischio(Integer a, Integer b ,Integer c){
 
-        R1 = new Integer(a);
-        R2 = new Integer(b);
-        R3 = new Integer(c);
+        R1 = a;
+        R2 = b;
+        R3 = c;
     }
 
     //default constructor
