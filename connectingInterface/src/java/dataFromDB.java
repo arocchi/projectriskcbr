@@ -100,6 +100,7 @@ public class dataFromDB {
                     //reading the data of the new created project to insert them into a session variable
 
                     //reading project from request
+                    out.println(request.toString());
                     Progetto p = extractProjectFromRequest(request);/*XXX sostituire con funzione effettiva*/
                     p.setIsCase(false);
                     p.setIsOpen(true);
@@ -954,6 +955,8 @@ public class dataFromDB {
     //function to extract a project from the current request
     private Progetto extractProjectFromRequest(HttpServletRequest request){
         Progetto p = new Progetto();
+
+
         try{
             p.setIsCase(Boolean.parseBoolean(request.getParameter("iscase")));
             p.setIsOpen(Boolean.parseBoolean(request.getParameter("isopen")));
