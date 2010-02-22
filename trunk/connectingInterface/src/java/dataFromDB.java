@@ -1194,6 +1194,7 @@ public class dataFromDB {
                         out.println("generato identifier "+ident);
                         if(r==null) out.println("ERRENULL");
                         if(a==null) out.println("ANULL");
+                        if(actionList == null) out.println();
                         r.aggiungiAzione(0, a);
                         actionList.remove(a);
                     }
