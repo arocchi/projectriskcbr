@@ -132,9 +132,9 @@ public class dataFromDB {
                         out.println("<error>Erorr: must create a project before asking suggested risks</error>");
                         break;
                     }
-out.println("puppa");
+
                     int groupnumber = getNumberOfGroups(session);//XXX controllo correttezza
-out.println("puppa");
+
                     index = 0;//index for the xml object to be created from the interface
                     for(int i=0; i<groupnumber; i++){
                         out.println("<gruppo idName=\""+i+"\">\n\t<nomeGruppo>Gruppo "+i+"</nomeGruppo>");
