@@ -354,18 +354,7 @@ public class dataFromDB {
                     index=1;//using index as a flag
 
                 }
-                //take_newidrischio
-                case 14:
-                {
-                    //generating a new id for risk
-                    String riskid = generateRiskId(session);
-                    if(riskid==null){
-                        out.println("<error>Erorr: must create a project before asking risk ids</error>");
-                        break;
-                    }
-                    out.println(riskid);
-                }
-                break;
+                
                 //take_digest
                 case 7:
                 {
@@ -394,6 +383,20 @@ public class dataFromDB {
                         break;
                     }
 
+                    /*PRINTING LISTS*/
+                    out.println("BEGIN");
+                    Iterator m1 = riskList.iterator();
+                    while(m1.hasNext()){
+                        Rischio r = (Rischio) m1.next();
+                        printRisk(r, out, 0, false);
+                    }
+                    m1 = actionList.iterator();
+                    while(m1.hasNext()){
+                        Azioni a = (Azioni) m1.next();
+                        printAction(a, out, 0);
+                    }
+                    out.println("END");
+                    /****************/
                     //if here, all checks are passed. Printing the digest
                     if(index == 0){ //it means: we are executing "take_digest
                         //printDigestDummy(p,riskList,actionList,out);
@@ -414,6 +417,18 @@ public class dataFromDB {
                     }
                 }
                     break;
+                //take_newidrischio
+                case 14:
+                {
+                    //generating a new id for risk
+                    String riskid = generateRiskId(session);
+                    if(riskid==null){
+                        out.println("<error>Erorr: must create a project before asking risk ids</error>");
+                        break;
+                    }
+                    out.println(riskid);
+                }
+                break;
                 //take_openedprojects
                 case 8:
                 {
