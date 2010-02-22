@@ -50,8 +50,13 @@ public class getData extends HttpServlet {
             SessionFactory sf = SessionObject.getStarted();
             session.setAttribute("sessionfactory", sf);
         }
-
         try {
+            Thread.currentThread().sleep(500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(getData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            
             //integer of the operation to execute
             int typenum=-1;
             
