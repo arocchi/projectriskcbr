@@ -1348,7 +1348,8 @@ public class dataFromDB {
 
     /*SIMILARITY UTILITIES*/
     private void suggestions(Progetto queryDesc, HttpSession session,PrintWriter out) throws Exception {
-        String file = "/media/gutzy/home/narduz/Documenti/Università/Sistemi intelligenti/Progetto/repository03/connectingInterface/similarityconfig/groupsConfig.xml";
+        //String file = "/media/gutzy/home/narduz/Documenti/Università/Sistemi intelligenti/Progetto/repository03/connectingInterface/similarityconfig/groupsConfig.xml";
+        String file = "C:\\Documents and Settings\\Rosetta Stoned\\My Documents\\NetBeansProjects\\0219\\trunk\\projectRiskCbr\\WebContent\\assets\\groupsConfig.xml";
         FileInputStream configFile = new FileInputStream(file);
         // LOAD CONFIGURATION
         Configuration configuration = Configuration.load(configFile);
