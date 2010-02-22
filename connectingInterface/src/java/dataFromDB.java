@@ -1034,12 +1034,39 @@ out.println("puppa");
         l.setR3(Boolean.parseBoolean(request.getParameter("ckrav3"))?Integer.parseInt(request.getParameter("rav3")):null);
         p.setAvviamento(l);
 
+        String ckIm = request.getParameter("ckIM");
+        String ckIc = request.getParameter("ckIC");
+        String ckIp = request.getParameter("ckIP");
+        String ckIa = request.getParameter("ckIA");
+        String ckIpp = request.getParameter("ckIPP");
+
+        String Im = request.getParameter("IM");
+        String Ic = request.getParameter("IC");
+        String Ip = request.getParameter("IP");
+        String Ia = request.getParameter("IA");
+        String Ipp = request.getParameter("IPP");
+
+        if(ckIm == null || Im==null) p.setIm(new ImpattoStrategico(-1));
+        else p.setIm(new ImpattoStrategico(Integer.parseInt(Im)));
+
+         if(ckIc == null || Im==null) p.setIc(new ImpattoStrategico(-1));
+        else p.setIc(new ImpattoStrategico(Integer.parseInt(Ic)));
+
+         if(ckIp == null || Im==null) p.setIp(new ImpattoStrategico(-1));
+        else p.setIp(new ImpattoStrategico(Integer.parseInt(Ip)));
+
+         if(ckIa == null || Im==null) p.setIa(new ImpattoStrategico(-1));
+        else p.setIa(new ImpattoStrategico(Integer.parseInt(Ia)));
+
+         if(ckIpp == null || Im==null) p.setIpp(new ImpattoStrategico(-1));
+        else p.setIpp(new ImpattoStrategico(Integer.parseInt(Ipp)));
+        /*
         p.setIm(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIM"))?Integer.parseInt(request.getParameter("IM")):null));
         p.setIc(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIC"))?Integer.parseInt(request.getParameter("IC")):null));
         p.setIp(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIP"))?Integer.parseInt(request.getParameter("IP")):null));
         p.setIa(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIA"))?Integer.parseInt(request.getParameter("IA")):null));
         p.setIpp(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIPP"))?Integer.parseInt(request.getParameter("IPP")):null));
-
+        */
         return p;
     }
     //function to suggest actions for the 'p' project and the 'r' risk
