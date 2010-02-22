@@ -400,14 +400,14 @@ public class dataFromDB {
                     //if here, all checks are passed. Printing the digest
                     if(index == 0){ //it means: we are executing "take_digest
                         //printDigestDummy(p,riskList,actionList,out);
-                        Progetto c = buildProject(p, riskList, actionList, out);
+                        Progetto c = buildProject(p, riskList, actionList, out, session);
                         printProject(c, out);
                     }
 
 
                     else if(index == 1){//it means: we are executing give_confirm
                         //building project and storing into DB
-                        Progetto complete = buildProject(p, riskList, actionList, out);
+                        Progetto complete = buildProject(p, riskList, actionList, out, session );
                         if(complete == null)
                             out.println("<error>ERROR</error>");
                         else{
@@ -560,7 +560,7 @@ public class dataFromDB {
                     Progetto pg = extractProjectFromRequest(request, out);
                     List rg = extractRisksFromRequest(request,true);
                     List ag = extractActionsFromRequest(request,true,out);
-                    pg = buildProject(pg, rg, ag, out);
+                    pg = buildProject(pg, rg, ag, out, session);
 
                     //old project
                     Progetto p = (Progetto) session.getAttribute("Progetto_ch");
@@ -1156,7 +1156,7 @@ public class dataFromDB {
         return list;
     }
     //function to build a project from alla datas passed as argument
-    private Progetto buildProject(Progetto p, List  riskList, List actionList, PrintWriter out){
+    private Progetto buildProject(Progetto p, List  riskList, List actionList, PrintWriter out, HttpSession session){
         try{
             //checking if project has a valid identifier
             if(!Progetto.checkAvailable(p.getCodice()))
@@ -1170,20 +1170,16 @@ public class dataFromDB {
                 out.println("puppa");
                 //adding actions to risk
                 Iterator ait = actionList.iterator();
-                int idM = 1;//id for mitigation actions
-                int idR = 1;//id for recovery actions
                 while(ait.hasNext()){
                     out.println("puppa");
                     Azioni a = (Azioni) ait.next();
                     //action for the current risk
                     if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
                         //setting identifier
-                        if(a.getPrimaryKey().getTipo() == 'R')
-                            a.getPrimaryKey().setIdentifier(idR++);
-                        else if(a.getPrimaryKey().getTipo() == 'M')
-                            a.getPrimaryKey().setIdentifier(idM++);
-                        else
-                            continue;
+                        out.println("generato identifier ");
+                        int ident = generateIdentifier(session, a.getPrimaryKey());
+                        a.getPrimaryKey().setIdentifier(ident);
+                        out.println("generato identifier "+ident);
                         r.aggiungiAzione(0, a);
                         actionList.remove(a);
                     }
