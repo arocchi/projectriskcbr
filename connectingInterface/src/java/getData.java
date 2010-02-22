@@ -51,7 +51,7 @@ public class getData extends HttpServlet {
             session.setAttribute("sessionfactory", sf);
         }
         try {
-            Thread.currentThread().sleep(500);
+            Thread.currentThread().sleep(600);
         } catch (InterruptedException ex) {
             Logger.getLogger(getData.class.getName()).log(Level.SEVERE, null, ex);
         }
