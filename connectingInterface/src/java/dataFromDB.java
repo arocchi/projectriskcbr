@@ -108,13 +108,14 @@ public class dataFromDB {
                     p.setIsOpen(true);
                  
                     p.setCodice(Progetto.generateAutoKey());
-
+out.println("ok");
                     //saving it into session varaiable
                     session.setAttribute("Progetto", p);
                     //making suggestions
-                   
+
+                    out.println("ok");
                     suggestions(p, session);
-                    out.println("ok"+session.getAttribute("groupnumber")+"ciao");
+                    out.println("ok");
                     
                 }
                     break;
