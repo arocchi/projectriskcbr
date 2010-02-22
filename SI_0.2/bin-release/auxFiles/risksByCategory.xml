@@ -1,0 +1,29 @@
+
+	<root label="Tutte le Categorie" type="fuori">
+			<node label="Rischi bruttissimi" type="categoria" >
+				<node codiceChecklist="Cod1" label="Cagarsi addosso" type="rischio" />
+				<node codiceChecklist="Cod2" label="Venire presto" type="rischio" />
+			</node>
+			<node label="Piccioni fragranti" type="categoria" >
+				<node codiceChecklist="Cod3" label="Fighe pelose" type="rischio" />
+				<node codiceChecklist="Cod4" label="Culi rotti" type="rischio" />
+			</node>
+
+			<node label="Suca" type="categoria" >
+				<node codiceChecklist="Cod5" label="Rischio che suca" type="rischio" />
+			</node>
+	</root>
+
+
+<!--<categoria idName="#NOME CATEGORIA#">
+	<rischio idName="#ID RISCHIO#">
+		<codiceChecklist>##</codiceChecklist>
+		<stato>#MONITORAGGIO [..]#</stato>
+		<rVer>#0 [1 - 2]#</rVer>
+		<descrizione>##</descrizione>
+		<contingency>##</contingency>
+		<probIniziale>#0-100#</probIniziale>
+		<impattoIniziale>#1-5#</impattoIniziale>
+	</rischio>
+</categoria>
+-->

@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="vertical"
+        width="800"
+        height="330"
+        backgroundColor="white"
+        backgroundAlpha="1.0"
+        borderColor="#000000"
+        borderAlpha="1.0"
+        cornerRadius="20"
+        showCloseButton="true"
+        close="titleWindow_close(event)"
+        borderStyle="solid" borderThickness="1" title="Seleziona Rischi non suggeriti" fontSize="12" creationComplete="catalogoLibriXML.send()">
+         
+	<mx:Script>
+        <![CDATA[
+        	import mx.rpc.events.ResultEvent;
+            import mx.controls.Alert;
+            import mx.controls.Label;
+            import mx.controls.List;
+            import mx.collections.ArrayCollection;
+            import mx.core.DragSource;
+            import mx.controls.Tree;
+            import mx.controls.DataGrid;
+            import mx.controls.listClasses.ListBase;
+            import mx.events.DragEvent;
+            import mx.containers.Canvas;
+            import mx.managers.DragManager;
+            import mx.core.UIComponent;
+            import mx.events.CloseEvent;
+            import mx.managers.PopUpManager;
+			import mx.collections.IViewCursor;
+			
+        
+            [Bindable]
+			private var dataGridProvider:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var queryString:String;
+            /**
+             * Handles the dragEnter event on the DataGrid control.
+             * If the dragInitiator is the Tree control, then only nodes of type "restaurant"
+             * are permitted to be dropped.
+             * Here you can see that by examining the dragSource you can determine if
+             * the control should accept the drop. The DataGrid control would not
+             * know how to treat a branch+children from the Tree control, so only leaf (restaurant)
+             * nodes are accepted.
+             */
+
+            private function onDragEnter( event:DragEvent ) : void
+
+            {            
+                if( event.dragInitiator is Tree ) {
+                    var ds:DragSource = event.dragSource;
+                    if( !ds.hasFormat("treeItems") ) return;     // no useful data
+
+                    var items:Array = ds.dataForFormat("treeItems") as Array;
+                    for(var i:Number=0; i < items.length; i++) {
+
+                        var item:XML = XML(items[i]);
+                        if( item.@type != "rischio" ) return; // not what we want
+
+                    }
+                } 
+              // If the Tree control passes or the dragInitiator is not a Tree control,
+             // accept the drop.
+            DragManager.acceptDragDrop(UIComponent(event.currentTarget)); 
+            }        
+            /**
+             * Handles the dragOver event on the DataGrid control.
+             * If the dragInitiator is the Tree control, only copy is allowed. Otherwise, a move
+             * or link can take place from the List control.
+             */
+
+            private function onDragOver( event:DragEvent ) : void
+
+            {
+                if( event.dragInitiator is Tree ) {
+                    DragManager.showFeedback(DragManager.COPY);
+                } else {
+
+                    if (event.ctrlKey)
+                    DragManager.showFeedback(DragManager.COPY);
+                    else if (event.shiftKey)
+
+                        DragManager.showFeedback(DragManager.LINK);
+                    else {
+                        DragManager.showFeedback(DragManager.MOVE);
+                    }
+
+                }
+            }        
+            /**
+             * Handles the dragExit event on the drop target and just hides the 
+             * the drop feedback.
+             */
+            private function onDragExit( event:DragEvent ) : void
+
+            {
+                var dropTarget:ListBase=ListBase(event.currentTarget);   
+            dropTarget.hideDropFeedback(event);
+            }
+
+            /**
+             * Handles the dragDrop event on the DataGrid when the 
+             * drag proxy is released. 
+             */
+            private function onGridDragDrop( event:DragEvent ) : void
+
+            {
+                var ds:DragSource = event.dragSource;
+                var dropTarget:DataGrid = DataGrid(event.currentTarget);
+                var arr:Array;
+                if( ds.hasFormat("items") ) {
+
+                    arr = ds.dataForFormat("items") as Array;
+                } else if( ds.hasFormat("treeItems") ) {
+
+                    arr = ds.dataForFormat("treeItems") as Array;
+                }
+                for(var i:Number=0; i < arr.length; i++) {
+
+                    var node:XML = XML(arr[i]);
+                    var item:Object = new Object();
+                    item.label = node.@label;
+                    item.codiceChecklist  = node.@codiceChecklist;
+                    
+                    // CONTROLLO UNICITA' CON codiceChecklist
+                    if (isUnique(dataProva, item.codiceChecklist)){
+                    	dataGridProvider.addItem(item);
+                    }
+                }
+
+                onDragExit(event); 
+            }
+            /**
+            * Intercepts the dragComplete event on the Tree control
+            * and prevents the default behavior from happening. This is necessary
+            * if the item being dragged from the Tree control is dropped on a non-Tree
+            * object, such as the DataGrid.
+            */
+            private function onTreeDragComplete(event:DragEvent):void {
+
+                event.preventDefault();
+            }        
+            /**
+            * Selects all of the items in the List if Ctrl+A is picked when the List control
+            * has focus.
+            */
+            private function selectAllMaybe( event:KeyboardEvent ) : void
+
+            {
+                if( event.ctrlKey && event.keyCode == 65 ) {
+
+                    var l:List = List(event.currentTarget);
+                    var allItems:Array = new Array(l.dataProvider.length);
+                    for(var i:Number=0; i < allItems.length; i++) {
+
+                        allItems[i] = i;
+                    }
+                    l.selectedIndices = allItems;
+                }
+
+            }
+            
+            private function titleWindow_close(evt:Event):void {
+                //Alert.show("Rischio non aggiunto");
+                PopUpManager.removePopUp(this);
+            }
+            
+            private function aggiungi():void{
+            	
+            	queryString = createQueryString();
+            	asynReq.send();
+            	parentDocument.getRisksSelected.send();
+            	PopUpManager.removePopUp(this);
+            }
+            private function handlePlain(event:ResultEvent):void {
+            	//Alert.show(event.result.toString());
+            	
+            }
+
+            
+            // Creating query string from datagrid
+            private function createQueryString():String {
+      			var dp:Object=dataProva.dataProvider;
+				var cursor:IViewCursor=dp.createCursor();
+				
+				var stringa:String = "type=give_risksbycategory&data=";
+				//OLD var cnt:int = 0;
+				while( !cursor.afterLast ) {
+			        
+			        // Access each column field like: cursor.current.MyFieldName
+			   		//OLD stringa = stringa + "cod_"+ cnt.toString() + "=" + cursor.current.codiceChecklist + "&";
+			        stringa = stringa + cursor.current.codiceChecklist + "+";
+			        // Obviously don't forget to move to next row:
+			        cursor.moveNext();
+			        //OLD cnt++;
+				}
+				return stringa.substr(0, stringa.length-1);
+            }
+            
+            // VALORE UNICO ALL'INTERNO DELLA DATAGRID
+            private function isUnique(dataGrid:Object, str:String):Boolean {
+            	var dp:Object=dataGrid.dataProvider;
+				var cursor:IViewCursor=dp.createCursor();
+				
+				var unique:Boolean = true;
+				while( !cursor.afterLast && unique ) {
+			        
+			        // CONTROLLO UNICITA' CON codiceChecklist
+			        if (cursor.current.codiceChecklist == str){
+			        	unique = false;
+			        }
+			        cursor.moveNext();
+			        
+				}
+				return unique;
+            }
+			
+			public function deleteRow(dataGrid:Object):void {
+				if (dataGrid.selectedIndex >= 0)
+					dataGrid.dataProvider.removeItemAt(dataGrid.selectedIndex);
+			}
+			
+			[Bindable]
+		    private var catList:XMLList;
+		   // creiamo una funzione per parsare i nostri dati
+		    private function parseHandler(event:ResultEvent):void {
+				trace(event.result)
+				catList = event.result.node
+			}
+
+            
+        ]]>
+    </mx:Script>
+    <mx:HTTPService id="asynReq" url="http://localhost:8084/connectingInterface/getData?{queryString}"
+    	result="handlePlain(event);"
+		resultFormat="text"/>
+		
+	<mx:HTTPService id="catalogoLibriXML" url="http://localhost:8084/connectingInterface/getData?type=take_risksbycategory" resultFormat="e4x" result="parseHandler(event)">		
+	</mx:HTTPService>
+
+
+
+    <!--dataProvider="{treeData.node}"<mx:XML id="treeData" xmlns="" source="http://localhost:8084/connectingInterface/getData?type=take_risksbycategory"/>-->
+        
+    <mx:Label x="34" y="40" text="Fare Drag &amp; Drop per selezionare ulteriori rischi"/>
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:Tree width="100%" height="189"
+            
+            dataProvider="{catList}"
+            labelField="@label"
+            dropEnabled="false"
+            dragEnabled="true"
+            dragComplete="onTreeDragComplete(event)"
+            dragMoveEnabled="false"            />
+        <mx:HDividedBox width="20">
+        </mx:HDividedBox>
+        <mx:VBox height="100%" horizontalAlign="center">
+            <mx:DataGrid id="dataProva" height="189"
+                dragEnabled="true"
+                dataProvider="{dataGridProvider}"
+                dragEnter="onDragEnter(event)"
+                dragOver="onDragOver(event)"
+                dragDrop="onGridDragDrop(event)"
+                dragExit="onDragExit(event)" width="250">
+                
+                <mx:columns>
+                	<mx:DataGridColumn headerText="Codice Checklist" dataField="codiceChecklist"/>
+                    <mx:DataGridColumn headerText="Rischio" dataField="label"/>
+                </mx:columns>
+            </mx:DataGrid>
+            <mx:HBox width="100%" horizontalAlign="center" verticalAlign="middle">
+                <mx:Button click="deleteRow(dataProva);" label="X" fillAlphas="[1.0, 1.0]" fillColors="[#B80B0B, #B80B0B]" color="#FFFFFF" height="22" width="32" fontSize="10"/>
+                <mx:Label text="Rimuovi riga selezionata" fontSize="10"/>
+            </mx:HBox>
+        </mx:VBox>
+    </mx:HBox>
+    
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:Button label="Aggiungi" click="aggiungi()"/>
+        <mx:Button label="Annulla" click="titleWindow_close(event)"/>
+    </mx:HBox>
+    
+
+	
+</mx:TitleWindow>

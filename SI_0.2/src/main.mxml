@@ -1,0 +1,717 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	backgroundGradientColors="[0xFFFFFF,0xAAAAAA]"
+	horizontalAlign="center"
+	verticalGap="15"  creationComplete="nullInvio.send()"
+	>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.controls.Alert;
+	        import mx.utils.URLUtil;
+
+			
+			
+			[Bindable]
+			private var customers:Array;
+
+			// Function that gets the plain result from the server
+			private function handlePlain(event:ResultEvent):void
+	        {
+				navigateToURL(new URLRequest("second_step.html"), '_self');
+	        }
+
+			// Function that handles the error event gotten from the server
+	        private function handleFault(event:FaultEvent):void
+	        {
+				Alert.show("Impossibile inviare dati", "Error");
+	        }
+	        
+	        private function handleMiddleData(event:ResultEvent, type:String):void
+	        {
+	        	
+	        	//Alert.show(event.result.toString(), type);
+	        	//customers = event.result.toString() as Array;
+	        	//var aux:String = customers.length.toString();
+	        	//Alert.show(aux, type);
+	        }
+	        
+	        private function changeActivation(ckbox:CheckBox, cb:ComboBox, txt:TextInput, num:NumericStepper , type:int):void
+	        {
+	        	switch(type) {
+	        		// I activate the numericStepper by clicking on the checkBox
+	        		case 0:
+	        			num.enabled = ckbox.selected;
+	        		break;
+	        		
+	        		// I activate the textInput and deactivate the comboBox
+	        		case 1:
+	        			txt.enabled = ckbox.selected;
+	        			cb.enabled = !(ckbox.selected);
+	        		break;
+	        	}
+	        }
+	        
+	        // Function called by pressing question button
+	        private function faq(type:String):void
+	        {
+	        	var message:String = '';
+	        	var title:String = '';
+	        	
+	        	switch(type){
+	        		case 'codice':
+	        			title = "Codice";
+	        			message = "Identificativo univoco del progetto all'interno del database";
+	        		break;
+	        		
+	        		case 'valoreEconomico':
+	        			title = "Valore economico";
+	        			message = "Valore del progetto espresso in euro";
+	        		break;
+	        		
+	        		case 'durataContratto':
+	        			title = "Durata contratto";
+	        			message = "Durata del contratto espresso in anni";
+	        		break;
+	        		
+	        		case 'dataFine':
+	        			title = "Data fine";
+	        			message = "Da inserire solo nel caso di progetto non in corso";
+	        		break;
+	        	}
+	        	
+	        	Alert.show(message, title);
+	        }
+		]]>
+	</mx:Script>
+	
+	<mx:HTTPService id="nullInvio" url="http://localhost:8084/connectingInterface/getData?type=give_nullrequest" />
+	<mx:HTTPService id="getCustomer" url="http://localhost:8084/connectingInterface/getData?type=take_cliente" />
+	<mx:HTTPService id="getReparto" url="http://localhost:8084/connectingInterface/getData?type=take_reparto" />
+	<mx:HTTPService id="getOggettoFornitura" url="http://localhost:8084/connectingInterface/getData?type=take_oggettofornitura" />		
+	
+	<!-- This is an HTTP request in wich data are sent by GET method to the specified page -->
+	<mx:HTTPService method="POST" id="asynReq" url="http://localhost:8084/connectingInterface/getData?type=newproject"
+    	result="handlePlain(event);"
+    	fault="handleFault(event);"
+		resultFormat="text">
+		<mx:request xmlns="">
+		<!--<mx:HTTPService id="asynReq" url="http://www.sensolibero.org/Sistemi_Intelligenti/prova_request.php"
+    	result="handlePlain(event);"
+    	fault="handleFault(event);"
+		resultFormat="text">
+		<mx:request xmlns="">-->
+			<!-- INFORMAZIONI GENERALI -->
+			<codice>
+				{codice.text}
+			</codice>
+			
+			<reparto>
+				{reparto.text}
+			</reparto>
+			
+			<classeDiRischio>
+				{classeDiRischio.selectedValue}
+			</classeDiRischio>
+			
+			<valoreEconomico>
+				{valoreEconomico.text}
+			</valoreEconomico>
+			
+			<durataContratto>
+				{durataContratto.value}
+			</durataContratto>
+			
+			<oggettoFornitura>
+				{oggettoFornitura.text}
+			</oggettoFornitura>
+			
+			<nomeClienteCB>
+				{nomeCliente.text}
+			</nomeClienteCB>
+			
+			<nomeCliente>
+				{nomeCliente.text}
+			</nomeCliente>
+			
+			<descrizione>
+				{descrizione.text}
+			</descrizione>
+			
+			<!-- LIVELLO DI RISCHIO -->
+			<rp1>
+				{rp1.value}
+			</rp1>
+			
+			<rp2>
+				{rp2.value}
+			</rp2>
+			
+			<rp3>
+				{rp3.value}
+			</rp3>
+			
+			<rmc1>
+				{rmc1.value}
+			</rmc1>
+			
+			<rmc2>
+				{rmc2.value}
+			</rmc2>
+			
+			<rmc3>
+				{rmc3.value}
+			</rmc3>
+			
+			<rc1>
+				{rc1.value}
+			</rc1>
+			
+			<rc2>
+				{rc2.value}
+			</rc2>
+			
+			<rc3>
+				{rc3.value}
+			</rc3>
+			
+			<rcp1>
+				{rcp1.value}
+			</rcp1>
+			
+			<rcp2>
+				{rcp2.value}
+			</rcp2>
+			
+			<rcp3>
+				{rcp3.value}
+			</rcp3>
+			
+			<ri1>
+				{ri1.value}
+			</ri1>
+			
+			<ri2>
+				{ri2.value}
+			</ri2>
+			
+			<ri3>
+				{ri3.value}
+			</ri3>
+			
+			<ra1>
+				{ra1.value}
+			</ra1>
+			
+			<ra2>
+				{ra2.value}
+			</ra2>
+			
+			<ra3>
+				{ra3.value}
+			</ra3>
+			
+			<rf1>
+				{rf1.value}
+			</rf1>
+			
+			<rf2>
+				{rf2.value}
+			</rf2>
+			
+			<rf3>
+				{rf3.value}
+			</rf3>
+			
+			<rm1>
+				{rm1.value}
+			</rm1>
+			
+			<rm2>
+				{rm2.value}
+			</rm2>
+			
+			<rm3>
+				{rm3.value}
+			</rm3>
+			
+			<rav1>
+				{rav1.value}
+			</rav1>
+			
+			<rav2>
+				{rav2.value}
+			</rav2>
+			
+			<rav3>
+				{rav3.value}
+			</rav3>
+			
+			<!-- IMPATTO STRATEGICO -->
+			<IM>
+				{IM.value}
+			</IM>
+			
+			<IC>
+				{IC.value}
+			</IC>
+			
+			<IP>
+				{IP.value}
+			</IP>
+			
+			<IA>
+				{IA.value}
+			</IA>
+			
+			<IPP>
+				{IPP.value}
+			</IPP>
+			
+			
+			<!-- ABILITAZIONE DEI CAMPI -->
+			
+			<ckrp1>
+				{ckrp1.selected}
+			</ckrp1>
+			
+			<ckrp2>
+				{ckrp2.selected}
+			</ckrp2>
+			
+			<ckrp3>
+				{ckrp3.selected}
+			</ckrp3>
+			
+			<ckrmc1>
+				{ckrmc1.selected}
+			</ckrmc1>
+			
+			<ckrmc2>
+				{ckrmc2.selected}
+			</ckrmc2>
+			
+			<ckrmc3>
+				{ckrmc3.selected}
+			</ckrmc3>
+			
+			<ckrc1>
+				{ckrc1.selected}
+			</ckrc1>
+			
+			<ckrc2>
+				{ckrc2.selected}
+			</ckrc2>
+			
+			<ckrc3>
+				{ckrc3.selected}
+			</ckrc3>
+			
+			<ckrcp1>
+				{ckrcp1.selected}
+			</ckrcp1>
+			
+			<ckrcp2>
+				{ckrcp2.selected}
+			</ckrcp2>
+			
+			<ckrcp3>
+				{ckrcp3.selected}
+			</ckrcp3>
+			
+			<ckri1>
+				{ckri1.selected}
+			</ckri1>
+			
+			<ckri2>
+				{ckri2.selected}
+			</ckri2>
+			
+			<ckri3>
+				{ckri3.selected}
+			</ckri3>
+			
+			<ckra1>
+				{ckra1.selected}
+			</ckra1>
+			
+			<ckra2>
+				{ckra2.selected}
+			</ckra2>
+			
+			<ckra3>
+				{ckra3.selected}
+			</ckra3>
+			
+			<ckrf1>
+				{ckrf1.selected}
+			</ckrf1>
+			
+			<ckrf2>
+				{ckrf2.selected}
+			</ckrf2>
+			
+			<ckrf3>
+				{ckrf3.selected}
+			</ckrf3>
+			
+			<ckrm1>
+				{ckrm1.selected}
+			</ckrm1>
+			
+			<ckrm2>
+				{ckrm2.selected}
+			</ckrm2>
+			
+			<ckrm3>
+				{ckrm3.selected}
+			</ckrm3>
+			
+			<ckrav1>
+				{ckrav1.selected}
+			</ckrav1>
+			
+			<ckrav2>
+				{ckrav2.selected}
+			</ckrav2>
+			
+			<ckrav3>
+				{ckrav3.selected}
+			</ckrav3>
+			
+			<ckIM>
+				{ckIM.selected}
+			</ckIM>
+			
+			<ckIC>
+				{ckIC.selected}
+			</ckIC>
+			
+			<ckIP>
+				{ckIP.selected}
+			</ckIP>
+			
+			<ckIA>
+				{ckIA.selected}
+			</ckIA>
+			
+			<ckIPP>
+				{ckIPP.selected}
+			</ckIPP>
+		</mx:request>
+	</mx:HTTPService>
+	<mx:ApplicationControlBar>
+		<mx:Label text="Inserimento nuovo progetto" fontSize="20" fontWeight="bold" color="#BC0F0F" textDecoration="underline"/>
+	</mx:ApplicationControlBar>
+	
+	<mx:Panel width="90%" title="Informazioni generali" 
+		paddingBottom="15"
+		paddingLeft="15"
+		paddingRight="15"
+		paddingTop="15">
+		
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="Codice" width="20%"/>
+			<mx:TextInput id="codice"/>
+			<mx:Image source="http://www.iitpathshala.com/images/faq_icon.gif" click="faq('codice')"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="Reparto" width="20%"/>
+			<mx:ComboBox id="reparto" dataProvider="{getReparto.lastResult.reparto}" initialize="getReparto.send();"></mx:ComboBox>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="Classe di rischio progetto" width="20%"/>
+			<mx:RadioButtonGroup id="classeDiRischio"/>
+			<mx:RadioButton label="Molto rischioso" groupName="classeDiRischio" />
+			<mx:RadioButton label="Media rischiosità" groupName="classeDiRischio" enabled="true" />
+			<mx:RadioButton label="A basso rischio" groupName="classeDiRischio" />
+			
+			
+			
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="Valore economico" width="20%"/>
+			<mx:TextInput id="valoreEconomico"/>
+			<mx:Image source="http://www.iitpathshala.com/images/faq_icon.gif" click="faq('valoreEconomico')"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="Durata contratto" width="20%"/>
+			<mx:NumericStepper stepSize="1" id="durataContratto" minimum="1" maximum="15"/>
+			<mx:Image source="http://www.iitpathshala.com/images/faq_icon.gif" click="faq('durataContratto')"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="Oggetto fornitura" width="20%"/>
+			<mx:ComboBox id="oggettoFornitura" dataProvider="{getOggettoFornitura.lastResult.oggettoFornitura}" initialize="getOggettoFornitura.send();"></mx:ComboBox>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="Nome cliente" width="20%"/>
+			<mx:ComboBox id="nomeCliente" dataProvider="{getCustomer.lastResult.nome}"  initialize="getCustomer.send();">
+			</mx:ComboBox>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="Descrizione" width="20%"/>
+			<mx:TextArea id="descrizione"/>
+		</mx:HBox>
+	</mx:Panel>
+	
+	<mx:Panel width="90%" title="Livello di rischio" 
+		paddingBottom="15"
+		paddingLeft="15"
+		paddingRight="15"
+		paddingTop="15" horizontalAlign="center">
+		<mx:VBox height="100%" width="100%">
+			<mx:Label text="(0 minima influenza - 3 massima influenza)" />
+			<mx:HBox horizontalAlign="center">
+				<mx:VBox height="100%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Paese:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrp1" change="changeActivation(ckrp1, null, null, rp1 ,0)"/>
+						<mx:Label text="RP1" width="40"/>
+						<mx:NumericStepper id="rp1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrp2" change="changeActivation(ckrp2, null, null, rp2 ,0)"/>
+						<mx:Label text="RP2" width="40"/>
+						<mx:NumericStepper id="rp2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrp3" change="changeActivation(ckrp3, null, null, rp3 ,0)"/>
+						<mx:Label text="RP3" width="40"/>
+						<mx:NumericStepper id="rp3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox height="100%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Mercato cliente:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrmc1" change="changeActivation(ckrmc1, null, null, rmc1 ,0)"/>
+						<mx:Label text="RMC1" width="40"/>
+						<mx:NumericStepper id="rmc1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrmc2" change="changeActivation(ckrmc2, null, null, rmc2 ,0)"/>
+						<mx:Label text="RMC2" width="40"/>
+						<mx:NumericStepper id="rmc2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrmc3" change="changeActivation(ckrmc3, null, null, rmc3 ,0)"/>
+						<mx:Label text="RMC3" width="40"/>
+						<mx:NumericStepper id="rmc3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox height="100%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Contratto:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrc1" change="changeActivation(ckrc1, null, null, rc1 ,0)"/>
+						<mx:Label text="RC1" width="40"/>
+						<mx:NumericStepper id="rc1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrc2" change="changeActivation(ckrc2, null, null, rc2 ,0)"/>
+						<mx:Label text="RC2" width="40"/>
+						<mx:NumericStepper id="rc2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrc3" change="changeActivation(ckrc3, null, null, rc3,0)"/>
+						<mx:Label text="RC3" width="40"/>
+						<mx:NumericStepper id="rc3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HBox>
+
+			<mx:HBox>
+				<mx:VBox height="100%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Composizione partnership:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrcp1" change="changeActivation(ckrcp1, null, null, rcp1 ,0)"/>
+						<mx:Label text="RCP1" width="40"/>
+						<mx:NumericStepper id="rcp1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrcp2" change="changeActivation(ckrcp2, null, null, rcp2 ,0)"/>
+						<mx:Label text="RCP2" width="40"/>
+						<mx:NumericStepper id="rcp2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrcp3" change="changeActivation(ckrcp3, null, null, rcp3 ,0)"/>
+						<mx:Label text="RCP3" width="40"/>
+						<mx:NumericStepper id="rcp3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Ingegneria:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckri1" change="changeActivation(ckri1, null, null, ri1 ,0)"/>
+						<mx:Label text="RI1" width="40"/>
+						<mx:NumericStepper id="ri1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckri2" change="changeActivation(ckri2, null, null, ri2 ,0)"/>
+						<mx:Label text="RI2" width="40"/>
+						<mx:NumericStepper id="ri2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckri3" change="changeActivation(ckri3, null, null, ri3 ,0)"/>
+						<mx:Label text="RI3" width="40"/>
+						<mx:NumericStepper id="ri3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Approvvigionamento:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckra1" change="changeActivation(ckra1, null, null, ra1 ,0)"/>
+						<mx:Label text="RA1" width="40"/>
+						<mx:NumericStepper id="ra1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckra2" change="changeActivation(ckra2, null, null, ra2 ,0)"/>
+						<mx:Label text="RA2" width="40"/>
+						<mx:NumericStepper id="ra2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckra3" change="changeActivation(ckra3, null, null, ra3 ,0)"/>
+						<mx:Label text="RA3" width="40"/>
+						<mx:NumericStepper id="ra3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HBox>
+			
+			<mx:HBox>
+				<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Fabbricazione:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrf1" change="changeActivation(ckrf1, null, null, rf1 ,0)"/>
+						<mx:Label text="RF1" width="40"/>
+						<mx:NumericStepper id="rf1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrf2" change="changeActivation(ckrf2, null, null, rf2 ,0)"/>
+						<mx:Label text="RF2" width="40"/>
+						<mx:NumericStepper id="rf2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrf3" change="changeActivation(ckrf3, null, null, rf3 ,0)"/>
+						<mx:Label text="RF3" width="40"/>
+						<mx:NumericStepper id="rf3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Monitoraggio:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrm1" change="changeActivation(ckrm1, null, null, rm1 ,0)"/>
+						<mx:Label text="RM1" width="40"/>
+						<mx:NumericStepper id="rm1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrm2" change="changeActivation(ckrm2, null, null, rm2 ,0)"/>
+						<mx:Label text="RM2" width="40"/>
+						<mx:NumericStepper id="rm2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrm3" change="changeActivation(ckrm3, null, null, rm3 ,0)"/>
+						<mx:Label text="RM3" width="40"/>
+						<mx:NumericStepper id="rm3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+				<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+					<mx:Label text="Avviamento:"/>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrav1" change="changeActivation(ckrav1, null, null, rav1 ,0)"/>
+						<mx:Label text="RAV1" width="40"/>
+						<mx:NumericStepper id="rav1" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrav2" change="changeActivation(ckrav2, null, null, rav2 ,0)"/>
+						<mx:Label text="RAV2" width="40"/>
+						<mx:NumericStepper id="rav2" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+					<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+						<mx:CheckBox id ="ckrav3" change="changeActivation(ckrav3, null, null, rav3 ,0)"/>
+						<mx:Label text="RAV3" width="40"/>
+						<mx:NumericStepper id="rav3" minimum="0" maximum="3" enabled="false"/>
+					</mx:HBox>
+				</mx:VBox>
+				
+			</mx:HBox>
+		</mx:VBox>
+	</mx:Panel>
+	
+	<mx:Panel width="90%" title="Impatto strategico"
+		paddingBottom="15"
+		paddingLeft="15"
+		paddingRight="15"
+		paddingTop="15" horizontalAlign="center">
+		<mx:Label text="(0 minima influenza - 3 massima influenza)" />
+		<mx:TabNavigator width="410" height="77" 
+			paddingBottom="15"
+			paddingLeft="15"
+			paddingRight="15"
+			paddingTop="15" >
+			
+			<mx:Canvas label="IM">
+				<mx:HBox  width="100%">
+					<mx:CheckBox id ="ckIM" change="changeActivation(ckIM, null, null, IM ,0)"/>
+					<mx:Label text="Importanza del mercato" />
+					<mx:NumericStepper  id="IM" minimum="0" maximum="3" enabled="false"/>
+				</mx:HBox>
+			</mx:Canvas>
+			
+			<mx:Canvas label="IC" >
+				<mx:HBox  width="100%">
+					<mx:CheckBox id ="ckIC" change="changeActivation(ckIC, null, null, IC ,0)"/>
+					<mx:Label text="Interesse nell'acquisire il cliente" />
+					<mx:NumericStepper  id="IC" minimum="0" maximum="3" enabled="false"/>
+				</mx:HBox>
+			</mx:Canvas>
+			
+			<mx:Canvas label="IP" >
+				<mx:HBox  width="100%">
+					<mx:CheckBox id ="ckIP" change="changeActivation(ckIP, null, null, IP ,0)"/>
+					<mx:Label text="Grado di innovazione del prodotto" />
+					<mx:NumericStepper  id="IP" minimum="0" maximum="3" enabled="false"/>
+				</mx:HBox>
+			</mx:Canvas>
+			
+			<mx:Canvas label="IA" >
+				<mx:HBox  width="100%">
+					<mx:CheckBox id ="ckIA" change="changeActivation(ckIA, null, null, IA ,0)"/>
+					<mx:Label text="Incidenza sull'immagine aziendale" />
+					<mx:NumericStepper  id="IA" minimum="0" maximum="3" enabled="false"/>
+				</mx:HBox>
+			</mx:Canvas>
+			
+			<mx:Canvas label="IPP" >
+				<mx:HBox  width="100%">
+					<mx:CheckBox id ="ckIPP" change="changeActivation(ckIPP, null, null, IPP ,0)"/>
+					<mx:Label text="Interesse nella partecipazione alla partnership" />
+					<mx:NumericStepper  id="IPP" minimum="0" maximum="3" enabled="false"/>
+				</mx:HBox>
+			</mx:Canvas>
+			
+		</mx:TabNavigator>
+	</mx:Panel>
+	<mx:Button label="Invia informazioni" click="asynReq.send()"/>
+	<mx:HRule width="70%"/>
+
+	
+	<mx:VBox height="100%" horizontalAlign="center" borderStyle="solid" cornerRadius="12" backgroundColor="#FFFFFF" borderColor="#073759" alpha="0.83">
+		<mx:Label text="Corso di Laurea Specialistica in Ingegneria Informatica" paddingLeft="5" paddingRight="5" paddingTop="5" />
+		<mx:Label text="Università di Pisa" />
+		<mx:Image alpha="1.0">
+			<mx:source>http://www.idioscuri.com/pages_ita/images/images.jpg</mx:source>
+		</mx:Image>
+	</mx:VBox>
+	
+	
+
+	
+	
+</mx:Application>

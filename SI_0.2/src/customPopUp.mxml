@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="vertical"
+        width="370"
+        height="270"
+        backgroundColor="white"
+        backgroundAlpha="1.0"
+        borderColor="#000000"
+        borderAlpha="1.0"
+        cornerRadius="20"
+        showCloseButton="true"
+        close="titleWindow_close(event)" borderStyle="solid" borderThickness="1" creationComplete="open()">
+        
+    <mx:Script>
+    	<![CDATA[
+    	//parentDocument.
+    		import mx.controls.Alert;
+            import mx.events.CloseEvent;
+            import mx.managers.PopUpManager;
+
+			[Bindable]
+            public var addedRisk:int;
+            
+            [Bindable]
+            public var stringaPervenuta:String;
+            
+            [Bindable]
+            public var descrizione:String;
+            [Bindable]
+            public var causa:String;
+            [Bindable]
+            public var effetto:String;
+            
+			private function open():void {
+				
+				var valuesArray:Array;
+	            valuesArray = stringaPervenuta.split("#");
+	            
+	            this.title = valuesArray[0];
+	            codiceChecklist.text = valuesArray[0];
+	            
+	            if (valuesArray[valuesArray.length-3] == "Selected"){
+	            	getIdRischio.send();
+	            }
+	            else {
+	            	idRischio.text = valuesArray[1];
+	            }
+	            
+	            // Stato
+	            if (valuesArray[2].toLowerCase() == "monitoraggio"){
+	            	stato.selectedItem = statoArray[0];
+	            } else if (valuesArray[2].toLowerCase() == "monitoraggio"){
+	            	stato.selectedItem = statoArray[1];
+	            } else if (valuesArray[2].toLowerCase() == "mitigazione"){
+	            	stato.selectedItem = statoArray[2];
+	            }
+	            
+	            // rVer
+	            if (valuesArray[3].toLowerCase() == "rischio aperto"){
+	            	rVer.selectedItem = rVerArray[0];
+	            } else if (valuesArray[3].toLowerCase() == "rischio verificato"){
+	            	rVer.selectedItem = rVerArray[1];
+	  			} else if (valuesArray[3].toLowerCase() == "rischio non verificato"){
+	  				rVer.selectedItem = rVerArray[2];
+	  			}
+	  			
+	  			// Contingency
+	  			contingency.text = valuesArray[4];
+	  			
+	  			// Probabilità iniziale
+	  			probIniziale.value = valuesArray[5];
+	  			
+	  			// Impatto iniziale
+	  			impattoIniziale.value = valuesArray[6];
+	  			
+	  			// Descrizione
+	  			descrizione = valuesArray[7];
+	  			
+	  			// Causa
+	  			causa = valuesArray[8];
+	  			
+	  			// Effetto
+	  			effetto = valuesArray[9];
+			}
+			
+			private function getId(event:Event):void {
+				idRischio.text = event.target.result.toString();
+			}
+
+			
+            private function titleWindow_close(evt:CloseEvent):void {
+                Alert.show("Rischio non aggiunto");
+                
+            }
+            
+            private function titleWindow_continue():void {
+                Alert.show("Rischio aggiunto");
+                addedRisk++;
+                parentDocument.addedRisksDataGrid.dataProvider.addItem({
+                	"idRischio": idRischio.text,
+                	"descrizione": descrizione,
+                	"causa": causa,
+                	"effetto": effetto,
+                	"codiceChecklist": codiceChecklist.text,
+                	"stato": stato.selectedLabel,
+                	"rVer": rVer.selectedItem.data,
+                	"contingency": contingency.text,
+                	"probIniziale": probIniziale.value,
+                	"impattoIniziale": impattoIniziale.value
+                });
+                
+            }
+            
+            private function titleWindow_stop():void {
+                Alert.show("Rischio non aggiunto");
+                
+            }
+
+    	]]>
+    </mx:Script>
+    
+    <mx:HTTPService id="getIdRischio" url="http://localhost:8084/connectingInterface/getData?type=take_newidrischio"
+		result="getId(event)"/>
+    
+    <mx:HBox width="100%">
+        <mx:Label text="Codice" width="110" fontWeight="bold"/>
+        <mx:Text fontWeight="normal" id="codiceChecklist"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+        <mx:Label text="Id Rischio" width="110" fontWeight="bold"/>
+        <mx:TextInput id="idRischio" editable="false"/>
+    </mx:HBox>
+    <mx:HBox width="100%" fontWeight="bold">
+        <mx:Label text="Stato" width="110"/>
+        <mx:ComboBox id="stato">
+	        <mx:ArrayCollection id="statoArray">
+	         	<mx:Object label="Monitoraggio" data="Monitoraggio"/>
+	         	<mx:Object label="Mitigazione" data="Mitigazione"/>
+	         	<mx:Object label="Chiuso" data="Chiuso"/>
+	      	</mx:ArrayCollection>
+        </mx:ComboBox>
+    </mx:HBox>
+    <mx:HBox width="100%">
+        <mx:Label text="R_ver" width="110" fontWeight="bold"/>
+        <mx:ComboBox id="rVer">
+        	<mx:ArrayCollection id="rVerArray">
+	         	<mx:Object label="Rischio Aperto" data="0"/>
+	         	<mx:Object label="Rischio Verificato" data="1"/>
+	         	<mx:Object label="Rischio Non Verificato" data="2"/>
+	      	</mx:ArrayCollection>
+        </mx:ComboBox>
+    </mx:HBox>
+    <mx:HBox width="100%">
+        <mx:Label text="Contingency" width="110" fontWeight="bold"/>
+        <mx:TextInput id="contingency"/>
+        <mx:Label text="(in €)" fontWeight="normal"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+        <mx:Label text="Probabilità iniziale" width="110" fontWeight="bold"/>
+        <mx:NumericStepper stepSize="1" value="0" minimum="0" maximum="100" id="probIniziale"/>
+        <mx:Label text="[0-100]" fontSize="10" fontWeight="normal"/>
+    </mx:HBox>
+    <mx:HBox width="100%">
+        <mx:Label text="Impatto iniziale" width="110" fontWeight="bold"/>
+        <mx:NumericStepper value="1" stepSize="1" minimum="1" maximum="5" id="impattoIniziale"/>
+        <mx:Label text="[1-5] *1= minimo impatto" fontSize="10" fontWeight="normal"/>
+    </mx:HBox>
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:Button label="OK" click="titleWindow_continue()" id="okButton"/>
+        <mx:Button label="Annulla" click="titleWindow_stop()" id="cancelButton"/>
+    </mx:HBox>
+        
+</mx:TitleWindow>

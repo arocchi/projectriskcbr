@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	backgroundGradientColors="[0xFFFFFF,0xAAAAAA]"
+	horizontalAlign="center"
+	verticalGap="15" 
+	>
+	<mx:Script>
+		<![CDATA[
+		
+		
+			import mx.containers.TitleWindow;
+			import mx.controls.Button;
+			import mx.events.ListEvent;
+			import mx.events.CloseEvent;
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.events.IndexChangedEvent;
+			import mx.utils.ArrayUtil;
+			import mx.events.MenuEvent;
+			import mx.controls.Menu;  
+			import mx.controls.MenuBar;
+			import mx.collections.IViewCursor;
+			import mx.rpc.events.FaultEvent;
+			
+			
+			[Bindable]
+        	public var projectGridData:ArrayCollection=new ArrayCollection();
+
+        	[Bindable]
+        	public var maxIndexRischio:int = 1;
+        	
+			
+			[Bindable]
+        	public var rischioArrayNome:Array = new Array;
+        	[Bindable]
+        	public var rischioArrayValue:Array = new Array;
+        	[Bindable]
+        	public var cntRischiArray:int = 0;
+        	
+        	[Bindable]
+			public var queryString:String;
+			
+			
+			private function initRepeat(evt:Event):void {
+				var valuesArray:Array;
+	            valuesArray = evt.target.data.split("#");
+	            
+	            if (valuesArray[0] == "tipo"){
+
+	            	if(valuesArray[3].toString().toUpperCase() == "R") 
+	            		tipo[valuesArray[1]][valuesArray[2]].selectedItem = tipoArray[0];
+	            	else if(valuesArray[3].toString().toUpperCase() == "M") 
+	            		tipo[valuesArray[1]][valuesArray[2]].selectedItem = tipoArray[1];
+	            	
+	            } else if (valuesArray[0] == "stato") {
+	            	
+	            	if(valuesArray[3].toString().toLowerCase() == "planned") 
+	            		stato[valuesArray[1]][valuesArray[2]].selectedItem = statoArray[0];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "in progress") 
+	            		stato[valuesArray[1]][valuesArray[2]].selectedItem = statoArray[1];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "closed") 
+	            		stato[valuesArray[1]][valuesArray[2]].selectedItem = statoArray[2];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "back-up") 
+	            		stato[valuesArray[1]][valuesArray[2]].selectedItem = statoArray[3];
+	            }
+				return;
+			}
+			
+			private function selAzione(evt:Event):void{
+				var valuesArray:Array;
+	            valuesArray = evt.target.data.split("#");
+	            
+				
+				//if (azioneSelezionata[valuesArray[0]][valuesArray[1]].selected)
+				
+					//*TODO* Aggiungere ad array da inviare
+					titleAzione[valuesArray[0]][valuesArray[1]].styleName = "green";
+					
+					addedRisksDataGrid.dataProvider.addItem({
+						"idRischio": hiddenIdRischio[valuesArray[0]][valuesArray[1]].text,
+						"idName": titleAzione[valuesArray[0]][valuesArray[1]].title,
+	                	"tipo": tipo[valuesArray[0]][valuesArray[1]].selectedLabel,
+	                	"stato": stato[valuesArray[0]][valuesArray[1]].selectedLabel,
+	                	"descrizione": descrizione[valuesArray[0]][valuesArray[1]].text,
+	                	"revisione": revisione[valuesArray[0]][valuesArray[1]].value,
+	                	"intensita": intensita[valuesArray[0]][valuesArray[1]].value
+	                });
+	
+				return;
+			}
+			
+			// Nothing in particular
+			private function handler(evt:Event):void
+			{
+				
+			}
+			
+			// Event handler for the MenuBar control's itemClick event.
+            private function menuHandler(event:MenuEvent):void  {
+
+				//var mbi:MenuBarItem = event.target as MenuBarItem;
+                //var label:String = mbi.data.label;
+
+
+                if (event.item.@data == "BEFORE"){
+                	before();
+                }
+                else if (event.item.@data == "nascondiDataGrid"){
+                	//addedRisksDataGridCanvas.height = 0;
+                	//addedRisksDataGridCanvas.visible = false;
+                }
+                else if (event.item.@data == "visualizzaDataGrid"){
+                	//addedRisksDataGridCanvas.height = 145;
+                	//addedRisksDataGridCanvas.visible = true;
+                } 
+                else {
+                	//Alert.show(XML(event.item).toXMLString(), "DEBUG");
+	                Alert.show("Label: " + event.item.@label + "\n" + 
+	                    "Data: " + event.item.@data, "Clicked menu item");
+                }
+            }
+            
+            // Deleting a row from the dataGrid
+            public function deleteRow(dataGrid:Object):void {
+            	//Alert.show(dataGrid.selectedItem.stato);
+            	
+				if (dataGrid.selectedIndex >= 0)
+					dataGrid.dataProvider.removeItemAt(dataGrid.selectedIndex);
+			}
+			
+			private function checkProsegui(eventObj:CloseEvent):void {
+                // Check to see if the OK button was pressed.
+                if (eventObj.detail==Alert.OK) {
+                    //Alert.show("stai proseguendo");
+                    buildResponse(addedRisksDataGrid);
+                    httpProsegui.send(); 
+                }
+            }
+
+			
+			private function before():void {
+				var notAll:Boolean = true;
+				var str:String = "Non hai controllato tutti i rischi. In particolare: ";
+				
+				for (var i:int = 0; i <= maxIndexRischio; i++){
+					//Alert.show(i.toString());
+					if (rischioArrayValue[i] == false){
+						notAll = false;
+						str = str + rischioArrayNome[i];
+						if (i != maxIndexRischio){
+							str = str + ", ";
+						}
+					}
+				}
+				
+				if (notAll == false) {
+					Alert.show(str+".", "ATTENZIONE", Alert.OK | Alert.CANCEL, this, checkProsegui, null, Alert.OK);
+				}
+				
+			}
+			
+			public function clickLink(event:Event):void{
+				rischioArrayValue[event.target.repeaterIndices] = true;
+				return;
+			}
+			
+			private function repIntoArray(event:Event):void {
+				
+				if (event.target.getRepeaterItem() != null){
+					rischioArrayNome.push(event.target.getRepeaterItem().idRischio);
+					// Il primo rischio lo hai visto per forza
+					if (event.target.repeaterIndices == 0)
+						rischioArrayValue.push(true);
+					else
+						rischioArrayValue.push(false);
+					
+					if (maxIndexRischio < event.target.repeaterIndices)
+						maxIndexRischio = event.target.repeaterIndices;
+				}
+			}
+			
+			private function buildResponse(dataGrid:Object):void {
+	        	var dp:Object=dataGrid.dataProvider;
+				var cursor:IViewCursor=dp.createCursor();
+				var cnt:int = 0;
+				
+				var response:String = "";
+				
+				while( !cursor.afterLast ) {
+					response += "&idrischio_"+cnt.toString()+"="+cursor.current.idRischio.toString();
+					response += "&idname_"+cnt.toString()+"="+cursor.current.idName.toString();
+			        response += "&tipo_"+cnt.toString()+"="+cursor.current.tipo;
+			        response += "&stato_"+cnt.toString()+"="+cursor.current.stato.toString();
+			        if (cursor.current.descrizione.toString() != "null")
+			     		response += "&descrizione_"+cnt.toString()+"="+cursor.current.descrizione.toString();
+			     	response += "&revisione_"+cnt.toString()+"="+cursor.current.revisione.toString();
+			     	response += "&intensita_"+cnt.toString()+"="+cursor.current.intensita.toString();
+			     	
+			     	// cicla
+			     	cnt++;   
+			        cursor.moveNext();
+				}
+				response = "type=give_allrisksforproject&cnt="+cnt.toString()+response;
+				Alert.show(response);
+				queryString = response;
+	        }
+	        
+	        private function handlePlain(event:ResultEvent):void
+	        {
+	        	navigateToURL(new URLRequest("digest.html"), '_self');
+				//Alert.show(event.result.toString(), "Risposta");
+	        }
+	        
+	        // Function that handles the error event gotten from the server
+	        private function handleFault(event:FaultEvent):void
+	        {
+				Alert.show("Impossibile inviare dati", "Error");
+	        }
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Style>
+		.green {
+			backgroundColor : haloSilver;
+		}
+	</mx:Style>
+	
+	<mx:HTTPService id="getActionsByRisk" url="http://localhost:8084/connectingInterface/getData?type=take_actionsbyrisk"
+		result="handler(event)"/>
+		
+	<mx:HTTPService id="httpProsegui" url="http://localhost:8084/connectingInterface/getData?{queryString}"
+    	result="handlePlain(event);"
+    	fault="handleFault(event);"
+		resultFormat="text"/>		
+		
+		<mx:ArrayCollection id="statoArray">
+         	<mx:Object label="Pianificata" data="Planned"/>
+         	<mx:Object label="In progress" data="In progress"/>
+         	<mx:Object label="Chiusa" data="Closed"/>
+         	<mx:Object label="Di backup" data="Back-up"/>
+      	</mx:ArrayCollection>
+      	
+      	<mx:ArrayCollection id="tipoArray">
+			<mx:Object label="Recovery" data="R"/>
+			<mx:Object label="Mitigazione" data="M"/>
+		</mx:ArrayCollection>
+	
+	
+	<mx:ApplicationControlBar>
+		<mx:Label text="Azioni da intraprendere" fontSize="20" fontWeight="bold" color="#BC0F0F" textDecoration="underline"/>
+	</mx:ApplicationControlBar>
+
+    
+    <mx:VBox height="100%" width="80%" horizontalAlign="center" initialize="getActionsByRisk.send();" >
+    <mx:LinkBar id="linkbar" dataProvider="{vsMain}" fontWeight="Bold"/>
+        <mx:ViewStack id="vsMain" width="95%" height="87%" borderStyle="solid" >
+			<mx:Repeater id="rptRischi" dataProvider="{getActionsByRisk.lastResult.rischio}">
+				<!-- ARRAY OF CANVAS -->
+				<mx:Canvas id="canvasRep" label="{rptRischi.currentItem.idRischio}" width="100%" height="100%" horizontalScrollPolicy="off" creationComplete="repIntoArray(event)" show="clickLink(event)" data="{rptRischi.currentIndex}">
+					<mx:VBox height="100%" width="100%" horizontalAlign="center" backgroundColor="#FFFFFF" alpha="0.62">
+						<!-- ARRAY OF TITLE WINDOW -->
+						<mx:Repeater id="rptAzioni" dataProvider="{rptRischi.currentItem.azione}">
+							<mx:TitleWindow id="titleAzione" title="{rptAzioni.currentItem.idName}" width="358" height="260"  showCloseButton="false" paddingTop="15" paddingBottom="15">
+								
+								<mx:Text text="{rptRischi.currentItem.idRischio}" id="hiddenIdRischio" visible="false" height="0"/>
+								
+								<mx:HBox width="100%">
+									<mx:Label text="Tipo" width="80" fontWeight="bold"/>
+									<mx:ComboBox id="tipo" dataProvider="{tipoArray}" data="tipo#{rptRischi.currentIndex}#{rptAzioni.currentIndex}#{rptAzioni.currentItem.tipo}" creationComplete="initRepeat(event)" enabled="false">
+										
+									</mx:ComboBox>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Label text="Stato" width="80" fontWeight="bold"/>
+									<mx:ComboBox id="stato" dataProvider="{statoArray}" data="stato#{rptRischi.currentIndex}#{rptAzioni.currentIndex}#{rptAzioni.currentItem.stato}" creationComplete="initRepeat(event)">
+										
+									</mx:ComboBox>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Label text="Descrizione" width="80" fontWeight="bold"/>
+									<mx:TextArea id="descrizione" text="{rptAzioni.currentItem.descrizione}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Label text="Revisione" width="80" fontWeight="bold"/>
+									<mx:NumericStepper value="{rptAzioni.currentItem.revisione}" id="revisione" stepSize="1" maximum="100"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Label text="Intensità" width="80" fontWeight="bold"/>
+									<mx:NumericStepper value="{rptAzioni.currentItem.intensita}" id="intensita" minimum="-10" maximum="10" stepSize="1"/>
+								</mx:HBox>
+								<mx:HBox width="100%" horizontalAlign="center">
+									<mx:Button label="Seleziona azione" data="{rptRischi.currentIndex}#{rptAzioni.currentIndex}" id="azioneSelezionata" click="selAzione(event)"/>
+								</mx:HBox>
+							
+							</mx:TitleWindow>
+						</mx:Repeater>
+					</mx:VBox>
+				</mx:Canvas>
+				
+			</mx:Repeater>
+        </mx:ViewStack>
+    </mx:VBox>
+    
+    <!--<mx:Canvas id="addedRisksDataGridCanvas" height="0" visible="false">-->
+    <mx:Canvas id="addedRisksDataGridCanvas">
+		<mx:VBox>
+			<mx:DataGrid id="addedRisksDataGrid" dataProvider="{projectGridData}" maxHeight="110" >
+			<mx:columns>
+				<mx:DataGridColumn headerText="IdRischio" dataField="idRischio" visible="false"/>
+				<mx:DataGridColumn headerText="IdName" dataField="idName" visible="false"/>
+				<mx:DataGridColumn headerText="Tipo" dataField="tipo"/>
+				<mx:DataGridColumn headerText="Stato" dataField="stato"/>
+				<mx:DataGridColumn headerText="Descrizione" dataField="descrizione"/>
+				<mx:DataGridColumn headerText="Revisione" dataField="revisione"/>
+				<mx:DataGridColumn headerText="Intensità" dataField="intensita"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:HBox width="100%" horizontalAlign="center" verticalAlign="middle">
+            <mx:Button click="deleteRow(addedRisksDataGrid);" label="X" fillAlphas="[1.0, 1.0]" fillColors="[#B80B0B, #B80B0B]" color="#FFFFFF"/>
+            <mx:Label text="Rimuovi riga selezionata" fontSize="10"/>
+        </mx:HBox>
+		</mx:VBox>
+		
+	</mx:Canvas>
+
+	
+	
+	<mx:MenuBar id="myMenuBar" labelField="@label" itemClick="menuHandler(event);" width="100%">
+	    <mx:XMLList>
+	        <menuitem label="Prosegui">
+	        	<menuitem label="Salva e procedi" type="radio" groupName="one" data="BEFORE" />
+	        </menuitem>
+	    </mx:XMLList>
+	</mx:MenuBar>
+	
+</mx:Application>
