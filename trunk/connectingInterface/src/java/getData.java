@@ -106,6 +106,8 @@ public class getData extends HttpServlet {
                 /*CLOSING SESSION*/
                 else if (type.equals("closesession")) typenum = 12; //deletes all data from session
 
+                /*CLOSE PROJECT*/
+                else if(type.equals("closeproject")) typenum = 999;
                 /*TESTS*/
                 else if(type.equals("test")) typenum = 666;
 
