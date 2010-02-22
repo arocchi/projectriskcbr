@@ -327,7 +327,7 @@ public class dataFromDB {
                         Progetto p = (Progetto) session.getAttribute("Progetto");
                         p.setIsCase(true);
                         session.setAttribute("Progetto", p);
-                        out.println("IS CASE");
+                        //XXX out.println("IS CASE");
                     }
 
                     //saving actions into session
@@ -1249,15 +1249,13 @@ public class dataFromDB {
         while(it.hasNext()){
             boolean found = false;
             Azioni a = (Azioni) it.next();
-            printAction(a, out, 0);
+           
             Iterator t = prev.iterator();
                 while(t.hasNext() && !found){
                     Azioni c = (Azioni) t.next();
-                    out.println("SOTOMAYOROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-                    printAction(c, out, 0);
+                    
                     if(c.getPrimaryKey().equals(a.getPrimaryKey())){
-                        printAction(a, out, 0);
-                        printAction(c, out, 1);
+                        
                         //is the same action
                         if(c.getIntensita() != a.getIntensita()){
                             //if different
