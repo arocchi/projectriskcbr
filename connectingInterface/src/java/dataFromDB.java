@@ -1322,12 +1322,12 @@ out.println("ok");
 	 * You can access the corrisponding Progetto instance trough the getDescription method of that case
 	 */
 	 Map<ConfigurationGroup, Collection<RetrievalResult>> groupsResults = new HashMap<ConfigurationGroup, Collection<RetrievalResult>>();
-out.println("ok");
+out.println("okPRIMA");
          /* We calculate similarity according to the similarity criterias specified for each group.
 	 * Then, we get the top k projects for the group.
 	 */
 	for(Map.Entry<NNConfig, ConfigurationGroup> entry : simConfigs.entrySet()) {
-		NNConfig simConfig = entry.getKey();
+		NNConfig simConfig = entry.getKey();out.println("ok--");
 		// we calculate similarity according to the similarity configuratino for this group
 		Collection<RetrievalResult> simEval = NNScoringMethod.evaluateSimilarity(cases, query, simConfig);
 		Collection<CBRCase> bestEval = SelectCases.selectTopK(simEval, configuration.kProgetto);
@@ -1337,7 +1337,7 @@ out.println("ok");
 
                 groupsResults.put(entry.getValue(), globallyEvaluatedResul);
 	}
-out.println("ok");
+out.println("okOKOKOK");
         /* ----------------- */
 	/* RISKS EXTRACTION  */
 	/* ----------------- */
