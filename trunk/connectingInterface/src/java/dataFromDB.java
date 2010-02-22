@@ -327,6 +327,7 @@ public class dataFromDB {
                         Progetto p = (Progetto) session.getAttribute("Progetto");
                         p.setIsCase(true);
                         session.setAttribute("Progetto", p);
+                        out.println("IS CASE");
                     }
 
                     //saving actions into session
@@ -1109,7 +1110,6 @@ public class dataFromDB {
             Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
             if(cnt == null)
                 return list;
-out.println(request.toString());
             //temporary identifier
             int identif = 1;
 
@@ -1118,25 +1118,17 @@ out.println(request.toString());
                 Azioni a = new Azioni();
 
                 a.getPrimaryKey().setIdAzione(Integer.parseInt(request.getParameter(what+"idAzione_"+i)));
-                out.println("ciao");
                 a.getPrimaryKey().setIdRischio(request.getParameter(what+"idRischio_"+i));
-                out.println("ciao");
                 a.getPrimaryKey().setIdentifier(Integer.parseInt(request.getParameter(what+"identifier_"+i)));//Integer.parseInt(request.getParameter("identifier_"+i)));
-                out.println("ciao");
                 a.getPrimaryKey().setTipo(request.getParameter(what+"tipo_"+i).charAt(0));
-                out.println("ciao");
                 a.setDescrizione(request.getParameter(what+"descrizione_"+i));
-                out.println("ciao");
                 a.setRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
-                out.println("ciao");
                 a.setStato(request.getParameter(what+"stato_"+i));
-                out.println("ciao");
                 if(!Boolean.parseBoolean(request.getParameter(what+"ckintensita_"+i)))
                     a.setIntensita(-50);
                 else
                     a.setIntensita(Integer.parseInt(request.getParameter(what+"intensita_"+i)));
                 list.add(a);
-                printAction(a, out, 0);
             }
             if(!enable)
                 break;
