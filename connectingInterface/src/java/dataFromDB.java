@@ -936,7 +936,7 @@ out.println("puppa");
             }
 
             //reading the number of risks to load
-            Integer cnt = Integer.parseInt(request.getParameter(what+"_cnt"));
+            Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
             if(cnt == null)
                 return list;
 
