@@ -282,13 +282,9 @@ public class dataFromDB {
                         out.println("<rischio idName=\""+(riskIndex++)+"\">\n"+
                                         "\t<idRischio>"+r.getCodice()+"</idRischio>");
                         it = lista.iterator();
-out.println("puppa");
                         int identifier = 1;
-out.println("puppa");
                         while(it.hasNext()){
-out.println("puppa");
                             Azioni a = (Azioni) it.next();
-out.println("puppa");
                             //retrieving description
                             Descrizione dobj;
                             if(a.getPrimaryKey().getTipo() ==  'M') 
@@ -298,10 +294,11 @@ out.println("puppa");
                             else
                                 break;
                             //setting description
+                            // XXX MERDACCHIO
                             if(dobj!=null){
                                 a.setDescrizione(dobj.getDescrizione());
                             }else a.setDescrizione("Problem retrieving description for "+a.getPrimaryKey().getIdAzione());
-out.println("puppa");
+
                             //printing action
                             out.println("\t<azione idName=\""+(index++)+"\">\n"+
                                         "\t\t<identifier>"+(identifier++)+"<identifier>"+
