@@ -1109,7 +1109,7 @@ public class dataFromDB {
             Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
             if(cnt == null)
                 return list;
-out.println("puppa");
+out.println(request.toString());
             //temporary identifier
             int identif = 1;
 
