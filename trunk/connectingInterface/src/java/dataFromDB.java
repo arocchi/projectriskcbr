@@ -301,7 +301,7 @@ public class dataFromDB {
 
                             //printing action
                             out.println("\t<azione idName=\""+(index++)+"\">\n"+
-                                        "\t\t<identifier>"+(identifier++)+"<identifier>"+
+                                        "\t\t<identifier>"+(identifier++)+"</identifier>"+
                                         "\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>"+
                                         "\t\t<stato>"+a.getStato()+"</stato>"+
                                         "\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>"+
