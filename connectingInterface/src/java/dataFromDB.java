@@ -958,8 +958,8 @@ public class dataFromDB {
 
 
         try{
-            p.setIsCase(Boolean.parseBoolean(request.getParameter("iscase")));
-            p.setIsOpen(Boolean.parseBoolean(request.getParameter("isopen")));
+            //p.setIsCase(Boolean.parseBoolean(request.getParameter("iscase")));
+            //p.setIsOpen(Boolean.parseBoolean(request.getParameter("isopen")));
         }catch (Exception e){}
         
         p.setCodice(request.getParameter("codice"));
