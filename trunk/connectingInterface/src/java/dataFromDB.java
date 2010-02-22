@@ -113,7 +113,7 @@ public class dataFromDB {
                     session.setAttribute("Progetto", p);
                     //making suggestions
 
-                    
+                    printProject(p, out);
                     suggestions(p, session, out);
                     out.println("ok");
                     
