@@ -1161,6 +1161,18 @@ public class dataFromDB {
             //checking if project has a valid identifier
             if(!Progetto.checkAvailable(p.getCodice()))
                 return null;
+
+            out.println("BEGIN");
+            Iterator m1 = riskList.iterator();
+            while(m1.hasNext()){
+                Rischio r = (Rischio) m1.next();
+                printRisk(r, out, 0, false);
+            }
+            m1 = actionList.iterator();
+            while(m1.hasNext()){
+                Azioni a = (Azioni) m1.next();
+                printAction(a, out, 0);
+            }
             
             out.println("puppa");
             //adding all risks to the project
@@ -1176,7 +1188,6 @@ public class dataFromDB {
                     //action for the current risk
                     if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
                         //setting identifier
-                        out.println("generato identifier ");
                         int ident = generateIdentifier(session, a.getPrimaryKey());
                         a.getPrimaryKey().setIdentifier(ident);
                         out.println("generato identifier "+ident);
