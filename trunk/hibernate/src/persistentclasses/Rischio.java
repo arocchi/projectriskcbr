@@ -193,6 +193,10 @@ public class Rischio extends persistentBase{
         return this;
     }
 
+    public int getMaxRevisione(){
+        int max = 0;
+        return max;
+    }
 
     /**
      * Ritorna una lista con le chiavi primarie
