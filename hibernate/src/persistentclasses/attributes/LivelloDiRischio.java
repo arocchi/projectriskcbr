@@ -20,7 +20,7 @@ public class LivelloDiRischio
     private Integer R2;
     private Integer R3;
 
-    public LivelloDiRischio(int a, int b ,int c){
+    public LivelloDiRischio(Integer a, Integer b ,Integer c){
 
         R1 = new Integer(a);
         R2 = new Integer(b);
