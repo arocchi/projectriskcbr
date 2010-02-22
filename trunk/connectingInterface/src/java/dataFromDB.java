@@ -332,6 +332,7 @@ public class dataFromDB {
 
                     //saving actions into session
                     session.setAttribute("ActionsAddedToProject",lista);
+                    out.println("ok");
                     break;
                 //give_confirm
                 case 105:
