@@ -61,7 +61,7 @@ public class getData extends HttpServlet {
             
             else if (type != null) {
                 /*ONLY OPEN SESSION. DO NOTHING*/
-                if(type.equals("give_nullrequest"));
+                if(type.equals("give_nullrequest")) out.println("nullrequest done");
 
                 /*TYPES TO CREATE A NEW PROJECT*/
                 else if (type.equals("take_cliente"))               typenum = 0; //gives all the customers in the database
