@@ -475,6 +475,7 @@ public class dataFromDB {
                         break;
                     }
 
+                    out.println("idProgramma "+idProgramma);
                     //retrieving project from DB
                     Progetto p = (Progetto) Progetto.getById(Progetto.class, idProgramma);
                     p.caricaRischi();
