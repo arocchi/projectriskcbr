@@ -7,6 +7,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.CloseEvent;
 			import mx.collections.ArrayCollection;
 			import mx.rpc.events.ResultEvent;
 			import mx.rpc.events.FaultEvent;
@@ -17,12 +18,20 @@
 			
 			[Bindable]
 			private var customers:Array;
+			private var navigateTo:String;
 
 			// Function that gets the plain result from the server
 			private function handlePlain(event:ResultEvent):void
 	        {
-				navigateToURL(new URLRequest("second_step.html"), '_self');
+	        	navigateTo = "second_step.html"
+	        	Alert.show(	"Dati inviati correttamente, continuare?",
+							"Attenzione", Alert.OK, null, handlePlainConfirmationHandler);
+				
 	        }
+		
+			private function handlePlainConfirmationHandler(eventObject:CloseEvent):void {
+				navigateToURL(new URLRequest(navigateTo), '_self');
+			}
 
 			// Function that handles the error event gotten from the server
 	        private function handleFault(event:FaultEvent):void
