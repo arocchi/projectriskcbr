@@ -538,7 +538,7 @@ public class dataFromDB {
 
                     //printing preferred actions
                     it = preferredActions.iterator();
-                    out.println("\t\t<node label=\"Azioni comuni per questo rischio\" type=\"comuni\" >");
+                    out.println("\t\t<node label=\"Azioni comuni per questo rischio\" type=\"categoria\" >");
                     while(it.hasNext()){
                         Descrizione d = (Descrizione) it.next();
                         out.println("\t\t\t<node codiceChecklist=\""+d.getCodChecklist()+
@@ -547,7 +547,7 @@ public class dataFromDB {
                     out.println("\t\t</node>");
 
                     //printing other actions
-                    out.println("\t\t<node label=\"Altre azioni\" type=\"altre\" >");
+                    out.println("\t\t<node label=\"Altre azioni\" type=\"categoria\" >");
                     it = lista.iterator();
                     while(it.hasNext()){
                         Descrizione d = (Descrizione) it.next();
