@@ -30,6 +30,12 @@ public class getData extends HttpServlet {
 
         //type parameter
         String type = request.getParameter("type");
+        //control if set
+        if(type == null || type.isEmpty()){
+            out.println("No type parameter set");
+            out.close();
+            return;
+        }
 
         try {
             Thread.currentThread().sleep(600);
