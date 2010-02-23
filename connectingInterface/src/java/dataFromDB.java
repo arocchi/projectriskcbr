@@ -413,6 +413,7 @@ public class dataFromDB {
                         //printDigestDummy(p,riskList,actionList,out);
                         Progetto c = buildProject(p, riskList, actionList, out, session);
                         printProject(c, out);
+                        out.println("ok");
                     }
 
 
