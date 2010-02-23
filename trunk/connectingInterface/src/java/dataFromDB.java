@@ -492,7 +492,7 @@ public class dataFromDB {
                 {
                     String riskChecklistCode = (String) request.getParameter("data");
                     String actiontype = (String) request.getParameter("actiontype");
-
+out.println(request.toString());
                     session.setAttribute("actiontype", actiontype);
                     session.setAttribute("data", riskChecklistCode);
                 }
@@ -503,6 +503,7 @@ public class dataFromDB {
                     //taking ALL actions from DB, selecting between:
                     //-actions already used for a specified risk
                     //-all others
+out.println(request.toString());
                     String riskChecklistCode = (String) session.getAttribute("data");
                     String actiontype = (String) session.getAttribute("actiontype");
                     String table;
