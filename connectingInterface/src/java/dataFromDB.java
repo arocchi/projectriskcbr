@@ -1326,20 +1326,49 @@ public class dataFromDB {
             listaPkAzioni = new LinkedList<AzioniPrimaryKey>();
         }
 
-        while(!Azioni.checkAvailable(pk)){
-            int old = pk.getIdentifier();
-            pk.setIdentifier(old+1);
-        }
-        while(listaPkAzioni.contains(pk)){
-            int old = pk.getIdentifier();
-            pk.setIdentifier(old+1);
-        }
-        //sign used key
-        listaPkAzioni.add(pk);
+        AzioniPrimaryKey t = new AzioniPrimaryKey(pk.getIdentifier(), pk.getIdAzione(), pk.getIdRischio(), pk.getTipo());
 
+        while(!Azioni.checkAvailable(t)){
+            int old = t.getIdentifier();
+            t.setIdentifier(old+1);
+        }
+        boolean found = true;
+        while(found && !listaPkAzioni.isEmpty()){
+            //checking already set id
+            Iterator k = listaPkAzioni.iterator();
+            found=false;
+            while(k.hasNext() && !found){
+                AzioniPrimaryKey x = (AzioniPrimaryKey) k.next();
+                if(x.equals(t))
+                    found=true;
+            }
+            //generating one only if the current already exists
+            if(found){
+                int old = t.getIdentifier();
+                t.setIdentifier(old+1);
+            }
+        }
+        /*
+        while(listaPkAzioni.contains(t)){
+            int old = t.getIdentifier();
+            t.setIdentifier(old+1);
+        }*/
+        //sign used key
+        //AzioniPrimaryKey azpk = new AzioniPrimaryKey(pk.getIdentifier(), pk.getIdAzione(), pk.getIdRischio(), pk.getTipo());
+        listaPkAzioni.add(t);
+
+        //debug print
+        /*
+        Iterator it = listaPkAzioni.iterator();
+        out.println("LISTA CONTENT");
+        while(it.hasNext()){
+            AzioniPrimaryKey y = (AzioniPrimaryKey) it.next();
+           out.println("-ident: "+y.getIdentifier()+" azione:"+y.getIdAzione()+" rischio:"+y.getIdRischio()+" tipo"+y.getTipo()+" ");
+        }
+        */
         session.setAttribute("listaPkAzioni", listaPkAzioni);
 
-        return pk.getIdentifier();
+        return t.getIdentifier();
     }
     /**    
      * @return List of Risks that were not suggested in any group or in the NoGroup list
