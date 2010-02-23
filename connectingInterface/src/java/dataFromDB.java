@@ -560,6 +560,7 @@ out.println(request.toString());
                     break;
                 //give_mx
                 case 107:
+                {
                     //user gives me all the project with modifications,i will read it and write on DB
                     /*XXX definire formato di scambio
                      considerare di usare formati già usati per azioni e rischi prima*/
@@ -656,6 +657,7 @@ out.println(request.toString());
                     pg.update();
                     pg.salvaRischi();
                     break;
+                }
                 //give_newchkrisk
                 case 108:
                 {
@@ -757,18 +759,109 @@ out.println(request.toString());
                 case 666:
                 {
                     out.println("test started");
-                    AzioniPrimaryKey azpk1 = new AzioniPrimaryKey();
-                    azpk1.setIdAzione(1);
-                    azpk1.setIdRischio("P7R1");
-                    azpk1.setTipo('M');
-                    azpk1.setIdentifier(1);
-                    for(int i=0; i<10; i++){
-                        int ident = generateIdentifier(session, azpk1,out);
-                        out.println(i+"\tGENERATO IDENT:"+ident);
+                   //user gives me all the project with modifications,i will read it and write on DB
+                    /*XXX definire formato di scambio
+                     considerare di usare formati già usati per azioni e rischi prima*/
+
+                    //reading project from request
+
+                    //old project
+                    Progetto p = (Progetto) Progetto.getById(Progetto.class,"P2");
+                    session.setAttribute("Progetto_ch",p);
+                    //new one
+                    Progetto pg = (Progetto) session.getAttribute("Progetto_ch");
+                    pg.rimuoviRischio("P2R1");
+
+                    //getting all actions for p
+                    LinkedList<Azioni> al = new LinkedList<Azioni>();
+                    it = p.getRischi().iterator();
+                    while(it.hasNext()){
+                        Rischio r = (Rischio) it.next();
+                        Iterator j = r.getAzioni().iterator();
+                        while(j.hasNext()){
+                            al.add((Azioni) j.next());
+                        }
                     }
-                    
+                    //getting all actions for pg
+                    LinkedList<Azioni> ag = new LinkedList<Azioni>();
+                    it = p.getRischi().iterator();
+                    while(it.hasNext()){
+                        Rischio r = (Rischio) it.next();
+                        Iterator j = r.getAzioni().iterator();
+                        while(j.hasNext()){
+                            al.add((Azioni) j.next());
+                        }
+                    }
 
+                    //project read. Finding new, deleted and updated fields
+                    it = ag.iterator();
+                    //per ogni azione nuova
+                    while(it.hasNext()){
+                        Azioni az = (Azioni) it.next();
+                        if(!Azioni.checkAvailable(az.getPrimaryKey())){
+                            //old action,unckecking from old list
+                            Iterator j = al.iterator();
+                            while(j.hasNext()){
+                                Azioni oldaz = (Azioni) j.next();
+                                if(oldaz.getPrimaryKey().equals(az.getPrimaryKey())){
+                                    j.remove();
+                                    break;
+                                }
+                            }
+                        }
+                        else //new action
+                        {
+                            //giving identifier
+                            int id = generateIdentifier(session, az.getPrimaryKey(),out);
+                            az.getPrimaryKey().setIdentifier(id);
 
+                        }
+
+                    }
+                    //removing from DB all removed actions
+                    it = al.iterator();
+                    while(it.hasNext()){
+                        Azioni toremId = (Azioni) it.next();
+                        Azioni torem = (Azioni) Azioni.getById(Azioni.class, toremId.getPrimaryKey());
+                        torem.delete();
+                    }
+
+                    //finding removed risks
+                    it = pg.getRischi().iterator();
+                    //for each new risk
+                    while(it.hasNext()){
+                        Rischio nuovorischio = (Rischio) it.next();
+                        if(!Rischio.checkAvailable(nuovorischio.getCodice())){
+                            //rischio vecchio
+                            Iterator intit = p.getRischi().iterator();
+                            //for each old risk
+                            while(intit.hasNext()){
+                                Rischio oldr = (Rischio) intit.next();
+                                if(oldr.getCodice().compareTo(nuovorischio.getCodice())==0){
+                                    //controllo se devo aggiornare storico
+                                    if(nuovorischio.getProbabilitaAttuale() != oldr.getProbabilitaAttuale()){
+                                        nuovorischio.aggiungiRevisione(nuovorischio.getMaxRevisione()+1,nuovorischio.getProbabilitaIniziale(),nuovorischio.getImpattoIniziale());
+                                        nuovorischio.setProbabilitaIniziale(oldr.getProbabilitaIniziale());
+                                        nuovorischio.setImpattoIniziale(oldr.getImpattoIniziale());
+                                        nuovorischio.setNumeroRevisione(nuovorischio.getMaxRevisione());
+                                    }
+                                    //rimuovo
+                                    intit.remove();
+                                    break;
+                                }
+                            }
+
+                        }else{//rischio nuovo, faccio nulla
+                        }
+
+                    }
+                    //rimangono in p.getRischi() queli cancellati
+                    it = p.getRischi().iterator();
+                    while(it.hasNext()){
+                        Rischio r = (Rischio) it.next();
+                        Rischio torem = (Rischio) Rischio.getById(Rischio.class, r.getCodice());
+                        torem.delete();//cancello
+                    }
                 }
                 break;
             }
