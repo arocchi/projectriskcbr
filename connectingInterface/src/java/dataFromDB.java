@@ -510,8 +510,7 @@ public class dataFromDB {
                     else if(actiontype.trim().compareTo("M")==0) table = "Mitigazione";
                     else break;
 
-                    out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
-                                    "\t<node label=\"Azioni "+table+"\" type=\"categoria\" >");
+                    out.println("<root label=\"Azioni "+table+"\" type=\"fuori\">");
                     
                     /*preferred actions for this risk are the actions that were
                      previously added to a correspondent risk into a previous project
@@ -555,7 +554,7 @@ public class dataFromDB {
                         out.println("\t\t\t<node codiceChecklist=\""+d.getCodChecklist()+
                                     "\" label=\""+escapeChars(d.getDescrizione())+"\" type=\"rischio\" />");
                     }
-                    out.println("\t\t</node>\n\t</node>\n</root>");
+                    out.println("\t\t</node>\n</root>");
                 }
                     break;
                 //give_mx
