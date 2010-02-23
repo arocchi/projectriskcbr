@@ -355,9 +355,9 @@ public class dataFromDB {
                     /*XXX formato della risposta da definire E testare da interfaccia con David*/
 
                     //Boolean confirm = Boolean.parseBoolean((String) session.getAttribute("data"));
-                    String confirmStr = (String) session.getAttribute("data");
-                    out.println("DATO: "+confirmStr);
-                    out.println(request.toString());
+                    String confirmStr = (String) request.getParameter("data");
+                    /*out.println("DATO: "+confirmStr);
+                    out.println(request.toString());*/
                     if(/*!confirm*/confirmStr == null || !confirmStr.equals("true")){
                         //closing session
                         session.invalidate();
