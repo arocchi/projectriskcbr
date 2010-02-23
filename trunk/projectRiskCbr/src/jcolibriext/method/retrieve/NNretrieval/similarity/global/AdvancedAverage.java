@@ -9,7 +9,15 @@ import jcolibriext.method.retrieve.NNretrieval.similarity.AdvancedGlobalSimilari
  * @version 1.0
  */
 public class AdvancedAverage extends AdvancedGlobalSimilarityFunction {
-
+	double defaultSimilarityValue;
+	
+	public AdvancedAverage() {
+		this.defaultSimilarityValue = 0.0;
+	}
+	
+	public AdvancedAverage(double invalidOutputResult) {
+		this.defaultSimilarityValue = invalidOutputResult;
+	}
 
 	public double computeSimilarity(double[] values, double[] weigths, int ivalue)
 	{
@@ -21,7 +29,7 @@ public class AdvancedAverage extends AdvancedGlobalSimilarityFunction {
 			weigthsAcum += weigths[i];
 		}
 		if(weigthsAcum == 0)
-			return 0;
+			return this.defaultSimilarityValue;
 		return acum/weigthsAcum;
 	}
 

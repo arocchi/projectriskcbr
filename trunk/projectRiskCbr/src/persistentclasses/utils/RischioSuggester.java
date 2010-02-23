@@ -229,16 +229,16 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 	 */
 	private RischioSuggester adapt(Rischio rischio) {
 		// impatto iniziale
-		AdvancedAverage iiAverage = new AdvancedAverage();
+		AdvancedAverage iiAverage = new AdvancedAverage(-1);
 		
 		// probabilita' iniziale
-		AdvancedAverage piAverage = new AdvancedAverage();
+		AdvancedAverage piAverage = new AdvancedAverage(-1);
 		
 		// costo potenziale impatto
-		AdvancedAverage cpiAverage = new AdvancedAverage();
+		AdvancedAverage cpiAverage = new AdvancedAverage(-1);
 		
 		// contingency
-		AdvancedAverage coAverage = new AdvancedAverage();
+		AdvancedAverage coAverage = new AdvancedAverage(-1);
 		
 		int iiComputedAverage;
 		int piComputedAverage;
