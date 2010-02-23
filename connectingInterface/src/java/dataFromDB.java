@@ -356,7 +356,8 @@ public class dataFromDB {
 
                     //Boolean confirm = Boolean.parseBoolean((String) session.getAttribute("data"));
                     String confirmStr = (String) session.getAttribute("data");
-                    if(/*!confirm*/confirmStr.equals("false")){
+                    out.println("DATO: "+confirmStr);
+                    if(/*!confirm*/confirmStr == null || !confirmStr.equals("true")){
                         //closing session
                         session.invalidate();
                         out.println("Project not added");
@@ -364,10 +365,16 @@ public class dataFromDB {
                     }
                     //if confirmed, build the project from session data
                     //!!!using the next "case" statement
-                    index=1;//using index as a flag
-
+                    //building project and storing into DB
+                    Progetto complete = (Progetto) session.getAttribute("BuildProject");
+                    if(complete == null)
+                        out.println("<error>ERROR</error>");
+                    else{
+                        complete.salvaProgetto();//XXX controllare dove e quando viene generata la chiave del progetto
+                        out.println("OK");
+                    }
                 }
-                
+                    break;
                 //take_digest
                 case 7:
                 {
@@ -411,23 +418,9 @@ public class dataFromDB {
                     //out.println("END");
                     /****************/
                     //if here, all checks are passed. Printing the digest
-                    if(index == 0){ //it means: we are executing "take_digest
-                        //printDigestDummy(p,riskList,actionList,out);
-                        Progetto c = buildProject(p, riskList, actionList, out, session);
-                        printProject(c, out);
-                    }
-
-
-                    else if(index == 1){//it means: we are executing give_confirm
-                        //building project and storing into DB
-                        Progetto complete = buildProject(p, riskList, actionList, out, session );
-                        if(complete == null)
-                            out.println("<error>ERROR</error>");
-                        else{
-                            complete.salvaProgetto();//XXX controllare dove e quando viene generata la chiave del progetto
-                            out.println("OK");
-                        }
-                    }
+                    Progetto c = buildProject(p, riskList, actionList, out, session);
+                    session.setAttribute("BuildProject", c);
+                    printProject(c, out);
                 }
                     break;
                 //take_newidrischio
