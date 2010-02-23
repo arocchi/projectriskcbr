@@ -354,10 +354,12 @@ public class dataFromDB {
                     //server will answer "ok" or "error"
                     /*XXX formato della risposta da definire E testare da interfaccia con David*/
 
-                    Boolean confirm = Boolean.parseBoolean((String) session.getAttribute("data"));
-                    if(!confirm){
+                    //Boolean confirm = Boolean.parseBoolean((String) session.getAttribute("data"));
+                    String confirmStr = (String) session.getAttribute("data");
+                    if(/*!confirm*/confirmStr.equals("false")){
                         //closing session
                         session.invalidate();
+                        out.println("Project not added");
                         break;
                     }
                     //if confirmed, build the project from session data
