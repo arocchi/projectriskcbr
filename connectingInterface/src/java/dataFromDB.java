@@ -1179,7 +1179,7 @@ public class dataFromDB {
             if(!Progetto.checkAvailable(p.getCodice()))
                 return null;
 
-            out.println("BEGIN");
+            /*out.println("BEGIN");
             printProject(p, out);
             Iterator m1 = riskList.iterator();
             while(m1.hasNext()){
@@ -1190,20 +1190,16 @@ public class dataFromDB {
             while(m1.hasNext()){
                 Azioni a = (Azioni) m1.next();
                 printAction(a, out, 0);
-            }
-            
-            out.println("puppa");
+            }*/
+           
             //adding all risks to the project
             Iterator it = riskList.iterator();
             while(it.hasNext()){
                 Rischio r = (Rischio) it.next();
-                out.println("puppa");
                 //adding actions to risk
                 Iterator ait = actionList.iterator();
                 while(ait.hasNext()){
-                    out.println("puppa action");
                     Azioni a = (Azioni) ait.next();
-                    printAction(a, out, 0);
                     //action for the current risk
                     if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
                         //setting identifier
@@ -1217,8 +1213,6 @@ public class dataFromDB {
                 //added actions to risk
                 /*XXX SUPPONGO OGNI RISCHIO ABBIA GIA' LA GIUSTA CHIAVE!!*/
                 p.aggiungiRischio(r);
-                out.println("PRINTING RISK");
-                printRisk(r, out, 0, true);
             }
         } catch (Exception e){
             out.println(e);
