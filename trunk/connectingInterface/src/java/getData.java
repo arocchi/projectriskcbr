@@ -31,6 +31,12 @@ public class getData extends HttpServlet {
         //type parameter
         String type = request.getParameter("type");
 
+        try {
+            Thread.currentThread().sleep(600);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(getData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         //checking session
         HttpSession session = request.getSession();
         Boolean activesession = (Boolean) session.getAttribute("activesession");
@@ -49,11 +55,7 @@ public class getData extends HttpServlet {
             SessionFactory sf = SessionObject.getStarted();
             session.setAttribute("sessionfactory", sf);
         }
-        try {
-            Thread.currentThread().sleep(600);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(getData.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
         try {
             
             //integer of the operation to execute
