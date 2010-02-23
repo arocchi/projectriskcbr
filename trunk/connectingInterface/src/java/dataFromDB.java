@@ -584,15 +584,16 @@ out.println(request.toString());
                     }
                     //project read. Finding new, deleted and updated fields
                     it = ag.iterator();
+                    //per ogni azione nuova
                     while(it.hasNext()){
                         Azioni az = (Azioni) it.next();
                         if(!Azioni.checkAvailable(az.getPrimaryKey())){
-                            //old action,unckecking from list
+                            //old action,unckecking from old list
                             Iterator j = al.iterator();
                             while(j.hasNext()){
                                 Azioni oldaz = (Azioni) j.next();
                                 if(oldaz.getPrimaryKey().equals(az.getPrimaryKey())){
-                                    al.remove(oldaz);
+                                    j.remove();
                                     break;
                                 }
                             }
