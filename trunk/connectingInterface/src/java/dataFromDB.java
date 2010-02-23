@@ -1211,7 +1211,7 @@ public class dataFromDB {
                         //a.getPrimaryKey().setIdentifier(ident);
                         //out.println("generato identifier "+ident);
                         r.aggiungiAzione(0, a);
-                        actionList.remove(a);
+                        //ait.remove();
                     }
                 }
                 //added actions to risk
