@@ -11,7 +11,6 @@ import org.hibernate.SessionFactory;
 import persistentclasses.SessionObject;
 
 /**
- *
  * @author User
  */
 public class getData extends HttpServlet {
