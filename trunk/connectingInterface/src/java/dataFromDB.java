@@ -328,7 +328,7 @@ public class dataFromDB {
                     Iterator actIter = lista.iterator();
                     while(actIter.hasNext()){
                         Azioni a = (Azioni) actIter.next();
-                        int identifier = generateIdentifier(session, a.getPrimaryKey());
+                        int identifier = generateIdentifier(session, a.getPrimaryKey(),out);
                         a.getPrimaryKey().setIdentifier(identifier);
                     }
 
@@ -603,7 +603,7 @@ public class dataFromDB {
                         else //new action
                         {
                             //giving identifier
-                            int id = generateIdentifier(session, az.getPrimaryKey());
+                            int id = generateIdentifier(session, az.getPrimaryKey(),out);
                             az.getPrimaryKey().setIdentifier(id);
 
                         }
@@ -757,12 +757,18 @@ public class dataFromDB {
                 case 666:
                 {
                     out.println("test started");
-                    lista = risknoGroup(session);
-                    it = lista.iterator();
-                    index = 0;
-                    while(it.hasNext()){
-                        printRisk((Rischio)it.next(), out, index++, false);
+                    AzioniPrimaryKey azpk1 = new AzioniPrimaryKey();
+                    azpk1.setIdAzione(1);
+                    azpk1.setIdRischio("P7R1");
+                    azpk1.setTipo('M');
+                    azpk1.setIdentifier(1);
+                    for(int i=0; i<10; i++){
+                        int ident = generateIdentifier(session, azpk1,out);
+                        out.println(i+"\tGENERATO IDENT:"+ident);
                     }
+                    
+
+
                 }
                 break;
             }
@@ -886,17 +892,17 @@ public class dataFromDB {
     }
     //prints an action in xml format into the stream 'out'
     private void printAction(Azioni a, PrintWriter out, int index){
-        out.println("\t<azione idName=\""+index+"\">\n"+
-			"\t\t<idAzione>"+a.getPrimaryKey().getIdAzione()+"</idAzione>\n" +
-                        "\t\t<identifier>"+a.getPrimaryKey().getIdentifier()+"</identifier>\n" +
-                        "\t\t<idRischio>"+a.getPrimaryKey().getIdRischio()+"</idRischio>\n"+
-			"\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>\n"+
-			"\t\t<stato>"+a.getStato()+"</stato>\n"+
-			"\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>\n"+
-			"\t\t<revisione>"+a.getRevisione()+"</revisione>\n"+
-			"\t\t<intensita>"+a.getIntensita()+"</intensita>\n" +
-                        "\t\t<ckintensita>"+(a.getIntensita()==-50)+"</ckintensita>\n"+
-                    "\t</azione>");
+        out.println("\t<azione idName=\""+index+"\">");
+                out.println("\t\t<idAzione>"+a.getPrimaryKey().getIdAzione()+"</idAzione>");
+                out.println("\t\t<identifier>"+a.getPrimaryKey().getIdentifier()+"</identifier>");
+                out.println("\t\t<idRischio>"+a.getPrimaryKey().getIdRischio()+"</idRischio>");
+                out.println("\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>");
+                out.println("\t\t<stato>"+a.getStato()+"</stato>");
+                out.println("\t\t<descrizione>"+escapeChars(a.getDescrizione())+"</descrizione>");
+                out.println("\t\t<revisione>"+a.getRevisione()+"</revisione>");
+                out.println("\t\t<intensita>"+a.getIntensita()+"</intensita>");
+                out.println("\t\t<ckintensita>"+(a.getIntensita()==-50)+"</ckintensita>");
+        out.println("\t</azione>");
         return;
     }
     //function that escapes characters to print into xml
@@ -1314,10 +1320,11 @@ public class dataFromDB {
         return false;
     }
     //generates valid actionId
-    private int generateIdentifier(HttpSession session, AzioniPrimaryKey pk) throws Exception{
+    private int generateIdentifier(HttpSession session, AzioniPrimaryKey pk, PrintWriter out) throws Exception{
         LinkedList<AzioniPrimaryKey> listaPkAzioni = (LinkedList<AzioniPrimaryKey>) session.getAttribute("listaPkAzioni");
-        if(listaPkAzioni == null)
+        if(listaPkAzioni == null){
             listaPkAzioni = new LinkedList<AzioniPrimaryKey>();
+        }
 
         while(!Azioni.checkAvailable(pk)){
             int old = pk.getIdentifier();
@@ -1327,6 +1334,9 @@ public class dataFromDB {
             int old = pk.getIdentifier();
             pk.setIdentifier(old+1);
         }
+        //sign used key
+        listaPkAzioni.add(pk);
+
         session.setAttribute("listaPkAzioni", listaPkAzioni);
 
         return pk.getIdentifier();
