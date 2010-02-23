@@ -409,7 +409,7 @@ public class Progetto
     {
         //controllo che l'id programma del programma sia lo stesso
         //del rischio. Se non lo è, lo modifico opportunamente
-        if(r.getIdProgramma().compareTo(codice) != 0)
+        if(r.getIdProgramma() == null || r.getIdProgramma().compareTo(codice) != 0)
             r.setIdProgramma(codice);
 
         //controllo che non esista un rischio con stessa chiave, già presente nel DB
