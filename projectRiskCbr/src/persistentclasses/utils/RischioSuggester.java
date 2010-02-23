@@ -83,7 +83,14 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 		for(Map.Entry<RetrievalResult, List<Rischio>> entry : sortInfo.entrySet()) {
 			azioniList = new LinkedList<Azioni>();
 			for(Rischio rischio : entry.getValue()) {
-				azioniList.addAll(rischio.getAzioni());
+				List<Azioni> rAzioni = rischio.getAzioni();
+				// TODO dirty hack. Check for better fix
+				if(rAzioni != null) {
+					for(Azioni rAzione : rAzioni) {
+						if(rAzione != null)
+							azioniList.add(rAzione);
+					}
+				}
 			}
 			azioniMap.put(entry.getKey(), azioniList);
 		}
@@ -244,7 +251,11 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 		double[] piArray = new double[size];
 		double[] coArray = new double[size];
 		double[] cpiArray = new double[size];
-		double[] weightsArray = new double[size];
+		
+		double[] iiWeightsArray = new double[size];
+		double[] piWeightsArray = new double[size];
+		double[] coWeightsArray = new double[size];
+		double[] cpiWeightsArray = new double[size];
 		
 		int index = 0;
 		for(Map.Entry<RetrievalResult, List<Rischio>> entry : sortInfo.entrySet()) {
@@ -255,24 +266,35 @@ public class RischioSuggester implements Comparable<RischioSuggester> {
 				iiArray[index] = r.getImpattoIniziale();
 				piArray[index] = r.getProbabilitaIniziale();
 				
-				if(query == null) {
+				if(	query == null || 
+					(qProj.getValoreEconomico()		<= 0)) {
 					cpiArray[index] = r.getCostoPotenzialeImpatto();
 					coArray[index] 	= r.getContingency();
-				} else if(qProj.getValoreEconomico() > 0) {
+				} else if(	(rrProj.getValoreEconomico()	<= 0)	||
+							(r.getCostoPotenzialeImpatto() 	< 0)	||
+							(r.getContingency() 			< 0)) {
+					cpiArray[index] = -1;
+					coArray[index] = -1;
+				} else {
 					Double directProportion = qProj.getValoreEconomico() / rrProj.getValoreEconomico();
 					cpiArray[index] = r.getCostoPotenzialeImpatto() * directProportion;
 					coArray[index] 	= r.getContingency() 			* directProportion;
 				}
 				
-				weightsArray[index++] = entry.getKey().getEval();
+				iiWeightsArray[index] 	= (	iiArray[index] >= 0	?	entry.getKey().getEval()	: 0);
+				piWeightsArray[index] 	= (	piArray[index] >= 0	?	entry.getKey().getEval()	: 0);
+				coWeightsArray[index] 	= (	coArray[index] >= 0	?	entry.getKey().getEval()	: 0);
+				cpiWeightsArray[index] 	= (	cpiArray[index]>= 0	?	entry.getKey().getEval()	: 0);
+				
+				index++;
 			}
 		}
 		
 		
-		iiComputedAverage = new Long(Math.round(iiAverage.computeSimilarity(iiArray, weightsArray, size))).intValue();
-		piComputedAverage = new Long(Math.round(piAverage.computeSimilarity(piArray, weightsArray, size))).intValue();
-		cpiComputedAverage = cpiAverage.computeSimilarity(cpiArray, weightsArray, size);
-		coComputedAverage = coAverage.computeSimilarity(coArray, weightsArray, size);
+		iiComputedAverage = new Long(Math.round(iiAverage.computeSimilarity(iiArray, iiWeightsArray, size))).intValue();
+		piComputedAverage = new Long(Math.round(piAverage.computeSimilarity(piArray, piWeightsArray, size))).intValue();
+		cpiComputedAverage = cpiAverage.computeSimilarity(cpiArray, cpiWeightsArray, size);
+		coComputedAverage = coAverage.computeSimilarity(coArray, coWeightsArray, size);
 		rischio.setImpattoIniziale(iiComputedAverage);
 		rischio.setProbabilitaIniziale(piComputedAverage);
 		rischio.setContingency(coComputedAverage);

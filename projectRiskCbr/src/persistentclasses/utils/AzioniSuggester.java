@@ -348,7 +348,7 @@ public class AzioniSuggester implements Comparable<AzioniSuggester> {
 		for(Map.Entry<RetrievalResult, List<Azioni>> entry : sortInfo.entrySet()) {
 			for(Azioni a: entry.getValue()) {
 				if(a.hasIntensita()) {
-				int intensita = a.getIntensita();
+					int intensita = a.getIntensita();
 					iArray[index] = intensita;
 					weightsArray[index++] = entry.getKey().getEval();
 				}
