@@ -391,6 +391,13 @@ public class Progetto
     public List<Rischio> getRischi() {
     	return this.rischi;
     }
+    public Progetto setRischi(List l){
+        if(l==null)
+            rischi = new LinkedList<Rischio>();
+        else
+            rischi = l;
+        return this;
+    }
     
     /**
      * Aggiunge il rischio al progetto.
