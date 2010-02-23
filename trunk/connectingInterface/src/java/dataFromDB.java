@@ -542,7 +542,7 @@ public class dataFromDB {
                     while(it.hasNext()){
                         Descrizione d = (Descrizione) it.next();
                         out.println("\t\t\t<node codiceChecklist=\""+d.getCodChecklist()+
-                                    "\" label=\""+escapeChars(d.getDescrizione())+"\" type=\"azione\" />");
+                                    "\" label=\""+escapeChars(d.getDescrizione())+"\" type=\"rischio\" />");
                     }
                     out.println("\t\t</node>");
 
