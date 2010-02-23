@@ -160,6 +160,20 @@ public class Azioni extends persistentBase{
         }
         return !found;
     }
+    public Azioni generaClone(){
+        Azioni a = this;
+        Azioni add = new Azioni();
+        AzioniPrimaryKey pk = new AzioniPrimaryKey(a.getPrimaryKey().getIdentifier(),
+                                                a.getPrimaryKey().getIdAzione(),
+                                                a.getPrimaryKey().getIdRischio(),
+                                                a.getPrimaryKey().getTipo());
+        add.setPrimaryKey(pk);
+        add.setDescrizione(a.getDescrizione());
+        add.setIntensita(a.getIntensita());
+        add.setRevisione(a.getRevisione());
+        add.setStato(a.getStato());
+        return add;
+    }
 
     /**
      * Interfaccia per la classe precedente.

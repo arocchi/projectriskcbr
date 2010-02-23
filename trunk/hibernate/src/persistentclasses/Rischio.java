@@ -310,7 +310,7 @@ public class Rischio extends persistentBase{
                                 a.getPrimaryKey().getTipo()+" gia' presente in DB");
 
         //se tutto va bene aggiungo l'azione
-        azioni.add(a);
+        azioni.add(a.generaClone());
         return this;
     }
 
