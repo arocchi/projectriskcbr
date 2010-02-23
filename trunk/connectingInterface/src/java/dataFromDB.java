@@ -282,7 +282,7 @@ public class dataFromDB {
                         out.println("<rischio idName=\""+(riskIndex++)+"\">\n"+
                                         "\t<idRischio>"+r.getCodice()+"</idRischio>");
                         it = lista.iterator();
-                        int identifier = 1;
+                        //XXXX int identifier = 1;
                         while(it.hasNext()){
                             Azioni a = (Azioni) it.next();
                             //retrieving description
@@ -294,14 +294,14 @@ public class dataFromDB {
                             else
                                 break;
                             //setting description
-                            // XXX MERDACCHIO
+                            // XXX XXX
                             if(dobj!=null){
                                 a.setDescrizione(dobj.getDescrizione());
                             }else a.setDescrizione("Problem retrieving description for "+a.getPrimaryKey().getIdAzione());
 
                             //printing action
                             out.println("\t<azione idName=\""+(index++)+"\">\n"+
-                                        "\t\t<identifier>"+(identifier++)+"</identifier>"+
+                                        "\t\t<identifier>"+a.getPrimaryKey().getIdentifier()+"</identifier>"+
                                         "\t\t<idAzione>"+a.getPrimaryKey().getIdAzione()+"</idAzione>"+
                                         "\t\t<tipo>"+a.getPrimaryKey().getTipo()+"</tipo>"+
                                         "\t\t<stato>"+a.getStato()+"</stato>"+
@@ -309,6 +309,7 @@ public class dataFromDB {
                                         "\t\t<revisione>"+a.getRevisione()+"</revisione>"+
                                         "\t\t<intensita>"+a.getIntensita()+"</intensita>"+
                                         "\t</azione>");
+
                         }
                         out.println("</rischio>");
                     }
@@ -1190,22 +1191,17 @@ public class dataFromDB {
                     //action for the current risk
                     if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
                         //setting identifier
-                        int ident = generateIdentifier(session, a.getPrimaryKey());
-                        a.getPrimaryKey().setIdentifier(ident);
-                        out.println("generato identifier "+ident);
-                        if(r==null) out.println("ERRENULL");
-                        if(a==null) out.println("ANULL");
-                        if(actionList == null) out.println();
+                        //int ident = generateIdentifier(session, a.getPrimaryKey());
+                        //a.getPrimaryKey().setIdentifier(ident);
+                        //out.println("generato identifier "+ident);
                         r.aggiungiAzione(0, a);
                         actionList.remove(a);
                     }
                 }
                 //added actions to risk
                 /*XXX SUPPONGO OGNI RISCHIO ABBIA GIA' LA GIUSTA CHIAVE!!*/
-                if(p==null)out.println("DDD");
-                if(r==null)out.println("AAA");
                 p.aggiungiRischio(r);
-               
+                out.println("PRINTING RISK");
                 printRisk(r, out, 0, true);
             }
         } catch (Exception e){
@@ -1468,6 +1464,7 @@ public class dataFromDB {
 			for(AzioniSuggester suggester: azioniSuggesters) {
 				Azioni azione = suggester.getSuggestion(configuration.adaptIntensita);
                                 azione.getPrimaryKey().setIdRischio(codice);
+                                azione.getPrimaryKey().setIdentifier(generateIdentifier(session, azione.getPrimaryKey()));
                                 azioni.add(azione);
 			}
             }
