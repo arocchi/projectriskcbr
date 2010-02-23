@@ -219,13 +219,13 @@ public class dataFromDB {
                                         "\t\t<codiceChecklist>"+ckIds[i]+"</codiceChecklist>"+
                                         "\t\t<stato></stato>"+
                                         "\t\t<categoria></categoria>"+
-                                        "\t\t<rVer></rVer>"+
+                                        "\t\t<rVer>0</rVer>"+
                                         "\t\t<descrizione>"+escapeChars(r.getDescrizione())+"</descrizione>"+
-                                        "\t\t<contingency></contingency>"+
+                                        "\t\t<contingency>-1</contingency>"+
                                         "\t\t<causa></causa>"+
                                         "\t\t<effetto></effetto>"+
-                                        "\t\t<probIniziale></probIniziale>"+
-                                        "\t\t<impattoIniziale></impattoIniziale>"+
+                                        "\t\t<probIniziale>-1</probIniziale>"+
+                                        "\t\t<impattoIniziale>-1</impattoIniziale>"+
                                     "\t</rischio>");
                     }
                     out.println("</root>");
