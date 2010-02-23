@@ -786,65 +786,115 @@ public class dataFromDB {
 
     //prints a project in xml format into stream 'out'
     private void printProject(Progetto p, PrintWriter out){
-        out.println("<progetto idName=\""+0+"\">\n" +
-                        "\t<isCase>"+p.getIsCase()+"</isCase>\n" +
-                        "\t<isOpen>"+p.getIsOpen()+"</isOpen>\n"+
-                        "\t<codice>"+p.getCodice()+"</codice>\n"+
-                        "\t<reparto>"+p.getReparto()+"</reparto>\n"+
-                        "\t<classeDiRischio>"+p.getClasseRischio()+"</classeDiRischio>\n"+
-                        "\t<valoreEconomico>"+p.getValoreEconomico()+"</valoreEconomico>\n"+
-                        "\t<durataContratto>"+p.getDurataContratto()+"</durataContratto>\n"+
-                        "\t<oggettoFornitura>"+p.getOggettoFornitura()+"</oggettoFornitura>\n"+
-                        "\t<nomeCliente>"+p.getNomeCliente()+"</nomeCliente>\n"+
-                        "\t<!-- LIVELLO DI RISCHIO -->\n"+
-                        "\t<rp1>"+p.getPaese().getR1()+"</rp1>" +
-                        " <rp2>"+p.getPaese().getR2()+"</rp2>" +
-                        " <rp3>"+p.getPaese().getR3()+"</rp3>\n"+
-                        "\t<rmc1>"+p.getMercatoCliente().getR1()+"</rmc1>" +
-                        " <rmc2>"+p.getMercatoCliente().getR2()+"</rmc2>" +
-                        " <rmc3>"+p.getMercatoCliente().getR3()+"</rmc3>\n"+
-                        "\t<rc1>"+p.getContratto().getR1()+"</rc1>" +
-                        " <rc2>"+p.getContratto().getR2()+"</rc2>" +
-                        " <rc3>"+p.getContratto().getR3()+"</rc3>\n"+
-                        "\t<rcp1>"+p.getComposizionePartnership().getR1()+"</rcp1>" +
-                        " <rcp2>"+p.getComposizionePartnership().getR2()+"</rcp2>" +
-                        " <rcp3>"+p.getComposizionePartnership().getR3()+"</rcp3>\n"+
-                        "\t<ri1>"+p.getIngegneria().getR1()+"</ri1>" +
-                        " <ri2>"+p.getIngegneria().getR2()+"</ri2>" +
-                        " <ri3>"+p.getIngegneria().getR3()+"</ri3>\n"+
-                        "\t<ra1>"+p.getApprovvigionamento().getR1()+"</ra1>" +
-                        " <ra2>"+p.getApprovvigionamento().getR2()+"</ra2>" +
-                        " <ra3>"+p.getApprovvigionamento().getR3()+"</ra3>\n"+
-                        "\t<rf1>"+p.getFabbricazione().getR1()+"</rf1>" +
-                        " <rf2>"+p.getFabbricazione().getR2()+"</rf2>" +
-                        " <rf3>"+p.getFabbricazione().getR3()+"</rf3>\n"+
-                        "\t<rm1>"+p.getMontaggio().getR1()+"</rm1>" +
-                        " <rm2>"+p.getMontaggio().getR2()+"</rm2>" +
-                        " <rm3>"+p.getMontaggio().getR3()+"</rm3>\n"+
-                        "\t<rav1>"+p.getAvviamento().getR1()+"</rav1>" +
-                        " <rav2>"+p.getAvviamento().getR2()+"</rav2>" +
-                        " <rav3>"+p.getAvviamento().getR3()+"</rav3>\n"+
-                        "\t<!-- IMPATTO STRATEGICO -->\n"+
-                        "\t<IM>"+p.getIm()+"</IM>\n"+
-                        "\t<IC>"+p.getIc()+"</IC>\n"+
-                        "\t<IP>"+p.getIp()+"</IP>\n"+
-                        "\t<IA>"+p.getIa()+"</IA>\n"+
-                        "\t<IPP>"+p.getIpp()+"</IPP>\n"+
-                        "\t<!-- ABILITAZIONE DEI CAMPI -->\n"+
-                        "\t<ckrp1>"+(p.getPaese().getR1() != null)+"</ckrp1> <ckrp2>"+(p.getPaese().getR2() != null)+"</ckrp2> <ckrp3>"+(p.getPaese().getR3() != null)+"</ckrp3>\n"+
-                        "\t<ckrmc1>"+(p.getMercatoCliente().getR1() != null)+"</ckrmc1> <ckrmc2>"+(p.getMercatoCliente().getR2() != null)+"</ckrmc2> <ckrmc3>"+(p.getMercatoCliente().getR3() != null)+"</ckrmc3>\n"+
-                        "\t<ckrc1>"+(p.getContratto().getR1() != null)+"</ckrc1> <ckrc2>"+(p.getContratto().getR2() != null)+"</ckrc2> <ckrc3>"+(p.getContratto().getR3() != null)+"</ckrc3>\n"+
-                        "\t<ckrcp1>"+(p.getComposizionePartnership().getR1() != null)+"</ckrcp1> <ckrcp2>"+(p.getComposizionePartnership().getR2() != null)+"</ckrcp2> <ckrcp3>"+(p.getComposizionePartnership().getR3() != null)+"</ckrcp3>\n"+
-                        "\t<ckri1>"+(p.getIngegneria().getR1() != null)+"</ckri1> <ckri2>"+(p.getIngegneria().getR2() != null)+"</ckri2> <ckri3>"+(p.getIngegneria().getR3() != null)+"</ckri3>\n"+
-                        "\t<ckra1>"+(p.getApprovvigionamento().getR1() != null)+"</ckra1> <ckra2>"+(p.getApprovvigionamento().getR2() != null)+"</ckra2> <ckra3>"+(p.getApprovvigionamento().getR3() != null)+"</ckra3>\n"+
-                        "\t<ckrf1>"+(p.getFabbricazione().getR1() != null)+"</ckrf1> <ckrf2>"+(p.getFabbricazione().getR2() != null)+"</ckrf2> <ckrf3>"+(p.getFabbricazione().getR3() != null)+"</ckrf3>\n"+
-                        "\t<ckrm1>"+(p.getMontaggio().getR1() != null)+"</ckrm1> <ckrm2>"+(p.getMontaggio().getR2() != null)+"</ckrm2> <ckrm3>"+(p.getMontaggio().getR3() != null)+"</ckrm3>\n"+
-                        "\t<ckrav1>"+(p.getAvviamento().getR1() != null)+"</ckrav1> <ckrav2>"+(p.getAvviamento().getR2() != null)+"</ckrav2> <ckrav3>"+(p.getAvviamento().getR3() != null)+"</ckrav3>\n"+
-                        "\t<ckIM>"+(p.getIm().getValue() != -1)+"</ckIM>\n"+
-                        "\t<ckIC>"+(p.getIc().getValue() != -1)+"</ckIC>\n"+
-                        "\t<ckIP>"+(p.getIp().getValue() != -1)+"</ckIP>\n"+
-                        "\t<ckIA>"+(p.getIa().getValue() != -1)+"</ckIA>\n"+
-                        "\t<ckIPP>"+(p.getIpp().getValue() != -1)+"</ckIPP>\n");
+        out.println("<progetto idName=\""+0+"\">");
+                        out.println("\t<isCase>"+p.getIsCase()+"</isCase>");
+                        out.println("\t<isOpen>"+p.getIsOpen()+"</isOpen>");
+                        out.println("\t<codice>"+p.getCodice()+"</codice>");
+                        out.println("\t<reparto>"+p.getReparto()+"</reparto>");
+                        out.println("\t<classeDiRischio>"+p.getClasseRischio()+"</classeDiRischio>");
+                        out.println("\t<valoreEconomico>"+p.getValoreEconomico()+"</valoreEconomico>");
+                        out.println("\t<durataContratto>"+p.getDurataContratto()+"</durataContratto>");
+                        out.println("\t<oggettoFornitura>"+p.getOggettoFornitura()+"</oggettoFornitura>");
+                        out.println("\t<nomeCliente>"+p.getNomeCliente()+"</nomeCliente>");
+
+                        out.println("\t<!-- LIVELLO DI RISCHIO -->");
+                        if( p.getPaese() != null){
+                            out.println("\t<rp1>"+p.getPaese().getR1()+"</rp1>");
+                            out.println(" <rp2>"+p.getPaese().getR2()+"</rp2>");
+                            out.println(" <rp3>"+p.getPaese().getR3()+"</rp3>");
+                            out.println("\t<ckrp1>"+(p.getPaese().getR1() != null)+"</ckrp1> <ckrp2>"+(p.getPaese().getR2() != null)+"</ckrp2> <ckrp3>"+(p.getPaese().getR3() != null)+"</ckrp3>");
+                        } else { out.println("<rp1></rp1><rp2></rp2><rp3></rp3>" +
+                                             "<ckrp1>false</ckrp1><ckrp2>false</ckrp2><ckrp3>false</ckrp3>");
+                        }
+
+                        if( p.getMercatoCliente() != null){
+                            out.println("\t<rmc1>"+p.getMercatoCliente().getR1()+"</rmc1>");
+                            out.println(" <rmc2>"+p.getMercatoCliente().getR2()+"</rmc2>");
+                            out.println(" <rmc3>"+p.getMercatoCliente().getR3()+"</rmc3>");
+                            out.println("\t<ckrmc1>"+(p.getMercatoCliente().getR1() != null)+"</ckrmc1> <ckrmc2>"+(p.getMercatoCliente().getR2() != null)+"</ckrmc2> <ckrmc3>"+(p.getMercatoCliente().getR3() != null)+"</ckrmc3>");
+                        } else { out.println("<rmc1></rmc1><rmc2></rmc2><rmc3></rmc3>" +
+                                             "<ckrmc1>false</ckrmc1><ckrmc2>false</ckrmc2><ckrmc3>false</ckrmc3>");
+                        }
+
+                        if( p.getContratto() != null){
+                            out.println("\t<rc1>"+p.getContratto().getR1()+"</rc1>");
+                            out.println(" <rc2>"+p.getContratto().getR2()+"</rc2>");
+                            out.println(" <rc3>"+p.getContratto().getR3()+"</rc3>");
+                            out.println("\t<ckrc1>"+(p.getContratto().getR1() != null)+"</ckrc1> <ckrc2>"+(p.getContratto().getR2() != null)+"</ckrc2> <ckrc3>"+(p.getContratto().getR3() != null)+"</ckrc3>");
+                        } else { out.println("<rc1></rc1><rc2></rc2><rc3></rc3>" +
+                                             "<ckrc1>false</ckrc1><ckrc2>false</ckrc2><ckrc3>false</ckrc3>");
+                        }
+
+                        if( p.getComposizionePartnership() != null){
+                            out.println("\t<rcp1>"+p.getComposizionePartnership().getR1()+"</rcp1>");
+                            out.println(" <rcp2>"+p.getComposizionePartnership().getR2()+"</rcp2>");
+                            out.println(" <rcp3>"+p.getComposizionePartnership().getR3()+"</rcp3>");
+                            out.println("\t<ckrcp1>"+(p.getComposizionePartnership().getR1() != null)+"</ckrcp1> <ckrcp2>"+(p.getComposizionePartnership().getR2() != null)+"</ckrcp2> <ckrcp3>"+(p.getComposizionePartnership().getR3() != null)+"</ckrcp3>");
+
+                        } else { out.println("<rcp1></rcp1><rcp2></rcp2><rcp3></rcp3>" +
+                                             "<ckrcp1>false</ckrcp1><ckrcp2>false</ckrcp2><ckrcp3>false</ckrcp3>");
+                        }
+
+                        if( p.getIngegneria() != null){
+                            out.println("\t<ri1>"+p.getIngegneria().getR1()+"</ri1>");
+                            out.println(" <ri2>"+p.getIngegneria().getR2()+"</ri2>");
+                            out.println(" <ri3>"+p.getIngegneria().getR3()+"</ri3>");
+                            out.println("\t<ckri1>"+(p.getIngegneria().getR1() != null)+"</ckri1> <ckri2>"+(p.getIngegneria().getR2() != null)+"</ckri2> <ckri3>"+(p.getIngegneria().getR3() != null)+"</ckri3>");
+                        } else { out.println("<ri1></ri1><ri2></ri2><ri3></ri3>" +
+                                             "<ckri1>false</ckri1><ckri2>false</ckri2><ckri3>false</ckri3>");
+                        }
+
+                        if( p.getApprovvigionamento() != null){
+                            out.println("\t<ra1>"+p.getApprovvigionamento().getR1()+"</ra1>");
+                            out.println(" <ra2>"+p.getApprovvigionamento().getR2()+"</ra2>");
+                            out.println(" <ra3>"+p.getApprovvigionamento().getR3()+"</ra3>");
+                            out.println("\t<ckra1>"+(p.getApprovvigionamento().getR1() != null)+"</ckra1> <ckra2>"+(p.getApprovvigionamento().getR2() != null)+"</ckra2> <ckra3>"+(p.getApprovvigionamento().getR3() != null)+"</ckra3>");
+                        } else { out.println("<ra1></ra1><ra2></ra2><ra3></ra3>" +
+                                             "<ckra1>false</ckra1><ckra2>false</ckra2><ckra3>false</ckra3>");
+                        }
+
+                        if( p.getFabbricazione() != null){
+                            out.println("\t<rf1>"+p.getFabbricazione().getR1()+"</rf1>");
+                            out.println(" <rf2>"+p.getFabbricazione().getR2()+"</rf2>");
+                            out.println(" <rf3>"+p.getFabbricazione().getR3()+"</rf3>");
+                            out.println("\t<ckrf1>"+(p.getFabbricazione().getR1() != null)+"</ckrf1> <ckrf2>"+(p.getFabbricazione().getR2() != null)+"</ckrf2> <ckrf3>"+(p.getFabbricazione().getR3() != null)+"</ckrf3>");
+                        } else { out.println("<rf1></rf1><rf2></rf2><rf3></rf3>" +
+                                             "<ckrf1>false</ckrf1><ckrf2>false</ckrf2><ckrf3>false</ckrf3>");
+                        }
+
+                        if( p.getMontaggio() != null){
+                            out.println("\t<rm1>"+p.getMontaggio().getR1()+"</rm1>");
+                            out.println(" <rm2>"+p.getMontaggio().getR2()+"</rm2>");
+                            out.println(" <rm3>"+p.getMontaggio().getR3()+"</rm3>");
+                            out.println("\t<ckrm1>"+(p.getMontaggio().getR1() != null)+"</ckrm1> <ckrm2>"+(p.getMontaggio().getR2() != null)+"</ckrm2> <ckrm3>"+(p.getMontaggio().getR3() != null)+"</ckrm3>");
+                        } else { out.println("<rm1></rm1><rm2></rm2><rm3></rm3>" +
+                                             "<ckrm1>false</ckrm1><ckrm2>false</ckrm2><ckrm3>false</ckrm3>");
+                        }
+
+                        if( p.getAvviamento() != null){
+                            out.println("\t<rav1>"+p.getAvviamento().getR1()+"</rav1>");
+                            out.println(" <rav2>"+p.getAvviamento().getR2()+"</rav2>");
+                            out.println(" <rav3>"+p.getAvviamento().getR3()+"</rav3>");
+                            out.println("\t<ckrav1>"+(p.getAvviamento().getR1() != null)+"</ckrav1> <ckrav2>"+(p.getAvviamento().getR2() != null)+"</ckrav2> <ckrav3>"+(p.getAvviamento().getR3() != null)+"</ckrav3>");
+                        } else { out.println("<rav1></rav1><rav2></rav2><rav3></rav3>" +
+                                             "<ckrav1>false</ckrav1><ckrav2>false</ckrav2><ckrav3>false</ckrav3>");
+                        }
+
+
+                        out.println("\t<!-- IMPATTO STRATEGICO -->");
+                        out.println("\t<IM>"+p.getIm()+"</IM>");
+                        out.println("\t<IC>"+p.getIc()+"</IC>");
+                        out.println("\t<IP>"+p.getIp()+"</IP>");
+                        out.println("\t<IA>"+p.getIa()+"</IA>");
+                        out.println("\t<IPP>"+p.getIpp()+"</IPP>");
+                        out.println("\t<!-- ABILITAZIONE DEI CAMPI -->");
+                        
+                        out.println("\t<ckIM>"+(p.getIm() != null && p.getIm().getValue() != -1)+"</ckIM>");
+                        out.println("\t<ckIC>"+(p.getIc() != null && p.getIc().getValue() != -1)+"</ckIC>");
+                        out.println("\t<ckIP>"+(p.getIp() != null && p.getIp().getValue() != -1)+"</ckIP>");
+                        out.println("\t<ckIA>"+(p.getIa() != null && p.getIa().getValue() != -1)+"</ckIA>");
+                        out.println("\t<ckIPP>"+(p.getIpp() != null && p.getIpp().getValue() != -1)+"</ckIPP>\n");
+                        
         //writing risks
         if(p.getRischi() != null){
             List rischi = p.getRischi();
