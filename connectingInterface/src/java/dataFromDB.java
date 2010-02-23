@@ -1224,8 +1224,9 @@ out.println(request.toString());
     private Progetto buildProject(Progetto p, List  riskList, List actionList, PrintWriter out, HttpSession session){
         try{
             //checking if project has a valid identifier
-            if(!Progetto.checkAvailable(p.getCodice()))
-                return null;
+            //removed for debug purposes
+            //if(!Progetto.checkAvailable(p.getCodice()))
+            //    return null;
 
             /*out.println("BEGIN");
             printProject(p, out);
