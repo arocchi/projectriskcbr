@@ -43,7 +43,7 @@ public class Rischio extends persistentBase{
     public Rischio()
     {
         //id programma va specificato alla creazione del  rischio
-        idProgramma = null;
+        idProgramma = "";
         //codice viene deciso dall'utente e' presente una funzione
         //generateAutoKey che consente di generarlo automaticamente
         codice = null;
