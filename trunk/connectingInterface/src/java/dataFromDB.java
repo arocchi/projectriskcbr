@@ -617,11 +617,13 @@ out.println(request.toString());
 
                     //finding removed risks
                     it = rg.iterator();
+                    //for each new risk
                     while(it.hasNext()){
                         Rischio nuovorischio = (Rischio) it.next();
                         if(!Rischio.checkAvailable(nuovorischio.getCodice())){
                             //rischio vecchio
                             Iterator intit = p.getRischi().iterator();
+                            //for each old risk
                             while(intit.hasNext()){
                                 Rischio oldr = (Rischio) intit.next();
                                 if(oldr.getCodice().compareTo(nuovorischio.getCodice())==0){
@@ -633,7 +635,7 @@ out.println(request.toString());
                                         nuovorischio.setNumeroRevisione(nuovorischio.getMaxRevisione());
                                     }
                                     //rimuovo
-                                    p.getRischi().remove(oldr);
+                                    intit.remove();
                                     break;
                                 }
                             }
