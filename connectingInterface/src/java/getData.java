@@ -127,9 +127,10 @@ public class getData extends HttpServlet {
 
                 /*DEBUG PURPOSES ONLY*/
                 String debug = request.getParameter("debug");
-                if(debug != null && debug.equals("yes"))
+                if(debug != null && debug.equals("yes")){
                     out.println(request.toString());
-                
+                    out.println(session.toString());
+                }
                 /*CALLING THE PROCEDURE*/
                 if(typenum != -1){
                     dataFromDB cl = new dataFromDB(typenum, out, session, request);
