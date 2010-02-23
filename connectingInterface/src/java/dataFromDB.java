@@ -317,12 +317,20 @@ public class dataFromDB {
                     break;
                 //give_allactionsforproject
                 case 104:
+                {
                     //user gives me all actions added to the current project
                     /*XXX format to define*/
 
 
                     //reading actions list from request
                     lista = extractActionsFromRequest(request,false,out);
+                    //generating correct identifiers for all actions
+                    Iterator actIter = lista.iterator();
+                    while(actIter.hasNext()){
+                        Azioni a = (Azioni) actIter.next();
+                        int identifier = generateIdentifier(session, a.getPrimaryKey());
+                        a.getPrimaryKey().setIdentifier(identifier);
+                    }
 
                     //checking if any action was modified
                     LinkedList<Azioni> prev = (LinkedList<Azioni>) session.getAttribute("azioni");
@@ -337,6 +345,7 @@ public class dataFromDB {
                     session.setAttribute("ActionsAddedToProject",lista);
                     out.println("ok");
                     break;
+                }
                 //give_confirm
                 case 105:
                 {
@@ -1186,8 +1195,9 @@ public class dataFromDB {
                 //adding actions to risk
                 Iterator ait = actionList.iterator();
                 while(ait.hasNext()){
-                    out.println("puppa");
+                    out.println("puppa action");
                     Azioni a = (Azioni) ait.next();
+                    printAction(a, out, 0);
                     //action for the current risk
                     if(a.getPrimaryKey().getIdRischio().compareTo(r.getCodice()) == 0){
                         //setting identifier
@@ -1464,7 +1474,7 @@ public class dataFromDB {
 			for(AzioniSuggester suggester: azioniSuggesters) {
 				Azioni azione = suggester.getSuggestion(configuration.adaptIntensita);
                                 azione.getPrimaryKey().setIdRischio(codice);
-                                azione.getPrimaryKey().setIdentifier(generateIdentifier(session, azione.getPrimaryKey()));
+                                azione.getPrimaryKey().setIdentifier(0);
                                 azioni.add(azione);
 			}
             }
