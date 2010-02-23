@@ -492,7 +492,7 @@ public class dataFromDB {
                 {
                     String riskChecklistCode = (String) request.getParameter("data");
                     String actiontype = (String) request.getParameter("actiontype");
-out.println(request.toString());
+
                     session.setAttribute("actiontype", actiontype);
                     session.setAttribute("data", riskChecklistCode);
                 }
@@ -503,7 +503,7 @@ out.println(request.toString());
                     //taking ALL actions from DB, selecting between:
                     //-actions already used for a specified risk
                     //-all others
-out.println(request.toString());
+
                     String riskChecklistCode = (String) session.getAttribute("data");
                     String actiontype = (String) session.getAttribute("actiontype");
                     String table;
@@ -767,10 +767,14 @@ out.println(request.toString());
 
                     //old project
                     Progetto p = (Progetto) Progetto.getById(Progetto.class,"P2");
-                    session.setAttribute("Progetto_ch",p);
+                    p.caricaRischi();
+
                     //new one
-                    Progetto pg = (Progetto) session.getAttribute("Progetto_ch");
-                    pg.rimuoviRischio("P2R1");
+                    Progetto pg = (Progetto) Progetto.getById(Progetto.class,"P2");
+                    pg.caricaRischi();
+                    
+printProject(p, out);
+printProject(pg, out); if(true) break;
 
                     //getting all actions for p
                     LinkedList<Azioni> al = new LinkedList<Azioni>();
@@ -789,10 +793,11 @@ out.println(request.toString());
                         Rischio r = (Rischio) it.next();
                         Iterator j = r.getAzioni().iterator();
                         while(j.hasNext()){
-                            al.add((Azioni) j.next());
+                            ag.add((Azioni) j.next());
                         }
                     }
-
+/*printProject(p, out);
+printProject(pg, out); if(true) break;*/
                     //project read. Finding new, deleted and updated fields
                     it = ag.iterator();
                     //per ogni azione nuova
@@ -822,10 +827,11 @@ out.println(request.toString());
                     it = al.iterator();
                     while(it.hasNext()){
                         Azioni toremId = (Azioni) it.next();
+                        out.println(toremId.getPrimaryKey().getIdAzione()+" "+toremId.getPrimaryKey().getIdRischio()+"");
                         Azioni torem = (Azioni) Azioni.getById(Azioni.class, toremId.getPrimaryKey());
                         torem.delete();
                     }
-
+                    out.println("SGNA");
                     //finding removed risks
                     it = pg.getRischi().iterator();
                     //for each new risk
@@ -855,6 +861,7 @@ out.println(request.toString());
                         }
 
                     }
+                    out.println("SGNA");
                     //rimangono in p.getRischi() queli cancellati
                     it = p.getRischi().iterator();
                     while(it.hasNext()){
