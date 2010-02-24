@@ -1739,6 +1739,11 @@ printProject(pg, out); if(true) break;*/
 
         return p;
     }
+
+    private void compareProjects(Progetto previous, Progetto actual, PrintWriter out){
+
+        
+    }
     private List suggestActionsDummy(Progetto p, Rischio r){
         try{
             return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P2R1'");
