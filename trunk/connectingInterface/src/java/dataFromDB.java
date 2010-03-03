@@ -5,12 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Formatter;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.hibernate.SessionFactory;
@@ -29,9 +24,7 @@ import jcolibri.method.retrieve.NNretrieval.*;
 import jcolibri.method.retrieve.NNretrieval.similarity.global.*;
 import jcolibri.method.retrieve.NNretrieval.similarity.local.*;
 import jcolibri.method.retrieve.selection.SelectCases;
-import persistentclasses.attributes.AzioniPrimaryKey;
-import persistentclasses.attributes.ImpattoStrategico;
-import persistentclasses.attributes.LivelloDiRischio;
+import persistentclasses.attributes.*;
 import persistentclasses.utils.AzioniSuggester;
 import persistentclasses.utils.RischioSuggester;
 
@@ -47,7 +40,7 @@ public class dataFromDB {
             SessionObject.getStarted((SessionFactory) session.getAttribute("sessionfactory"));
             SessionObject.newTransaction();           
 
-            /*XXX RIGHE DI DEBUG PER TESTING DAVID*/
+            /*XXX RIGHE DI DEBUG PER TESTING*/
             /*session.setAttribute("Progetto", Progetto.getById(Progetto.class, "P2"));
             session.setAttribute("RisksAddedToProject", extractRisksFromRequestDummy(request));
             session.setAttribute("ActionsAddedToProject", extractActionsFromRequestDummy(request));*/
@@ -475,12 +468,11 @@ public class dataFromDB {
                         break;
                     }
 
-                    out.println("idProgramma "+idProgramma);
                     //retrieving project from DB
                     Progetto p = (Progetto) Progetto.getById(Progetto.class, idProgramma);
                     p.caricaRischi();
 
-                    //saving
+                    //saving to compare modifications
                     session.setAttribute("Progetto_ch", p);
 
                     //printing project
@@ -562,100 +554,16 @@ public class dataFromDB {
                 case 107:
                 {
                     //user gives me all the project with modifications,i will read it and write on DB
-                    /*XXX definire formato di scambio
-                     considerare di usare formati già usati per azioni e rischi prima*/
-
                     //reading project from request
-                    Progetto pg = extractProjectFromRequest(request, out);
-                    List rg = extractRisksFromRequest(request,true);
-                    List ag = extractActionsFromRequest(request,true,out);
-                    pg = buildProject(pg, rg, ag, out, session);
+
+                    Progetto newProject = extractProjectFromRequest(request, out);
+                    List newRisks = extractRisksFromRequest(request,true);
+                    List newActions = extractActionsFromRequest(request,true,out);
+                    newProject = buildProject(newProject, newRisks, newActions, out, session);
 
                     //old project
-                    Progetto p = (Progetto) session.getAttribute("Progetto_ch");
-                    //getting all actions
-                    LinkedList<Azioni> al = new LinkedList<Azioni>();
-                    it = p.getRischi().iterator();
-                    while(it.hasNext()){
-                        Rischio r = (Rischio) it.next();
-                        Iterator j = r.getAzioni().iterator();
-                        while(j.hasNext()){
-                            al.add((Azioni) j.next());
-                        }
-                    }
-                    //project read. Finding new, deleted and updated fields
-                    it = ag.iterator();
-                    //per ogni azione nuova
-                    while(it.hasNext()){
-                        Azioni az = (Azioni) it.next();
-                        if(!Azioni.checkAvailable(az.getPrimaryKey())){
-                            //old action,unckecking from old list
-                            Iterator j = al.iterator();
-                            while(j.hasNext()){
-                                Azioni oldaz = (Azioni) j.next();
-                                if(oldaz.getPrimaryKey().equals(az.getPrimaryKey())){
-                                    j.remove();
-                                    break;
-                                }
-                            }
-                        }
-                        else //new action
-                        {
-                            //giving identifier
-                            int id = generateIdentifier(session, az.getPrimaryKey(),out);
-                            az.getPrimaryKey().setIdentifier(id);
-
-                        }
-
-                    }
-                    //removing from DB all removed actions
-                    it = al.iterator();
-                    while(it.hasNext()){
-                        Azioni toremId = (Azioni) it.next();
-                        Azioni torem = (Azioni) Azioni.getById(Azioni.class, toremId.getPrimaryKey());
-                        torem.delete();
-                    }
-
-                    //finding removed risks
-                    it = rg.iterator();
-                    //for each new risk
-                    while(it.hasNext()){
-                        Rischio nuovorischio = (Rischio) it.next();
-                        if(!Rischio.checkAvailable(nuovorischio.getCodice())){
-                            //rischio vecchio
-                            Iterator intit = p.getRischi().iterator();
-                            //for each old risk
-                            while(intit.hasNext()){
-                                Rischio oldr = (Rischio) intit.next();
-                                if(oldr.getCodice().compareTo(nuovorischio.getCodice())==0){
-                                    //controllo se devo aggiornare storico
-                                    if(nuovorischio.getProbabilitaAttuale() != oldr.getProbabilitaAttuale()){
-                                        nuovorischio.aggiungiRevisione(nuovorischio.getMaxRevisione()+1,nuovorischio.getProbabilitaIniziale(),nuovorischio.getImpattoIniziale());
-                                        nuovorischio.setProbabilitaIniziale(oldr.getProbabilitaIniziale());
-                                        nuovorischio.setImpattoIniziale(oldr.getImpattoIniziale());
-                                        nuovorischio.setNumeroRevisione(nuovorischio.getMaxRevisione());
-                                    }
-                                    //rimuovo
-                                    intit.remove();
-                                    break;
-                                }
-                            }
-
-                        }else{//rischio nuovo, faccio nulla
-                        }
-
-                    }
-                    //rimangono in p.getRischi() queli cancellati
-                    it = p.getRischi().iterator();
-                    while(it.hasNext()){
-                        Rischio r = (Rischio) it.next();
-                        Rischio torem = (Rischio) Rischio.getById(Rischio.class, r.getCodice());
-                        torem.delete();//cancello
-                    }
-                    //cancellati da DB campi cancellati dall'utente
-                    //salvo progetto
-                    pg.update();
-                    pg.salvaRischi();
+                    Progetto oldProject = (Progetto) session.getAttribute("Progetto_ch");
+                    renewProjects(oldProject, newProject, out);
                     break;
                 }
                 //give_newchkrisk
@@ -756,119 +664,35 @@ public class dataFromDB {
                     pro.setIsOpen(false);
                     pro.update();
                 }
+                //test
                 case 666:
                 {
-                    out.println("test started");
-                   //user gives me all the project with modifications,i will read it and write on DB
-                    /*XXX definire formato di scambio
-                     considerare di usare formati già usati per azioni e rischi prima*/
+                    /*TEST RENEWING PROJECTS*/
+                    String nome = (String) session.getAttribute("nome");
+                    if(nome == null || nome.isEmpty())
+                        session.setAttribute("nome", "MIOPRO");
 
-                    //reading project from request
-
-                    //old project
-                    Progetto p = (Progetto) Progetto.getById(Progetto.class,"P2");
-                    p.caricaRischi();
-
-                    //new one
-                    Progetto pg = (Progetto) Progetto.getById(Progetto.class,"P2");
-                    pg.caricaRischi();
-                    
-printProject(p, out);
-printProject(pg, out); if(true) break;
-
-                    //getting all actions for p
-                    LinkedList<Azioni> al = new LinkedList<Azioni>();
-                    it = p.getRischi().iterator();
-                    while(it.hasNext()){
-                        Rischio r = (Rischio) it.next();
-                        Iterator j = r.getAzioni().iterator();
-                        while(j.hasNext()){
-                            al.add((Azioni) j.next());
-                        }
-                    }
-                    //getting all actions for pg
-                    LinkedList<Azioni> ag = new LinkedList<Azioni>();
-                    it = p.getRischi().iterator();
-                    while(it.hasNext()){
-                        Rischio r = (Rischio) it.next();
-                        Iterator j = r.getAzioni().iterator();
-                        while(j.hasNext()){
-                            ag.add((Azioni) j.next());
-                        }
-                    }
-/*printProject(p, out);
-printProject(pg, out); if(true) break;*/
-                    //project read. Finding new, deleted and updated fields
-                    it = ag.iterator();
-                    //per ogni azione nuova
-                    while(it.hasNext()){
-                        Azioni az = (Azioni) it.next();
-                        if(!Azioni.checkAvailable(az.getPrimaryKey())){
-                            //old action,unckecking from old list
-                            Iterator j = al.iterator();
-                            while(j.hasNext()){
-                                Azioni oldaz = (Azioni) j.next();
-                                if(oldaz.getPrimaryKey().equals(az.getPrimaryKey())){
-                                    j.remove();
-                                    break;
-                                }
-                            }
-                        }
-                        else //new action
-                        {
-                            //giving identifier
-                            int id = generateIdentifier(session, az.getPrimaryKey(),out);
-                            az.getPrimaryKey().setIdentifier(id);
-
-                        }
-
-                    }
-                    //removing from DB all removed actions
-                    it = al.iterator();
-                    while(it.hasNext()){
-                        Azioni toremId = (Azioni) it.next();
-                        out.println(toremId.getPrimaryKey().getIdAzione()+" "+toremId.getPrimaryKey().getIdRischio()+"");
-                        Azioni torem = (Azioni) Azioni.getById(Azioni.class, toremId.getPrimaryKey());
-                        torem.delete();
-                    }
-                    out.println("SGNA");
-                    //finding removed risks
-                    it = pg.getRischi().iterator();
-                    //for each new risk
-                    while(it.hasNext()){
-                        Rischio nuovorischio = (Rischio) it.next();
-                        if(!Rischio.checkAvailable(nuovorischio.getCodice())){
-                            //rischio vecchio
-                            Iterator intit = p.getRischi().iterator();
-                            //for each old risk
-                            while(intit.hasNext()){
-                                Rischio oldr = (Rischio) intit.next();
-                                if(oldr.getCodice().compareTo(nuovorischio.getCodice())==0){
-                                    //controllo se devo aggiornare storico
-                                    if(nuovorischio.getProbabilitaAttuale() != oldr.getProbabilitaAttuale()){
-                                        nuovorischio.aggiungiRevisione(nuovorischio.getMaxRevisione()+1,nuovorischio.getProbabilitaIniziale(),nuovorischio.getImpattoIniziale());
-                                        nuovorischio.setProbabilitaIniziale(oldr.getProbabilitaIniziale());
-                                        nuovorischio.setImpattoIniziale(oldr.getImpattoIniziale());
-                                        nuovorischio.setNumeroRevisione(nuovorischio.getMaxRevisione());
-                                    }
-                                    //rimuovo
-                                    intit.remove();
-                                    break;
-                                }
-                            }
-
-                        }else{//rischio nuovo, faccio nulla
-                        }
-
-                    }
-                    out.println("SGNA");
-                    //rimangono in p.getRischi() queli cancellati
-                    it = p.getRischi().iterator();
-                    while(it.hasNext()){
-                        Rischio r = (Rischio) it.next();
-                        Rischio torem = (Rischio) Rischio.getById(Rischio.class, r.getCodice());
-                        torem.delete();//cancello
-                    }
+                    String pname = (String) session.getAttribute("nome");
+                    session.setAttribute("nome", pname+"0");
+                    Progetto newP = generateRandomProject(nome+"0");
+                    Progetto oldP = (Progetto) Progetto.getById(Progetto.class, pname);//(Progetto) session.getAttribute("MIOPRO");
+                    out.println("here I am");
+                    if(oldP == null){
+                        newP.salvaProgetto();
+                        out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX --- Creato progetto nuovo in sessione, scritto su DB");
+                        printProject(newP, out);
+                    }else{
+                        oldP.caricaRischi();
+                        //Progetto retrieved = (Progetto) Progetto.getById(Progetto.class, "MIOPRO");
+                        //retrieved.caricaRischi();
+                        //out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx - RETRIEVED PROJECT");
+                        //printProject(retrieved, out);
+                        out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -- END");
+                        renewProjects(oldP, newP, out);
+                        out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx - WRITTEN PROJECT");
+                        printProject(newP, out);
+                        out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -- END");
+                    }                    
                 }
                 break;
             }
@@ -1409,7 +1233,8 @@ printProject(pg, out); if(true) break;*/
     }
     //decides if the project is a case to store
     private boolean compareModificationsRisks(LinkedList<Rischio>[] gruppi, List lista){
-        //XXX test
+        // CODE TO TEST, IT STILL RETURNS TRUE EVERY TIME
+        /*
         Iterator it = lista.iterator();
         while(it.hasNext()){
             Rischio r = (Rischio) it.next();
@@ -1437,10 +1262,16 @@ printProject(pg, out); if(true) break;*/
         }
 
         return false;
+         */
+
+        /*DUMMY*/
+        return true;
     }
     //same as above, but for actions
     private boolean compareModificationsActions(List<Azioni> prev, List<Azioni> current, PrintWriter out){
-        //XXX test
+        // CODE TO TEST
+        // IT STILL RETURNS TRUE EVERY TIME
+        /*
         Iterator it = current.iterator();
 
         while(it.hasNext()){
@@ -1462,7 +1293,11 @@ printProject(pg, out); if(true) break;*/
                     }
                 }
         }
-        return false;
+
+        return false;*/
+
+        /*dummy*/
+        return true;
     }
     //generates valid actionId
     private int generateIdentifier(HttpSession session, AzioniPrimaryKey pk, PrintWriter out) throws Exception{
@@ -1515,26 +1350,29 @@ printProject(pg, out); if(true) break;*/
 
         return t.getIdentifier();
     }
-    /**    
-     * @return List of Risks that were not suggested in any group or in the NoGroup list
-     */
-    /*XXXprivate List notSuggestedCkRisks(){
-        String query = "from CkRischi ";
-        List<Integer> suggested = alreadySuggestedCkRisks();
-        Iterator it = suggested.iterator();
-        if(it.hasNext())
-            query = query + "where codChecklist != "+(Integer) it.next();
-        while(it.hasNext()){
-            Integer current = (Integer) it.next();
-            query = query + " and codChecklist != "+current;
-        }
-        try{
-            return Rischio.executeQuery(query);
-        } catch (Exception e){}
 
-        return new LinkedList();
-    }out.println("puppa");
-*/
+    private void renewProjects(Progetto previous, Progetto actual, PrintWriter out) throws Exception{
+
+        //creating list of idS of the risks to delete
+        Iterator vecchiRischi = previous.getRischi().iterator();
+        LinkedList<String> idVecchi = new LinkedList<String>();
+        while(vecchiRischi.hasNext()){
+            Rischio r = (Rischio) vecchiRischi.next();
+            idVecchi.add(r.getCodice());
+        }
+        out.println("Vecchi"+idVecchi);
+        //deleting old project
+        vecchiRischi = idVecchi.iterator();
+        while(vecchiRischi.hasNext()){
+            previous.rimuoviRischio((String) vecchiRischi.next());
+        }
+
+        previous.delete();
+
+        //writing new project
+        actual.salvaProgetto();
+    }
+
 
     /*SIMILARITY UTILITIES*/
     private void suggestions(Progetto queryDesc, HttpSession session,PrintWriter out) throws Exception {
@@ -1683,12 +1521,121 @@ printProject(pg, out); if(true) break;*/
     }
 
 
+    /*FUNCTIONS USED TO DO SOME TESTS*/
+    private Progetto generateRandomProject(String projectId) throws Exception{
+        Progetto generate = new Progetto();
+
+        Random rn = new Random();
+
+        //setting casual fields
+        generate.setIsCase(true);
+        generate.setIsOpen(true);
+
+        generate.setCodice(projectId);
+        generate.setReparto(rn.nextInt());
+        generate.setClasseRischio(rn.nextInt(2)-1);
+        generate.setValoreEconomico((rn.nextDouble())*(10000));
+        generate.setDurataContratto(rn.nextInt(15));
+        generate.setOggettoFornitura("OBJ");
+        generate.setNomeCliente("CLIO");
+
+        generate.setPaese(generateRandomLR());
+        generate.setMercatoCliente(generateRandomLR());
+        generate.setContratto(generateRandomLR());
+        generate.setComposizionePartnership(generateRandomLR());
+        generate.setIngegneria(generateRandomLR());
+        generate.setApprovvigionamento(generateRandomLR());
+        generate.setFabbricazione(generateRandomLR());
+        generate.setMontaggio(generateRandomLR());
+        generate.setAvviamento(generateRandomLR());
+
+        generate.setIm(generateRandomIs());
+        generate.setIc(generateRandomIs());
+        generate.setIp(generateRandomIs());
+        generate.setIa(generateRandomIs());
+        generate.setIpp(generateRandomIs());
 
 
+        int iterat = rn.nextInt(10);
+        for(int i=0; i<iterat; i++){
+            generate.aggiungiRischio(generateRandomRischio(projectId+"R"+i));
+        }
+        return generate;
+    }
 
+/*
+    private ImpattoStrategico   im;
+    private ImpattoStrategico   ic;
+    private ImpattoStrategico   ip;
+    private ImpattoStrategico   ia;
+    private ImpattoStrategico   ipp;
 
+    }
+*/
+    private LivelloDiRischio generateRandomLR(){
+        Random rn = new Random();
+        if(rn.nextBoolean()){
+            return null;
+        }
 
+        LivelloDiRischio lr = new LivelloDiRischio();
+        if(rn.nextBoolean()){
+            lr.setR1(rn.nextInt(3));
+        }
+        if(rn.nextBoolean()){
+            lr.setR2(rn.nextInt(3));
+        }
+        if(rn.nextBoolean()){
+            lr.setR3(rn.nextInt(3));
+        }
+        return lr;
+    }
 
+    private ImpattoStrategico generateRandomIs(){
+        Random rn = new Random();
+        if(rn.nextBoolean()){
+            return new ImpattoStrategico();
+        }
+        return new ImpattoStrategico(rn.nextInt(3));
+    }
+
+    private Rischio generateRandomRischio(String riskId) throws Exception{
+        Rischio r = new Rischio();
+        Random rn = new Random();
+
+        r.setCodice(riskId);
+        r.setCodiceChecklist(rn.nextInt());
+        r.setStato((rn.nextBoolean())?"Mitigation":(rn.nextBoolean())?"Monitoring":"Closed");
+        r.setCategoria("CATE");
+        r.setVerificato(rn.nextInt(2));
+        r.setNumeroRevisione(0);
+        r.setDescrizione("DESC");
+        r.setContingency(rn.nextDouble()*10000);
+        r.setProbabilitaIniziale(rn.nextInt(4)+1);
+        r.setImpattoIniziale(rn.nextInt(4)+1);
+        r.setCausa("CAusa");
+        r.setEffetto("SMER");
+        r.setCostoPotenzialeImpatto(rn.nextDouble()*10000);
+
+        int n = rn.nextInt(6);
+        for(int i=0; i<n; i++){
+            r.aggiungiAzione(0, generateRandomAzioni(i));
+        }
+        return r;
+    }
+
+    private Azioni generateRandomAzioni(int k){
+        Azioni act = new Azioni();
+        Random rn = new Random();
+
+        AzioniPrimaryKey azpk = new AzioniPrimaryKey(k, rn.nextInt(100) , "", rn.nextBoolean()?'M':'R');
+        act.setPrimaryKey(azpk);
+        act.setIntensita(rn.nextInt(4)+1);
+        act.setRevisione(0);
+        act.setStato("STATO");
+        act.setDescrizione("AZIONEDESC");
+        return act;
+    }
 
 
 
@@ -1740,10 +1687,11 @@ printProject(pg, out); if(true) break;*/
         return p;
     }
 
-    private void compareProjects(Progetto previous, Progetto actual, PrintWriter out){
 
-        
-    }
+
+
+
+
     private List suggestActionsDummy(Progetto p, Rischio r){
         try{
             return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P2R1'");
