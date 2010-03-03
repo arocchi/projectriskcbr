@@ -555,7 +555,7 @@ public class dataFromDB {
                 {
                     //user gives me all the project with modifications,i will read it and write on DB
                     //reading project from request
-
+                    out.println(request.toString());
                     Progetto newProject = extractProjectFromRequest(request, out);
                     List newRisks = extractRisksFromRequest(request,true);
                     List newActions = extractActionsFromRequest(request,true,out);
