@@ -18,9 +18,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import persistentclasses.attributes.AzioniPrimaryKey;
 
 import persistentclasses.attributes.ImpattoStrategico;
 import persistentclasses.attributes.LivelloDiRischio;
+import persistentclasses.attributes.RevisionePrimaryKey;
 
 /**
  * Classe che rappresenta un singolo progetto nel database.
@@ -458,6 +460,31 @@ public class Progetto
         if(!found)
         {
             throw new Exception("Rischio "+ id  +" inesistente");
+        }
+        //rimuovo tutte le azioni
+        Iterator az = r.getAzioni().iterator();
+        LinkedList<AzioniPrimaryKey> elenco = new LinkedList<AzioniPrimaryKey>();
+        while(az.hasNext()){
+            Azioni a = (Azioni) az.next();
+            AzioniPrimaryKey pk = new AzioniPrimaryKey(a.getPrimaryKey().getIdentifier(), a.getPrimaryKey().getIdAzione(),a.getPrimaryKey().getIdRischio(), a.getPrimaryKey().getTipo());
+            elenco.add(pk);
+        }
+        az=elenco.iterator();
+        while(az.hasNext()){
+            AzioniPrimaryKey pk = (AzioniPrimaryKey) az.next();
+            r.rimuoviAzione(pk);
+        }
+        //rimuovo lo storico
+        Iterator st = r.getStorico().iterator();
+        LinkedList<RevisionePrimaryKey> elenco2 = new LinkedList<RevisionePrimaryKey>();
+        while(st.hasNext()){
+            Revisione rev = (Revisione) st.next();
+            elenco2.add(rev.getKey());
+        }
+        st=elenco2.iterator();
+        while(st.hasNext()){
+            RevisionePrimaryKey pk = (RevisionePrimaryKey) st.next();
+            r.rimuoviRevisione(pk);
         }
         r.delete();
         rischi.remove(r);
