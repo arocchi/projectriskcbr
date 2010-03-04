@@ -421,7 +421,6 @@ public class DesktopParser {
                     r.setEffetto(effetto);
                     r.update();
                 }
-                    //XXX System.out.println(content + "\nCAUSA:" + sheet.getCell(1,i).getContents() + "\nEFFETTO:"+sheet.getCell(2,i).getContents());
             } catch (Exception e){
                     //System.out.println(e);
                 break;
@@ -464,8 +463,7 @@ public class DesktopParser {
                         current = sheet.getCell(j, i);
                         // Checking the emptiness of the cell
                         String content = current.getContents();
-                        //XXX
-                        //System.out.println(content);
+                        
                         // Empty cell => next row
                         if (content.isEmpty()){
                             // If two consecutive cells in the same row are empty, go to the next line
