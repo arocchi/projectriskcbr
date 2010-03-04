@@ -60,7 +60,6 @@ public class Progetto
     //dati estrapolati dalla tabella dei rischi
     private List rischi;//lista rischi associati al progetto
 
-    //XXX considerare di rimuovere
     //dati inutilizzati
     private Calendar dataInizio; //unused
     private Calendar dataFine; //unused
