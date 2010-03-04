@@ -40,7 +40,7 @@ public class dataFromDB {
             SessionObject.getStarted((SessionFactory) session.getAttribute("sessionfactory"));
             SessionObject.newTransaction();           
 
-            /*XXX RIGHE DI DEBUG PER TESTING*/
+            /*RIGHE DI DEBUG PER TESTING*/
             /*session.setAttribute("Progetto", Progetto.getById(Progetto.class, "P2"));
             session.setAttribute("RisksAddedToProject", extractRisksFromRequestDummy(request));
             session.setAttribute("ActionsAddedToProject", extractActionsFromRequestDummy(request));*/
@@ -93,13 +93,13 @@ public class dataFromDB {
                     //reading the data of the new created project to insert them into a session variable
 
                     //reading project from request
-                    //out.println(request.toString());
-                    Progetto p = extractProjectFromRequest(request, out);/*XXX sostituire con funzione effettiva*/
+                    Progetto p = extractProjectFromRequest(request, out);
 
                     p.setIsCase(false);
 
                     p.setIsOpen(true);
 
+                    //setting auto code for project
                     p.setCodice(Progetto.generateAutoKey());
 
                     //saving it into session varaiable
@@ -116,7 +116,6 @@ public class dataFromDB {
                 case 3:
                 {
                     //giving to user the list of suggested risks for each configured group
-                    /*XXX da completare suggerimento rischi*/
 
                     //checking if project already defined
                     Progetto p = (Progetto) session.getAttribute("Progetto");
@@ -126,12 +125,12 @@ public class dataFromDB {
                         break;
                     }
 
-                    int groupnumber = getNumberOfGroups(session);//XXX controllo correttezza
+                    int groupnumber = getNumberOfGroups(session);
 
                     index = 0;//index for the xml object to be created from the interface
                     for(int i=0; i<groupnumber; i++){
                         out.println("<gruppo idName=\""+i+"\">\n\t<nomeGruppo>Gruppo "+i+"</nomeGruppo>");
-                        lista = risksGroup(i,session);//XXX controllo correttezza
+                        lista = risksGroup(i,session);
                         it = lista.iterator();
                         while(it.hasNext()){
                             Rischio r = (Rischio) it.next();
@@ -150,7 +149,7 @@ public class dataFromDB {
                     //getting the common risks, that not appear in any group
                     out.println("<root idName=\"NoGroup\">");
                     index=0;//xml identifier
-                    lista = risknoGroup(session);//XXX controllare se va bene
+                    lista = risknoGroup(session);
                     it = lista.iterator();
                     while(it.hasNext()){
                         Rischio r = (Rischio) it.next();
@@ -169,7 +168,7 @@ public class dataFromDB {
                     out.println("<root label=\"Tutte le Categorie\" type=\"fuori\">\n"+
                                     "\t<node label=\"Tutti i rischi\" type=\"categoria\" >");
                     index=0;//xml identifier
-                    lista = CkRischi.executeQuery("from CkRischi");//notSuggestedCkRisks();/*XXX pensare: tutti o solo quelli non selezionati prima?*/
+                    lista = CkRischi.executeQuery("from CkRischi");
                     it = lista.iterator();
                     while(it.hasNext()){
                         CkRischi r = (CkRischi) it.next();
@@ -228,10 +227,9 @@ public class dataFromDB {
                 case 103:
                     //user give me data about all risks added to the current project
                     //save them into session
-                    //XXXout.println(request.toString());
                     //reading risks from the current request
-                    lista = extractRisksFromRequest(request,false);/*XXX testare*/
-                    //XXX compare given risks to decide if store the project as a case
+                    lista = extractRisksFromRequest(request,true);
+                    //compare given risks to decide if store the project as a case
                     LinkedList<Rischio>[] gruppi = (LinkedList<Rischio>[]) session.getAttribute("gruppi");
                     if(compareModificationsRisks(gruppi, lista)){
                         Progetto p = (Progetto) session.getAttribute("Progetto");
@@ -271,11 +269,11 @@ public class dataFromDB {
                     Iterator riskIt = riskList.iterator();
                     while(riskIt.hasNext()){
                         Rischio r = (Rischio) riskIt.next();
-                        lista = suggestActions(session,r,out);//XXX testare
+                        lista = suggestActions(session,r,out);
                         out.println("<rischio idName=\""+(riskIndex++)+"\">\n"+
                                         "\t<idRischio>"+r.getCodice()+"</idRischio>");
                         it = lista.iterator();
-                        //XXXX int identifier = 1;
+
                         while(it.hasNext()){
                             Azioni a = (Azioni) it.next();
                             //retrieving description
@@ -287,7 +285,6 @@ public class dataFromDB {
                             else
                                 break;
                             //setting description
-                            // XXX XXX
                             if(dobj!=null){
                                 a.setDescrizione(dobj.getDescrizione());
                             }else a.setDescrizione("Problem retrieving description for "+a.getPrimaryKey().getIdAzione());
@@ -312,11 +309,9 @@ public class dataFromDB {
                 case 104:
                 {
                     //user gives me all actions added to the current project
-                    /*XXX format to define*/
-
 
                     //reading actions list from request
-                    lista = extractActionsFromRequest(request,false,out);
+                    lista = extractActionsFromRequest(request,true,out);
                     //generating correct identifiers for all actions
                     Iterator actIter = lista.iterator();
                     while(actIter.hasNext()){
@@ -331,7 +326,6 @@ public class dataFromDB {
                         Progetto p = (Progetto) session.getAttribute("Progetto");
                         p.setIsCase(true);
                         session.setAttribute("Progetto", p);
-                        //XXX out.println("IS CASE");
                     }
 
                     //saving actions into session
@@ -345,13 +339,9 @@ public class dataFromDB {
                     //if data=="true" writes the new project and close session
                     //if data=="false" exits and closes session
                     //server will answer "ok" or "error"
-                    /*XXX formato della risposta da definire E testare da interfaccia con David*/
 
-                    //Boolean confirm = Boolean.parseBoolean((String) session.getAttribute("data"));
                     String confirmStr = (String) request.getParameter("data");
-                    /*out.println("DATO: "+confirmStr);
-                    out.println(request.toString());*/
-                    if(/*!confirm*/confirmStr == null || !confirmStr.equals("true")){
+                    if(confirmStr == null || !confirmStr.equals("true")){
                         //closing session
                         session.invalidate();
                         out.println("Project not added");
@@ -364,7 +354,7 @@ public class dataFromDB {
                     if(complete == null)
                         out.println("<error>ERROR</error>");
                     else{
-                        complete.salvaProgetto();//XXX controllare dove e quando viene generata la chiave del progetto
+                        complete.salvaProgetto();
                         out.println("OK");
                     }
                 }
@@ -373,8 +363,7 @@ public class dataFromDB {
                 case 7:
                 {
                     //giving user the entire project, to check it before writing it into DB
-                    /*XXX RICORDARSI DI SETTARE LO STORICO IN QUALCHE MODO*/
-
+                    
                     //reading project from session
                     Progetto p = (Progetto) session.getAttribute("Progetto");
                     if(p==null){
@@ -473,7 +462,7 @@ public class dataFromDB {
                     p.caricaRischi();
 
                     //saving to compare modifications
-                    session.setAttribute("Progetto_ch", p);
+                    session.setAttribute("Progetto", p);
 
                     //printing project
                     printProject(p, out);
@@ -555,14 +544,43 @@ public class dataFromDB {
                 {
                     //user gives me all the project with modifications,i will read it and write on DB
                     //reading project from request
+
+                    //checking if the previous project exists
+                    Progetto p = (Progetto) session.getAttribute("Progetto");
+                    if(p==null){
+                        out.println("<error>Error, no previously opened project to modify</error>");
+                        break;
+                    }
+
+                    ///XXXX attenzione: probabilità iniziale ed impatto iniziale vengono modificati nello storico!!
                     out.println(request.toString());
                     Progetto newProject = extractProjectFromRequest(request, out);
-                    List newRisks = extractRisksFromRequest(request,true);
-                    List newActions = extractActionsFromRequest(request,true,out);
+                    List oldRisks = extractRisksFromRequest(request,true);
+                    List newRisks = extractRisksFromRequest(request,false);
+                    List oldActions = extractActionsFromRequest(request,true,out);
+                    List newActions = extractActionsFromRequest(request,false,out);
+
+                    //parse newActions and newRisks to generate identifiers and update storico and THEN build the new project
+                    parseNewItems(oldRisks, newRisks, oldActions, newActions, session, out);
+
+                    //merging old risks into newRisks list
+                    it = oldRisks.iterator();
+                    while(it.hasNext()){
+                        Rischio r = (Rischio) it.next();
+                        newRisks.add(r);
+                    }
+                    //merging old actions into newActions list
+                    it=oldActions.iterator();
+                    while(it.hasNext()){
+                        Azioni a = (Azioni) it.next();
+                        newActions.add(a);
+                    }
+
+                    //building project with all actions and risks, correctly parsed and updated
                     newProject = buildProject(newProject, newRisks, newActions, out, session);
 
                     //old project
-                    Progetto oldProject = (Progetto) session.getAttribute("Progetto_ch");
+                    Progetto oldProject = (Progetto) session.getAttribute("Progetto");
                     renewProjects(oldProject, newProject, out);
                     break;
                 }
@@ -847,8 +865,8 @@ public class dataFromDB {
                     out.println("\t\t<contingency>"+r.getContingency()+"</contingency>\n");
                     out.println("\t\t<causa>"+escapeChars(r.getCausa())+"</causa>\n");
                     out.println("\t\t<effetto>"+escapeChars(r.getEffetto())+"</effetto>\n");
-                    out.println("\t\t<probIniziale>"+r.getProbabilitaIniziale()+"</probIniziale>\n");
-                    out.println("\t\t<impattoIniziale>"+r.getImpattoIniziale()+"</impattoIniziale>\n");
+                    out.println("\t\t<probIniziale>"+r.getProbabilitaAttuale()+"</probIniziale>\n");//XXX fatta modifica, verificare tutto funzioni correttamente
+                    out.println("\t\t<impattoIniziale>"+r.getImpattoAttuale()+"</impattoIniziale>\n");//XXX
                     out.println("\t\t<costoPotenzialeImpatto>"+r.getCostoPotenzialeImpatto()+"</costoPotenzialeImpatto>\n");
                     out.println("\t\t<revisione>"+r.getNumeroRevisione()+"</revisione>");
         //printing actions
@@ -938,46 +956,72 @@ public class dataFromDB {
         }
         return resultList;
     }
-    //function to create a list of risks from the current request
+    /**
+     * function to create a list of risks from the current request.
+     * as for actions, this function returns the list of old actions if enable is true,
+     * and the list of new actions added to the project if the enable is false
+     */
     private List extractRisksFromRequest(HttpServletRequest request, boolean enable){
 
         LinkedList<Rischio> list = new LinkedList<Rischio>();
         String what = "";
-        for(int j=0; j<2; j++){
-            if(enable){
-                if(j==0) what = "risk_";
-                else what = "newrisk_";
-            }
+        if(enable)
+            what = "risk_";
+        else
+            what = "newrisk_";
 
-            //reading the number of risks to load
-            Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
-            if(cnt == null)
-                return list;
+        //reading the number of risks to load
+        Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
+        if(cnt == null)
+            return list;
 
-            //reading fields and building objects
-            for(int i=0; i<cnt; i++){
-                Rischio r = new Rischio();
-                r.setCodice((String) request.getParameter(what+"idRischio_"+i));
-                r.setDescrizione((String) request.getParameter(what+"descrizione_"+i));
-                r.setCausa((String) request.getParameter(what+"causa_"+i));
-                r.setEffetto((String) request.getParameter(what+"effetto_"+i));
-                r.setCodiceChecklist(Integer.parseInt(request.getParameter(what+"codiceChecklist_"+i)));
-                r.setStato((String) request.getParameter(what+"stato_"+i));
-                r.setVerificato(Integer.parseInt(request.getParameter(what+"rVer_"+i)));
-                r.setContingency(Double.parseDouble(request.getParameter(what+"contingency_"+i)));
-                r.setProbabilitaIniziale(Integer.parseInt(request.getParameter(what+"probIniziale_"+i)));
-                r.setImpattoIniziale(Integer.parseInt(request.getParameter(what+"impattoIniziale_"+i)));
-                r.setCategoria(request.getParameter(what+"categoria_"+i));
-                r.setCostoPotenzialeImpatto(Integer.parseInt(request.getParameter(what+"costoPotenzialeImpatto_"+i)));
-                r.setNumeroRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
-                
+        //reading fields and building objects
+        for(int i=0; i<cnt; i++){
+            Rischio r = new Rischio();
+            //not null parameter
+            r.setCodice((String) request.getParameter(what+"idRischio_"+i));
+            //can be empty
+            String descrizione = (String) request.getParameter(what+"descrizione_"+i);
+            if(descrizione == null || descrizione.isEmpty())
+                descrizione="";
+            r.setDescrizione(descrizione);
+            //can be empty
+            String causa = (String) request.getParameter(what+"causa_"+i);
+            if(causa == null || causa.isEmpty())
+                causa="";
+            r.setCausa(causa);
+            //can be null
+            String effetto = (String) request.getParameter(what+"effetto_"+i);
+            if(effetto==null || effetto.isEmpty())
+                effetto="";
+            r.setEffetto(effetto);
+            //not null parameter
+            r.setCodiceChecklist(Integer.parseInt(request.getParameter(what+"codiceChecklist_"+i)));
+            //not null parameter
+            r.setStato((String) request.getParameter(what+"stato_"+i));
+            //not null parameter
+            r.setVerificato(Integer.parseInt(request.getParameter(what+"rVer_"+i)));
+            //XXX it must be written in the right format to be correctly recognized
+            String contingency = request.getParameter(what+"contingency_"+i);
+            if(contingency == null || contingency.isEmpty())
+                contingency="0.0";
+            r.setContingency(Double.parseDouble(contingency));
+            //not null parameter
+            r.setProbabilitaIniziale(Integer.parseInt(request.getParameter(what+"probIniziale_"+i)));
+            //not null parameter
+            r.setImpattoIniziale(Integer.parseInt(request.getParameter(what+"impattoIniziale_"+i)));
+            //can be empty
+            String categoria = request.getParameter(what+"categoria_"+i);
+            if(categoria==null || categoria.isEmpty())
+                categoria="";
+            r.setCategoria(categoria);
+            //not null parameter
+            r.setCostoPotenzialeImpatto(Integer.parseInt(request.getParameter(what+"costoPotenzialeImpatto_"+i)));
+            //not null parameter
+            r.setNumeroRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
 
-
-                //filled fields
-                list.add(r);
-            }
-            if(!enable)
-                break;
+            //filled fields
+            list.add(r);
         }
 
         return list;
@@ -1106,46 +1150,63 @@ public class dataFromDB {
         }
         return azioniDelRischio;
     }
-    //function to extract actions from the current request
+    /**
+     * function to extract actions from the current request
+     * If "enable" is set to false, the function reads from http request, all fields starting with "action_"
+     * Else, when "enable" is set to "false", the function reads from request, all fields sarting with "newaction_"
+     *
+     * In other words, with enable set to true, reads all the old actions from request.
+     * When using extractActionsFromRequest() with a false enable, the function will return all
+     * the actions added to the project in the current revision
+     */
     private List extractActionsFromRequest(HttpServletRequest request, boolean enable, PrintWriter out){
         
         LinkedList<Azioni> list = new LinkedList<Azioni>();
         String what = "";
-        for(int j=0; j<2; j++){
-            if(enable){
-                if(j==0) what = "action_";
-                else what = "newaction_";
-            }
 
-            //reading the number of actions to load
-            Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
-            if(cnt == null)
-                return list;
-            //temporary identifier
-            int identif = 1;
+        if(enable)
+            what = "action_";
+        else
+            what = "newaction_";
 
-            //building actions
-            for(int i=0; i<cnt; i++){
-                Azioni a = new Azioni();
+        //reading the number of actions to load
+        Integer cnt = Integer.parseInt(request.getParameter(what+"cnt"));
+        if(cnt == null)
+            return list;
+        //temporary identifier
+        int identif = 1;
 
-                a.getPrimaryKey().setIdAzione(Integer.parseInt(request.getParameter(what+"idAzione_"+i)));
-                a.getPrimaryKey().setIdRischio(request.getParameter(what+"idRischio_"+i));
-                a.getPrimaryKey().setIdentifier(Integer.parseInt(request.getParameter(what+"identifier_"+i)));//Integer.parseInt(request.getParameter("identifier_"+i)));
-                a.getPrimaryKey().setTipo(request.getParameter(what+"tipo_"+i).charAt(0));
-                a.setDescrizione(request.getParameter(what+"descrizione_"+i));
-                a.setRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
-                a.setStato(request.getParameter(what+"stato_"+i));
-                if(!Boolean.parseBoolean(request.getParameter(what+"ckintensita_"+i)))
-                    a.setIntensita(-50);
-                else
-                    a.setIntensita(Integer.parseInt(request.getParameter(what+"intensita_"+i)));
-                list.add(a);
-            }
-            if(!enable)
-                break;
+        //building actions
+        for(int i=0; i<cnt; i++){
+            Azioni a = new Azioni();
+
+            //not null field
+            a.getPrimaryKey().setIdAzione(Integer.parseInt(request.getParameter(what+"idAzione_"+i)));
+            //this field is a false (non valid) id if the action is a new one added to a new risk. It wil be fixed in parseNewItems function
+            a.getPrimaryKey().setIdRischio(request.getParameter(what+"idRischio_"+i));
+            //for the new actions, this field is set to 0, update it later (parseNewItems function)
+            a.getPrimaryKey().setIdentifier(Integer.parseInt(request.getParameter(what+"identifier_"+i)));
+            //not null field
+            a.getPrimaryKey().setTipo(request.getParameter(what+"tipo_"+i).charAt(0));
+            //this field can be null
+            String descrizione = request.getParameter(what+"descrizione_"+i);
+            if(descrizione == null || descrizione.isEmpty())
+                descrizione = "";
+            a.setDescrizione(descrizione);
+            //this field is 0 for the new actions. Update it later
+            a.setRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
+            //not null field
+            a.setStato(request.getParameter(what+"stato_"+i));
+            //not null field
+            if(!Boolean.parseBoolean(request.getParameter(what+"ckintensita_"+i)))
+                a.setIntensita(-50);
+            else
+                a.setIntensita(Integer.parseInt(request.getParameter(what+"intensita_"+i)));
+            list.add(a);
         }
         return list;
     }
+
     //function to build a project from alla datas passed as argument
     private Progetto buildProject(Progetto p, List  riskList, List actionList, PrintWriter out, HttpSession session){
         try{
@@ -1186,7 +1247,6 @@ public class dataFromDB {
                     }
                 }
                 //added actions to risk
-                /*XXX SUPPONGO OGNI RISCHIO ABBIA GIA' LA GIUSTA CHIAVE!!*/
                 p.aggiungiRischio(r);
             }
         } catch (Exception e){
@@ -1194,6 +1254,84 @@ public class dataFromDB {
             return null;
         }
         return p;
+    }
+    /*
+     * Replace the temporary ids given to new actions and risks, with new ones to be used into the DB
+     */
+    private void parseNewItems(List<Rischio> oldRisks, List<Rischio> newRisks, List<Azioni> oldActions, List<Azioni> newActions, HttpSession session, PrintWriter out) throws Exception{
+        //for each new Risk, building a new identifier and replacing the old one into the newAcions list
+        Iterator it = newRisks.iterator();
+        while(it.hasNext()){
+            //take risk
+            Rischio risk = (Rischio) it.next();
+            //taking id
+            String riskId = risk.getCodice();
+            String effectiveId = generateRiskId(session);
+            //replacing this id for each new action
+            Iterator actIt = newActions.iterator();
+            while(actIt.hasNext()){
+                Azioni action  = (Azioni) actIt.next();
+                if(action.getPrimaryKey().getIdRischio().equals(riskId)){
+                    action.getPrimaryKey().setIdRischio(effectiveId);
+                    break;
+                }
+            }
+            //replacing the risk id
+            risk.setCodice(effectiveId);
+        }
+        //now, all risk codes are correct.
+        //now fixing "revisione" and "identifier" fields for all new actions
+
+        //fixing "revisione" for new actions
+        Progetto p = (Progetto) session.getAttribute("Progetto");
+        int maxRev = p.getMaxRevisione();
+        it = newActions.iterator();
+        while(it.hasNext()){
+            Azioni action = (Azioni) it.next();
+            action.setRevisione(maxRev+1);
+        }
+        //fixing revisione for actions closed in this revision:
+        //if the action was closed in the current revision, the "revisione" field
+        //has to be updated
+        it = oldActions.iterator();
+        while(it.hasNext()){
+            Azioni action = (Azioni) it.next();
+            Azioni oldAction = (Azioni) Azioni.getById(Azioni.class, action.getPrimaryKey());
+            if(action.getStato().equals("Closed") && !oldAction.getStato().equals("Closed"))
+                action.setRevisione(maxRev+1);
+        }
+        
+        //fixing the "identifier" field into new actions, 
+        //to allow multiple actions with the same checklist code for the same risk
+        it = newActions.iterator();
+        while(it.hasNext()){
+            Azioni action = (Azioni) it.next();
+            int newIdentifier = generateIdentifier(session, action.getPrimaryKey(), out);
+            action.getPrimaryKey().setIdentifier(newIdentifier);
+        }
+
+        //setting the correct "storico" field for all old risks (the new ones will have it empty)
+        it = oldRisks.iterator();
+        while(it.hasNext()){
+            Rischio current = (Rischio) it.next();
+            Rischio dbRisk = (Rischio) Rischio.getById(Rischio.class, current.getCodice());
+            dbRisk.caricaStorico();
+            current.caricaStorico();
+            if(dbRisk.getProbabilitaAttuale() != current.getProbabilitaIniziale() ||
+                    dbRisk.getImpattoAttuale() != current.getImpattoIniziale()){
+                //if are different, the "storico" field will be updated and the correct value must be written
+                //into probabilitaIniziale and impattoIniziale
+                Revisione rev = new Revisione();
+                rev.setIdRischio(current.getCodice());
+                rev.setNumeroRevisione(maxRev+1);
+                rev.setIndiceImpatto(current.getImpattoIniziale());
+                rev.setProbabilita(current.getProbabilitaIniziale());
+                current.aggiungiRevisione(rev);
+                current.setImpattoIniziale(dbRisk.getImpattoIniziale());
+                current.setProbabilitaIniziale(dbRisk.getProbabilitaIniziale());
+            }
+        }
+        return;
     }
     //generates risk ids
     private String generateRiskId(HttpSession session) throws Exception {
@@ -1222,8 +1360,7 @@ public class dataFromDB {
     }
     //fills risk fields that are not suggestable 
     private void fillRiskNotSuggestableFields(Rischio r,HttpSession session) throws Exception{
-        //inserting default description into risk
-        //XXX remove?
+        //XXX consider to insert default description into risk
         /*CkRischi ckr = (CkRischi) CkRischi.getById(CkRischi.class, r.getCodiceChecklist());
         r.setDescrizione(ckr.getDescrizione());*/
     }
@@ -1231,7 +1368,10 @@ public class dataFromDB {
     private void printDigest(Progetto p, List riskList, List actionList, PrintWriter out){
         return;
     }
-    //decides if the project is a case to store
+    /*
+     * This function will compare if there are modifications between the risks into "lista" and
+     * the risks with the same id into "gruppi". If at least one risk was modified, it returns true
+     */
     private boolean compareModificationsRisks(LinkedList<Rischio>[] gruppi, List lista){
         // CODE TO TEST, IT STILL RETURNS TRUE EVERY TIME
         /*
@@ -1309,23 +1449,25 @@ public class dataFromDB {
         AzioniPrimaryKey t = new AzioniPrimaryKey(pk.getIdentifier(), pk.getIdAzione(), pk.getIdRischio(), pk.getTipo());
 
         while(!Azioni.checkAvailable(t)){
-            int old = t.getIdentifier();
-            t.setIdentifier(old+1);
-        }
-        boolean found = true;
-        while(found && !listaPkAzioni.isEmpty()){
-            //checking already set id
-            Iterator k = listaPkAzioni.iterator();
-            found=false;
-            while(k.hasNext() && !found){
-                AzioniPrimaryKey x = (AzioniPrimaryKey) k.next();
-                if(x.equals(t))
-                    found=true;
-            }
-            //generating one only if the current already exists
-            if(found){
+            while(!Azioni.checkAvailable(t)){
                 int old = t.getIdentifier();
                 t.setIdentifier(old+1);
+            }
+            boolean found = true;
+            while(found && !listaPkAzioni.isEmpty()){
+                //checking already set id
+                Iterator k = listaPkAzioni.iterator();
+                found=false;
+                while(k.hasNext() && !found){
+                    AzioniPrimaryKey x = (AzioniPrimaryKey) k.next();
+                    if(x.equals(t))
+                        found=true;
+                }
+                //generating one only if the current already exists
+                if(found){
+                    int old = t.getIdentifier();
+                    t.setIdentifier(old+1);
+                }
             }
         }
         /*
@@ -1360,7 +1502,7 @@ public class dataFromDB {
             Rischio r = (Rischio) vecchiRischi.next();
             idVecchi.add(r.getCodice());
         }
-        out.println("Vecchi"+idVecchi);
+        //out.println("Vecchi"+idVecchi);
         //deleting old project
         vecchiRischi = idVecchi.iterator();
         while(vecchiRischi.hasNext()){
