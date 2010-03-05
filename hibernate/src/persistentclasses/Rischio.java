@@ -303,12 +303,14 @@ public class Rischio extends persistentBase{
             a.getPrimaryKey().setIdRischio(codice);
 
         //controllo che non esista un'azione con stessa chiave, già presente nel DB
-        if(!Azioni.checkAvailable(a.getPrimaryKey()))
+        //rimozione controllo problematico
+        //XXX
+        /*if(!Azioni.checkAvailable(a.getPrimaryKey()))
             //se c'è già la stessa chiave, lancio una eccezione
             throw new Exception("rischio " + codice +
                                 ", idAzione "+a.getPrimaryKey().getIdAzione()+", tipo " +
                                 a.getPrimaryKey().getTipo()+" gia' presente in DB");
-
+        */
         //se tutto va bene aggiungo l'azione
         azioni.add(a.generaClone());
         return this;

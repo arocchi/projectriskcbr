@@ -414,11 +414,12 @@ public class Progetto
             r.setIdProgramma(codice);
 
         //controllo che non esista un rischio con stessa chiave, già presente nel DB
-        if(!Rischio.checkAvailable(r.getCodice()))
+        //rimuovo XXX
+        /*if(!Rischio.checkAvailable(r.getCodice()))
             //se c'è già la stessa chiave, lancio una eccezione
             throw new Exception("in programma " + codice +
                                 ", idRischio "+r.getCodice()+" gia' presente");
-
+        */
         //se tutto va bene aggiungo l'azione
         rischi.add(r);
         return this;
