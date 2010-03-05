@@ -552,7 +552,6 @@ public class dataFromDB {
                         break;
                     }
 
-                    ///XXXX attenzione: probabilità iniziale ed impatto iniziale vengono modificati nello storico!!
                     out.println(request.toString());
                     Progetto newProject = extractProjectFromRequest(request, out);
                     List oldRisks = extractRisksFromRequest(request,true);
@@ -576,12 +575,17 @@ public class dataFromDB {
                         newActions.add(a);
                     }
 
+                    //old project
+                    //Progetto oldProject = (Progetto) session.getAttribute("Progetto");
+                    Progetto oldProject = (Progetto) Progetto.getById(Progetto.class, p.getCodice());
+                    oldProject.caricaRischi();
+                    deleteProject(oldProject, out);
+
                     //building project with all actions and risks, correctly parsed and updated
                     newProject = buildProject(newProject, newRisks, newActions, out, session);
-
-                    //old project
-                    Progetto oldProject = (Progetto) session.getAttribute("Progetto");
-                    renewProjects(oldProject, newProject, out);
+                    
+                    //saving new project
+                    newProject.salvaProgetto();
                     break;
                 }
                 //give_newchkrisk
@@ -706,7 +710,7 @@ public class dataFromDB {
                         //out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx - RETRIEVED PROJECT");
                         //printProject(retrieved, out);
                         out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -- END");
-                        renewProjects(oldP, newP, out);
+                        //renewProjects(oldP, newP, out);
                         out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx - WRITTEN PROJECT");
                         printProject(newP, out);
                         out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -- END");
@@ -1016,9 +1020,11 @@ public class dataFromDB {
                 categoria="";
             r.setCategoria(categoria);
             //not null parameter
-            r.setCostoPotenzialeImpatto(Integer.parseInt(request.getParameter(what+"costoPotenzialeImpatto_"+i)));
-            //not null parameter
-            r.setNumeroRevisione(Integer.parseInt(request.getParameter(what+"revisione_"+i)));
+            r.setCostoPotenzialeImpatto(Double.parseDouble(request.getParameter(what+"costoPotenzialeImpatto_"+i)));
+            String numRev = request.getParameter(what+"revisione_"+i);
+            if(numRev == null || numRev.isEmpty())
+                numRev = "0";
+            r.setNumeroRevisione(Integer.parseInt(numRev));
 
             //filled fields
             list.add(r);
@@ -1209,25 +1215,7 @@ public class dataFromDB {
 
     //function to build a project from alla datas passed as argument
     private Progetto buildProject(Progetto p, List  riskList, List actionList, PrintWriter out, HttpSession session){
-        try{
-            //checking if project has a valid identifier
-            //removed for debug purposes
-            //if(!Progetto.checkAvailable(p.getCodice()))
-            //    return null;
-
-            /*out.println("BEGIN");
-            printProject(p, out);
-            Iterator m1 = riskList.iterator();
-            while(m1.hasNext()){
-                Rischio r = (Rischio) m1.next();
-                printRisk(r, out, 0, false);
-            }
-            m1 = actionList.iterator();
-            while(m1.hasNext()){
-                Azioni a = (Azioni) m1.next();
-                printAction(a, out, 0);
-            }*/
-           
+        try{           
             //adding all risks to the project
             Iterator it = riskList.iterator();
             while(it.hasNext()){
@@ -1493,7 +1481,7 @@ public class dataFromDB {
         return t.getIdentifier();
     }
 
-    private void renewProjects(Progetto previous, Progetto actual, PrintWriter out) throws Exception{
+    private void deleteProject(Progetto previous,PrintWriter out) throws Exception{
 
         //creating list of idS of the risks to delete
         Iterator vecchiRischi = previous.getRischi().iterator();
@@ -1512,7 +1500,7 @@ public class dataFromDB {
         previous.delete();
 
         //writing new project
-        actual.salvaProgetto();
+        //actual.salvaProgetto();
     }
 
 
