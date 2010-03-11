@@ -40,11 +40,6 @@ public class dataFromDB {
             SessionObject.getStarted((SessionFactory) session.getAttribute("sessionfactory"));
             SessionObject.newTransaction();           
 
-            /*RIGHE DI DEBUG PER TESTING*/
-            /*session.setAttribute("Progetto", Progetto.getById(Progetto.class, "P2"));
-            session.setAttribute("RisksAddedToProject", extractRisksFromRequestDummy(request));
-            session.setAttribute("ActionsAddedToProject", extractActionsFromRequestDummy(request));*/
-            /*END*/
             List lista;
             Iterator it;
             int index=0;
@@ -72,7 +67,6 @@ public class dataFromDB {
                         out.println("<oggettoFornitura idName=\""+index+"\">"+escapeChars(of)+"</oggettoFornitura>");
                         index++;
                     }
-                    //out.println("<oggettoFornitura idName="1">nomeCliente1</oggettoFornitura>");
                     break;
 
                 //take_reparto
@@ -85,7 +79,6 @@ public class dataFromDB {
                         out.println("<reparto idName=\""+index+"\">"+rep+"</reparto>");
                         index++;
                     }
-                    //out.println("<reparto idName="1">nomeCliente1</reparto>");
                     break;
                 //give_newproject
                 case 101:
@@ -105,8 +98,6 @@ public class dataFromDB {
                     //saving it into session varaiable
                     session.setAttribute("Progetto", p);
                     //making suggestions
-                    //XXXout.println(request.toString());
-                    //XXXprintProject(p, out);
                     suggestions(p, session, out);
                     out.println("ok");
                     
@@ -386,20 +377,6 @@ public class dataFromDB {
                         break;
                     }
 
-                    /*PRINTING LISTS*/
-                    /*out.println("BEGIN");
-                    Iterator m1 = riskList.iterator();
-                    while(m1.hasNext()){
-                        Rischio r = (Rischio) m1.next();
-                        printRisk(r, out, 0, false);
-                    }
-                    m1 = actionList.iterator();
-                    while(m1.hasNext()){
-                        Azioni a = (Azioni) m1.next();
-                        printAction(a, out, 0);
-                    }*/
-                    //out.println("END");
-                    /****************/
                     //if here, all checks are passed. Printing the digest
                     Progetto c = buildProject(p, riskList, actionList, out, session);
                     session.setAttribute("BuildProject", c);
@@ -551,8 +528,7 @@ public class dataFromDB {
                         out.println("<error>Error, no previously opened project to modify</error>");
                         break;
                     }
-
-                    out.println(request.toString());
+                    
                     Progetto newProject = extractProjectFromRequest(request, out);
                     List oldRisks = extractRisksFromRequest(request,true);
                     List newRisks = extractRisksFromRequest(request,false);
@@ -586,6 +562,9 @@ public class dataFromDB {
                     
                     //saving new project
                     newProject.salvaProgetto();
+
+                    //giving response
+                    out.println("OK");
                     break;
                 }
                 //give_newchkrisk
@@ -689,7 +668,7 @@ public class dataFromDB {
                 //test
                 case 666:
                 {
-                    /*TEST RENEWING PROJECTS*/
+                    /*TEST ROWS FOR RENEWING PROJECTS*/
                     String nome = (String) session.getAttribute("nome");
                     if(nome == null || nome.isEmpty())
                         session.setAttribute("nome", "MIOPRO");
@@ -719,16 +698,7 @@ public class dataFromDB {
                 break;
             }
             SessionObject.endTransaction();
-        } catch (Exception e){out.println(e);}
-
-        //out.println("END");
-        //out.println("Hai richiesto: " + type + "\n");
-        
-        /*out.println("<name>Franci</name>");
-        out.println("<name>Luigi</name>");
-        out.println("<name>Maria</name>");
-        out.println("<name>Ettore</name>");*/
-        
+        } catch (Exception e){out.println(e);}        
     }
 
     /*UTILITY FUNCTIONS*/
@@ -908,14 +878,6 @@ public class dataFromDB {
         
         s=s.replace('"', '\'');
         s=s.replaceAll("\\ufffd", "a\'");
-        /*XXXString[] splitted = s.split("Monitoring costante delle attivit");
-        if(!(splitted.length == 1 && splitted[0].trim().compareTo("")!=0)){
-            StringBuilder sb = new StringBuilder();
-
-            Formatter formatter = new Formatter(sb, Locale.US);
-            formatter.format("%h",""+splitted[1].charAt(0)+"");
-            return sb.toString();
-        }*/
         return s;
     }
     //function that returns the number of groups configured by the user
@@ -1005,7 +967,7 @@ public class dataFromDB {
             r.setStato((String) request.getParameter(what+"stato_"+i));
             //not null parameter
             r.setVerificato(Integer.parseInt(request.getParameter(what+"rVer_"+i)));
-            //XXX it must be written in the right format to be correctly recognized
+            //may be null
             String contingency = request.getParameter(what+"contingency_"+i);
             if(contingency == null || contingency.isEmpty())
                 contingency="0.0";
@@ -1038,8 +1000,8 @@ public class dataFromDB {
 
 
         try{
-            p.setIsCase(Boolean.parseBoolean(request.getParameter("iscase")));
-            p.setIsOpen(Boolean.parseBoolean(request.getParameter("isopen")));
+            p.setIsCase(Boolean.parseBoolean(request.getParameter("isCase")));
+            p.setIsOpen(Boolean.parseBoolean(request.getParameter("isOpen")));
         }catch (Exception e){}
 
         
@@ -1132,13 +1094,6 @@ public class dataFromDB {
 
          if(ckIpp == null || Im==null) p.setIpp(new ImpattoStrategico(-1));
         else p.setIpp(new ImpattoStrategico(Integer.parseInt(Ipp)));
-        /*
-        p.setIm(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIM"))?Integer.parseInt(request.getParameter("IM")):null));
-        p.setIc(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIC"))?Integer.parseInt(request.getParameter("IC")):null));
-        p.setIp(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIP"))?Integer.parseInt(request.getParameter("IP")):null));
-        p.setIa(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIA"))?Integer.parseInt(request.getParameter("IA")):null));
-        p.setIpp(new ImpattoStrategico(Boolean.parseBoolean(request.getParameter("ckIPP"))?Integer.parseInt(request.getParameter("IPP")):null));
-        */
         return p;
     }
     //function to suggest actions for the 'p' project and the 'r' risk
@@ -1349,8 +1304,7 @@ public class dataFromDB {
     //fills risk fields that are not suggestable 
     private void fillRiskNotSuggestableFields(Rischio r,HttpSession session) throws Exception{
         //XXX consider to insert default description into risk
-        /*CkRischi ckr = (CkRischi) CkRischi.getById(CkRischi.class, r.getCodiceChecklist());
-        r.setDescrizione(ckr.getDescrizione());*/
+        //does nothing
     }
     //writes digest in xml
     private void printDigest(Progetto p, List riskList, List actionList, PrintWriter out){
@@ -1361,70 +1315,16 @@ public class dataFromDB {
      * the risks with the same id into "gruppi". If at least one risk was modified, it returns true
      */
     private boolean compareModificationsRisks(LinkedList<Rischio>[] gruppi, List lista){
-        // CODE TO TEST, IT STILL RETURNS TRUE EVERY TIME
-        /*
-        Iterator it = lista.iterator();
-        while(it.hasNext()){
-            Rischio r = (Rischio) it.next();
-            //finding risk
-            boolean found = false;
-            for(int i=0; i<gruppi.length && !found;i++){
-                Iterator t = gruppi[i].iterator();
-                while(t.hasNext() && !found){
-                    Rischio c = (Rischio) t.next();
-
-                    if(c.getCodice().compareTo(r.getCodice()) == 0){
-                        //is the same risk
-                        if(c.getContingency() != r.getContingency() ||
-                            c.getProbabilitaIniziale() != r.getProbabilitaIniziale() ||
-                            c.getImpattoIniziale() != r.getImpattoIniziale() ||
-                            c.getCostoPotenzialeImpatto() != r.getCostoPotenzialeImpatto()){
-                            //if different
-                            return true;
-
-                        }
-                        found = true;
-                    }
-                }
-            }
-        }
-
-        return false;
-         */
-
+        
         /*DUMMY*/
+        /*the real function will compare if ther are modifications between suggested fields
+         and given ones, to decide if the project will be a case in the case base or not*/
         return true;
     }
     //same as above, but for actions
     private boolean compareModificationsActions(List<Azioni> prev, List<Azioni> current, PrintWriter out){
-        // CODE TO TEST
-        // IT STILL RETURNS TRUE EVERY TIME
-        /*
-        Iterator it = current.iterator();
-
-        while(it.hasNext()){
-            boolean found = false;
-            Azioni a = (Azioni) it.next();
-           
-            Iterator t = prev.iterator();
-                while(t.hasNext() && !found){
-                    Azioni c = (Azioni) t.next();
-                    
-                    if(c.getPrimaryKey().equals(a.getPrimaryKey())){
-                        
-                        //is the same action
-                        if(c.getIntensita() != a.getIntensita()){
-                            //if different
-                            return true;
-                        }
-                        found = true;
-                    }
-                }
-        }
-
-        return false;*/
-
         /*dummy*/
+        /*same as above function*/
         return true;
     }
     //generates valid actionId
@@ -1458,24 +1358,8 @@ public class dataFromDB {
                 }
             }
         }
-        /*
-        while(listaPkAzioni.contains(t)){
-            int old = t.getIdentifier();
-            t.setIdentifier(old+1);
-        }*/
-        //sign used key
-        //AzioniPrimaryKey azpk = new AzioniPrimaryKey(pk.getIdentifier(), pk.getIdAzione(), pk.getIdRischio(), pk.getTipo());
+        
         listaPkAzioni.add(t);
-
-        //debug print
-        /*
-        Iterator it = listaPkAzioni.iterator();
-        out.println("LISTA CONTENT");
-        while(it.hasNext()){
-            AzioniPrimaryKey y = (AzioniPrimaryKey) it.next();
-           out.println("-ident: "+y.getIdentifier()+" azione:"+y.getIdAzione()+" rischio:"+y.getIdRischio()+" tipo"+y.getTipo()+" ");
-        }
-        */
         session.setAttribute("listaPkAzioni", listaPkAzioni);
 
         return t.getIdentifier();
@@ -1490,7 +1374,7 @@ public class dataFromDB {
             Rischio r = (Rischio) vecchiRischi.next();
             idVecchi.add(r.getCodice());
         }
-        //out.println("Vecchi"+idVecchi);
+
         //deleting old project
         vecchiRischi = idVecchi.iterator();
         while(vecchiRischi.hasNext()){
@@ -1498,16 +1382,13 @@ public class dataFromDB {
         }
 
         previous.delete();
-
-        //writing new project
-        //actual.salvaProgetto();
     }
 
 
     /*SIMILARITY UTILITIES*/
     private void suggestions(Progetto queryDesc, HttpSession session,PrintWriter out) throws Exception {
-        //String file = "/media/gutzy/home/narduz/Documenti/Università/Sistemi intelligenti/Progetto/repository03/connectingInterface/similarityconfig/groupsConfig.xml";
-        String file = "C:\\Documents and Settings\\Rosetta Stoned\\My Documents\\NetBeansProjects\\0219\\trunk\\projectRiskCbr\\WebContent\\assets\\groupsConfig.xml";
+        
+        String file = "C:\\Users\\Elisa\\Downloads\\DAVID_ELIMINARE\\projectRiskCbr\\WebContent\\assets\\groupsConfig.xml";
         FileInputStream configFile = new FileInputStream(file);
         // LOAD CONFIGURATION
         Configuration configuration = Configuration.load(configFile);
@@ -1693,15 +1574,7 @@ public class dataFromDB {
         return generate;
     }
 
-/*
-    private ImpattoStrategico   im;
-    private ImpattoStrategico   ic;
-    private ImpattoStrategico   ip;
-    private ImpattoStrategico   ia;
-    private ImpattoStrategico   ipp;
-
-    }
-*/
+    /*TESTING FUNCTIONS TO GENERATE RANDOM PROJECTS*/
     private LivelloDiRischio generateRandomLR(){
         Random rn = new Random();
         if(rn.nextBoolean()){
@@ -1769,7 +1642,7 @@ public class dataFromDB {
 
 
 
-    /*DUMMY FUNCTIONS USED AS STUBS*/
+    /*DUMMY FUNCTIONS USED AS STUBS FOR TESTING*/
     private int getNumberOfGroupsDummy(){
         return 3;
     }
@@ -1817,11 +1690,6 @@ public class dataFromDB {
         return p;
     }
 
-
-
-
-
-
     private List suggestActionsDummy(Progetto p, Rischio r){
         try{
             return Azioni.executeQuery("from Azioni where primaryKey.idRischio = 'P2R1'");
@@ -1847,13 +1715,4 @@ public class dataFromDB {
 
         return new LinkedList();
     }
-    //returns a list of checklists codes of all previously suggested risks. Dummy function
-    /*XXXprivate List<Integer> alreadySuggestedCkRisks(){
-        try{
-            return (List<Integer>) Rischio.executeQuery("select codChecklist from CkRischi where codChecklist <= 10");
-        } catch (Exception e) {}
-
-        return new LinkedList();
-    }*/
-
 }
