@@ -1047,17 +1047,17 @@
 						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
 							<mx:CheckBox id ="ckrcp1" change="changeActivation(ckrcp1[0], null, null, rcp1[0] ,0)" selected="{srv.currentItem.ckrcp1}"/>
 							<mx:Label text="RCP1" width="40"/>
-							<mx:NumericStepper id="rcp1" minimum="0" maximum="3" value="{srv.currentItem.rp1}" enabled="{srv.currentItem.ckrp1}"/>
+							<mx:NumericStepper id="rcp1" minimum="0" maximum="3" value="{srv.currentItem.rcp1}" enabled="{srv.currentItem.ckrcp1}"/>
 						</mx:HBox>
 						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
 							<mx:CheckBox id ="ckrcp2" change="changeActivation(ckrcp2[0], null, null, rcp2[0] ,0)" selected="{srv.currentItem.ckrcp2}"/>
 							<mx:Label text="RCP2" width="40"/>
-							<mx:NumericStepper id="rcp2" minimum="0" maximum="3" value="{srv.currentItem.rp2}" enabled="{srv.currentItem.ckrp2}"/>
+							<mx:NumericStepper id="rcp2" minimum="0" maximum="3" value="{srv.currentItem.rcp2}" enabled="{srv.currentItem.ckrcp2}"/>
 						</mx:HBox>
 						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
 							<mx:CheckBox id ="ckrcp3" change="changeActivation(ckrcp3[0], null, null, rcp3[0] ,0)" selected="{srv.currentItem.ckrcp3}"/>
 							<mx:Label text="RCP3" width="40"/>
-							<mx:NumericStepper id="rcp3" minimum="0" maximum="3" value="{srv.currentItem.rp3}" enabled="{srv.currentItem.ckrp3}"/>
+							<mx:NumericStepper id="rcp3" minimum="0" maximum="3" value="{srv.currentItem.rcp3}" enabled="{srv.currentItem.ckrcp3}"/>
 						</mx:HBox>
 					</mx:VBox>
 					
