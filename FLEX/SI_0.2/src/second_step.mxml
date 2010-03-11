@@ -223,22 +223,22 @@
 				
 				// For each row in the data grid
 				while( !cursor.afterLast ) {
-					query["idRischio_"+cnt.toString()] = cursor.current.idRischio.toString();
+					query["risk_idRischio_"+cnt.toString()] = cursor.current.idRischio.toString();
 					if (cursor.current.descrizione.toString() != "null")
-						query["descrizione_"+cnt.toString()] = cursor.current.descrizione.toString();
+						query["risk_descrizione_"+cnt.toString()] = cursor.current.descrizione.toString();
 					if (cursor.current.causa.toString() != "null")
-						query["causa_"+cnt.toString()] = cursor.current.causa.toString();
+						query["risk_causa_"+cnt.toString()] = cursor.current.causa.toString();
 					if (cursor.current.effetto.toString() != "null")
-						query["effetto_"+cnt.toString()] = cursor.current.effetto.toString();
-			        query["codiceChecklist_"+cnt.toString()] = cursor.current.codiceChecklist;
-			        query["stato_"+cnt.toString()] = cursor.current.stato.toString();
-			     	query["rVer_"+cnt.toString()] = cursor.current.rVer.toString();
-			     	query["contingency_"+cnt.toString()] = cursor.current.contingency.toString();
-			     	query["probIniziale_"+cnt.toString()] = cursor.current.probIniziale.toString();
-			     	query["impattoIniziale_"+cnt.toString()] = cursor.current.impattoIniziale.toString();
-			     	query["costoPotenzialeImpatto_"+cnt.toString()] = "-1";
-			     	query["revisione_"+cnt.toString()] = "-1";
-			     	query["categoria_"+cnt.toString()] = cursor.current.categoria.toString();
+						query["risk_effetto_"+cnt.toString()] = cursor.current.effetto.toString();
+			        query["risk_codiceChecklist_"+cnt.toString()] = cursor.current.codiceChecklist;
+			        query["risk_stato_"+cnt.toString()] = cursor.current.stato.toString();
+			     	query["risk_rVer_"+cnt.toString()] = cursor.current.rVer.toString();
+			     	query["risk_contingency_"+cnt.toString()] = cursor.current.contingency.toString();
+			     	query["risk_probIniziale_"+cnt.toString()] = cursor.current.probIniziale.toString();
+			     	query["risk_impattoIniziale_"+cnt.toString()] = cursor.current.impattoIniziale.toString();
+			     	query["risk_costoPotenzialeImpatto_"+cnt.toString()] = "-1";
+			     	query["risk_revisione_"+cnt.toString()] = "-1";
+			     	query["risk_categoria_"+cnt.toString()] = cursor.current.categoria.toString();
 					
 			     	// cicla
 			     	cnt++;   
