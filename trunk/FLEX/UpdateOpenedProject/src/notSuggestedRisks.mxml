@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="vertical"
+        width="800"
+        height="330"
+        backgroundColor="white"
+        backgroundAlpha="1.0"
+        borderColor="#000000"
+        borderAlpha="1.0"
+        cornerRadius="20"
+        showCloseButton="true"
+        close="titleWindow_close(event)"
+        borderStyle="solid" borderThickness="1" title="Seleziona Rischi non suggeriti" fontSize="12" creationComplete="catalogoLibriXML.send()">
+         
+	<mx:Script>
+        <![CDATA[
+        	import mx.rpc.events.ResultEvent;
+            import mx.controls.Alert;
+            import mx.controls.Label;
+            import mx.controls.List;
+            import mx.collections.ArrayCollection;
+            import mx.core.DragSource;
+            import mx.controls.Tree;
+            import mx.controls.DataGrid;
+            import mx.controls.listClasses.ListBase;
+            import mx.events.DragEvent;
+            import mx.containers.Canvas;
+            import mx.managers.DragManager;
+            import mx.core.UIComponent;
+            import mx.events.CloseEvent;
+            import mx.managers.PopUpManager;
+			import mx.collections.IViewCursor;
+			
+        
+            [Bindable]
+			private var dataGridProvider:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var queryString:String;
+			
+			[Bindable]
+        	public var tmpIdRischio:String;
+			[Bindable]
+        	public var tmpDescrizioneRischio:String;
+			
+			
+            /**
+             * Handles the dragEnter event on the DataGrid control.
+             * If the dragInitiator is the Tree control, then only nodes of type "restaurant"
+             * are permitted to be dropped.
+             * Here you can see that by examining the dragSource you can determine if
+             * the control should accept the drop. The DataGrid control would not
+             * know how to treat a branch+children from the Tree control, so only leaf (restaurant)
+             * nodes are accepted.
+             */
+
+            private function onDragEnter( event:DragEvent ) : void {            
+                if( event.dragInitiator is Tree ) {
+                    var ds:DragSource = event.dragSource;
+                    if( !ds.hasFormat("treeItems") ) return;     // no useful data
+
+                    var items:Array = ds.dataForFormat("treeItems") as Array;
+                    for(var i:Number=0; i < items.length; i++) {
+                        var item:XML = XML(items[i]);
+                        if( item.@type != "rischio" ) return; // not what we want
+                    }
+                } 
+            	DragManager.acceptDragDrop(UIComponent(event.currentTarget)); 
+            }        
+
+            
+            private function titleWindow_close(evt:Event):void {
+                //Alert.show("Rischio non aggiunto");
+                PopUpManager.removePopUp(this);
+            }
+            
+            // Adding a risk to rischiNuoviArray in the parent application
+            private function aggiungi():void{
+            	tmpIdRischio = Albero.selectedItem.@codiceChecklist;
+                tmpDescrizioneRischio = Albero.selectedItem.@label;
+            	parentApplication.rischiNuoviArray.addItem({
+					"idRischio": "empty_" + parentApplication.emptyCNT.toString(), 
+					"descrizione": tmpDescrizioneRischio,
+					"codiceChecklist": tmpIdRischio,
+					"stato": "monitoraggio",
+					"categoria": "",
+					"rVer": "0",
+					"contingency": "0.0",
+					"causa": "",
+					"effetto": "",
+					"probIniziale": "0",
+					"impattoIniziale": "0",
+					"costoPotenzialeImpatto": "0.0"
+
+					});
+				parentApplication.emptyCNT++;
+            	PopUpManager.removePopUp(this);
+            }
+            
+            private function handlePlain(event:ResultEvent):void {
+            	Alert.show(event.result.toString());
+            }
+            
+			[Bindable]
+		    private var catList:XMLList;
+		   // Parsing XML data
+		    private function parseHandler(event:ResultEvent):void {
+				trace(event.result)
+				catList = event.result.node
+			}
+
+            
+        ]]>
+    </mx:Script>
+    <mx:HTTPService id="asynReq" url="http://localhost:8084/connectingInterface/getData"
+    	result="handlePlain(event);"
+		resultFormat="text"/>
+		
+	<mx:HTTPService id="catalogoLibriXML" url="http://localhost:8084/connectingInterface/getData?type=take_risksbycategory" resultFormat="e4x" result="parseHandler(event)">		
+	</mx:HTTPService>
+        
+    <mx:Label x="34" y="40" text="Fare Drag &amp; Drop per selezionare ulteriori rischi"/>
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:Tree width="100%" height="189"
+            id="Albero" 
+            dataProvider="{catList}"
+            labelField="@label"
+            dropEnabled="false"
+            dragEnabled="true"
+            dragComplete="//onTreeDragComplete(event)"
+            dragMoveEnabled="false"/>
+    </mx:HBox>
+    
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:Button id="Bottone" label="Aggiungi" click="aggiungi();//if (Albero.selectedItem != null){ aggiungi();}"/>
+        <mx:Button label="Annulla" click="titleWindow_close(event)"/>
+    </mx:HBox>
+</mx:TitleWindow>

@@ -1,0 +1,1671 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	backgroundGradientColors="[0xFFFFFF,0xAAAAAA]"
+	horizontalAlign="center"
+	verticalGap="15" creationComplete="selezionaProgetto()">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.containers.TitleWindow;
+			import mx.controls.Button;
+			import mx.events.ListEvent;
+			import mx.events.CloseEvent;
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.events.IndexChangedEvent;
+			import mx.utils.ArrayUtil;
+			import mx.events.MenuEvent;
+			import mx.controls.Menu;  
+			import mx.controls.MenuBar;
+			import mx.collections.IViewCursor;
+
+			
+			[Bindable]
+        	public var azioniSelectedArray:ArrayCollection=new ArrayCollection();
+        	[Bindable]
+        	public var azioniNuoveArray:ArrayCollection=new ArrayCollection();
+        	
+        	[Bindable]
+        	public var rischiSelectedArray:ArrayCollection=new ArrayCollection();
+        	[Bindable]
+        	public var rischiNuoviArray:ArrayCollection=new ArrayCollection();
+        	[Bindable]
+			public var tmpStatoNuovoRischio:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var tmpStatoBool:Boolean = false;
+        	
+        	public var tmpIdRischio:String;
+
+        	
+        	[Bindable] // THE RESPONSE TO SEND TO THE SERVER
+        	public var req:Object= {};
+        	
+        	[Bindable]
+        	public var pannelloAttuale:String = "";
+        	
+        	[Bindable]
+        	public var indiceAzioniAggiunte:int;
+        	
+        	[Bindable]
+        	public var emptyCNT:int = 0;
+        	//public var mappaPannelli_nuoveAzioni:ArrayCollection = new ArrayCollection();
+//***********************************************************************************************************************		
+			// Creating the pop up and handling the selection of a project
+			private function selezionaProgetto():void {
+				var pop1:selectProject;
+				pop1 = PopUpManager.createPopUp(this, selectProject, true) as selectProject;
+				PopUpManager.centerPopUp(pop1);
+				pop1["okButton"].addEventListener("click", checkAdd);
+			}
+			
+			private function checkAdd(event:Event): void {
+				getProjectData.send();
+			}
+//***********************************************************************************************************************			
+			// Right (dis)enabling of objects on checkbox press
+			private function changeActivation(ckbox:Object, cb:Object, txt:Object, num:Object, type:int):void
+	        {
+	        	switch(type) {
+	        		// I activate the numericStepper by clicking on the checkBox
+	        		case 0:
+	        			num.enabled = ckbox.selected;
+	        		break;
+	        		
+	        		// I activate the textInput and deactivate the comboBox
+	        		case 1:
+	        			txt.enabled = ckbox.selected;
+	        			cb.enabled = !(ckbox.selected);
+	        		break;
+	        		
+	        		case 2:
+	        			txt.enabled = ckbox.selected;
+	        			//ckbox.selected = !(ckbox.selected);
+	        		break;
+	        	}
+	        }
+//***********************************************************************************************************************	        
+	        private function changeActivationEvent(event:Event):void {
+	        	var valuesArray:Array;
+	            valuesArray = event.target.data.split("#");
+	            
+	            if (valuesArray[0] == "ckintensita") {
+	            	changeActivation(ckintensitaAzione[0][valuesArray[1]][valuesArray[2]], null, intensitaAzione[0][valuesArray[1]][valuesArray[2]], null, 2);
+	            } else if (valuesArray[0] == "ckintensitaNuoveAzioni") {
+	            	//Alert.show(valuesArray[1] + " " + valuesArray[2]);
+	            	//changeActivation(ckintensitaAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]], null, intensitaAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]], null, 2);
+	            }
+	        }
+//***********************************************************************************************************************	        
+	        // DEBUGGIN FUNCTION
+			private function handler(evt:Event):void {
+				//Alert.show();
+			}
+//***********************************************************************************************************************			
+			// Setting the right index on the combo boxes
+			private function initRepeat(evt:Event):void {
+				var valuesArray:Array;
+	            valuesArray = evt.target.data.split("#");
+	            
+	           	if (valuesArray[0] == "statoRischio") {
+	            	
+	            	if(valuesArray[3].toString().toLowerCase() == "monitoring") 
+	            		statoRischio[0][valuesArray[1]].selectedItem = statoRischioArray[0];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "mitigation") 
+	            		statoRischio[0][valuesArray[1]].selectedItem = statoRischioArray[1];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "closed") 
+	            		statoRischio[0][valuesArray[1]].selectedItem = statoRischioArray[2];
+	        
+	            } else if (valuesArray[0] == "rVerRischio") {
+	            	
+	            	if(valuesArray[3].toString().toLowerCase() == "0") 
+	            		rVer[0][valuesArray[1]].selectedItem = rVerRischioArray[0];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "1") 
+	            		rVer[0][valuesArray[1]].selectedItem = rVerRischioArray[1];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "2") 
+	            		rVer[0][valuesArray[1]].selectedItem = rVerRischioArray[2];
+	            		
+	            } else if (valuesArray[0] == "tipoAzione"){
+
+	            	if(valuesArray[3].toString().toUpperCase() == "R") 
+	            		tipoAzione[0][valuesArray[1]][valuesArray[2]].selectedItem = tipoAzioneArray[0];
+	            	else if(valuesArray[3].toString().toUpperCase() == "M")
+	            		tipoAzione[0][valuesArray[1]][valuesArray[2]].selectedItem = tipoAzioneArray[1];
+	            	
+	            } else if (valuesArray[0] == "statoAzione") {
+	            	
+	            	if(valuesArray[3].toString().toLowerCase() == "planned") 
+	            		statoAzione[0][valuesArray[1]][valuesArray[2]].selectedItem = statoAzioneArray[0];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "in progress") 
+	            		statoAzione[0][valuesArray[1]][valuesArray[2]].selectedItem = statoAzioneArray[1];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "closed") 
+	            		statoAzione[0][valuesArray[1]][valuesArray[2]].selectedItem = statoAzioneArray[2];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "back-up") 
+	            		statoAzione[0][valuesArray[1]][valuesArray[2]].selectedItem = statoAzioneArray[3];
+	            } else if (valuesArray[0] == "tipoNuovaAzione"){
+
+	            	if(valuesArray[3].toString().toUpperCase() == "R") 
+	            		//tipoAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]].selectedItem = tipoAzioneArray[0];
+	            		tipoAzioneNuoveAzioni[0][valuesArray[2]].selectedItem = tipoAzioneArray[0];
+	            	else if(valuesArray[3].toString().toUpperCase() == "M")
+	            		//tipoAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]].selectedItem = tipoAzioneArray[1];
+	            		tipoAzioneNuoveAzioni[0][valuesArray[2]].selectedItem = tipoAzioneArray[1];
+	            	
+	            } else if (valuesArray[0] == "statoNuovaAzione") {
+	            	
+	            	if(valuesArray[3].toString().toLowerCase() == "planned") 
+	            		//statoAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]].selectedItem = statoAzioneArray[0];
+	            		statoAzioneNuoveAzioni[0][valuesArray[2]].selectedItem = statoAzioneArray[0];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "in progress") 
+	            		//statoAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]].selectedItem = statoAzioneArray[1];
+	            		statoAzioneNuoveAzioni[0][valuesArray[2]].selectedItem = statoAzioneArray[1];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "closed") 
+	            		//statoAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]].selectedItem = statoAzioneArray[2];
+	            		statoAzioneNuoveAzioni[0][valuesArray[2]].selectedItem = statoAzioneArray[2];
+	            	else if(valuesArray[3].toString().toLocaleLowerCase() == "back-up") 
+	            		//statoAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]].selectedItem = statoAzioneArray[3];
+	            		statoAzioneNuoveAzioni[0][valuesArray[2]].selectedItem = statoAzioneArray[3];
+	            } else if (valuesArray[0] == "generic") { // DEBUGGING CODE
+	            	// prendo stringa, cerco l'indice corrispondente e lo do' in selezione
+	            	// [3] = oggetto
+	            	// [4] = stringa valore
+	            	var oggetto:String;
+	            	
+	            	switch(oggetto){
+	            		case "xx":
+	            		break;
+	            	}
+	            }
+				return;
+			}
+//***********************************************************************************************************************
+			/** AT THE MOMENT ONLY A DEBUGGING FUNCTION
+			*	For further implementation it could set the right index for a new action reload
+			*/ 
+			private function comboNuovaAzione(event:Event):void {
+				var i:Object;
+				var valuesArray:Array;
+	            valuesArray = event.target.data.split("#");
+				for each (i in azioniNuoveArray) {
+					if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+						if ( i.idAzione == event.target.getRepeaterItem().idAzione ){
+							if (valuesArray[0] == "tipoNuovaAzione"){
+								//if(i.tipo == "R") 
+				            		//tipoAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]].selectedItem = tipoAzioneArray[0];
+				            	//else if(i.tipo == "M")
+				            		//tipoAzioneNuoveAzioni[0][valuesArray[1]][valuesArray[2]].selectedItem = tipoAzioneArray[1];
+							}
+						}
+					}
+				}
+	  		}
+//***********************************************************************************************************************
+			// Initializing gotten actions array
+			private function initializeAzioniArray(event:Event):void {
+				azioniSelectedArray.addItem({
+					"idRischio": event.target.getRepeaterItem().idRischio,
+					"identifier": event.target.getRepeaterItem().identifier,
+					"idAzione": event.target.getRepeaterItem().idAzione,
+					"tipo": event.target.getRepeaterItem().tipo,
+					"stato": event.target.getRepeaterItem().stato,
+					"descrizione": event.target.getRepeaterItem().descrizione,
+					"revisione": event.target.getRepeaterItem().revisione,
+					"intensita": event.target.getRepeaterItem().intensita,
+					"ckintensita": event.target.getRepeaterItem().ckintensita
+					});
+				azioniSelectedArray.refresh();
+			}
+//***********************************************************************************************************************
+			// Initializing gotten risks array
+			private function initializeRischiArray(event:Event):void {
+				rischiSelectedArray.addItem({
+					"idRischio": event.target.getRepeaterItem().idRischio,
+					"codiceChecklist": event.target.getRepeaterItem().codiceChecklist,
+					"stato": event.target.getRepeaterItem().stato,
+					"categoria": event.target.getRepeaterItem().categoria,
+					"rVer": event.target.getRepeaterItem().rVer,
+					"revisione": event.target.getRepeaterItem().revisione,
+					"descrizione": event.target.getRepeaterItem().descrizione,
+					"contingency": event.target.getRepeaterItem().contingency,
+					"causa": event.target.getRepeaterItem().causa,
+					"effetto": event.target.getRepeaterItem().effetto,
+					"probIniziale": event.target.getRepeaterItem().probIniziale,
+					"impattoIniziale": event.target.getRepeaterItem().impattoIniziale,
+					"costoPotenzialeImpatto": event.target.getRepeaterItem().costoPotenzialeImpatto			
+				});
+				rischiSelectedArray.refresh();
+			}
+
+//***********************************************************************************************************************			
+			// Deleting a specific action (the switch indicate if the action is new or not)
+			private function deleteAzioniArray(event:Event):void {
+				var i:Object;
+				var cnt:int = 0;
+				var valuesArray:Array;
+	            valuesArray = event.target.data.split("#");
+				
+				if (valuesArray[0] == "titleAzione") {
+					// CASO DI AZIONI PRESE DAL SERVER
+					titleAzione[0][valuesArray[1]][event.target.repeaterIndex].visible = false;
+					titleAzione[0][valuesArray[1]][event.target.repeaterIndex].height = 0;
+					
+					for each (i in azioniSelectedArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							if ( i.idAzione == event.target.getRepeaterItem().idAzione ){
+								if ( i.tipo == event.target.getRepeaterItem().tipo ){
+									if ( i.stato == event.target.getRepeaterItem().stato ){
+										if ( i.descrizione == event.target.getRepeaterItem().descrizione ){
+											if ( i.revisione == event.target.getRepeaterItem().revisione ){
+												if ( i.intensita == event.target.getRepeaterItem().intensita ){
+													azioniSelectedArray.removeItemAt(cnt);
+													break;
+						}	}	}	}	}	}	}
+						cnt++;
+					}
+					azioniSelectedArray.refresh();
+					
+				} else if (valuesArray[0] == "titleNuovaAzione") {
+					// CASO DI AZIONI AGGIUNTE DALL'UTENTE
+					/**titleNuovaAzione[0][valuesArray[1]][event.target.repeaterIndex.toString()].visible = false;
+					titleNuovaAzione[0][valuesArray[1]][event.target.repeaterIndex.toString()].height = 0;*/
+					titleNuovaAzione[0][event.target.repeaterIndex.toString()].visible = false;
+					titleNuovaAzione[0][event.target.repeaterIndex.toString()].height = 0;
+					
+					for each (i in azioniNuoveArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							if ( i.idAzione == event.target.getRepeaterItem().idAzione ){
+								azioniNuoveArray.removeItemAt(cnt);
+								break;
+							}	
+						}
+						cnt++;
+					}
+					azioniNuoveArray.refresh();
+				}
+			}
+//***********************************************************************************************************************		
+			/**mappaPannelli_nuoveAzioni.addItem({
+					"pannello": pannelloAttuale,
+					"indiceNuovaAzione": indiceAzioniAggiunte
+				});*/
+			private function evitaDuplicati(event:Event, str1:String):void {
+				
+				var cnt:int = 0;
+				var valuesArray:Array = new Array(2);
+	            valuesArray[0] = str1;
+	            valuesArray[1] = pannelloAttuale;
+	            
+	            if (valuesArray[0] == "titleNuovaAzione") {
+	            	//Alert.show();
+					var i:Object;
+					var j:Object;
+					var z:Object;
+					var contaPannelli:int = 0;
+					var contaAzioni:int = 0;
+					
+					/**for each(i in riskPanel[0]) { //titleNuovaAzione[0]
+						Alert.show('contaPannelli: '+contaPannelli+'; contaAzioni: '+ contaAzioni);
+						for each(j in azioniNuoveArray) {
+							if (titleNuovaAzione[0][contaPannelli][contaAzioni] != null){
+								titleNuovaAzione[0][contaPannelli][contaAzioni].visible = false;
+								titleNuovaAzione[0][contaPannelli][contaAzioni].height = 0;
+							}
+							contaAzioni++;
+						}
+						contaPannelli++;
+					}*/
+					//Alert.show(titleNuovaAzione[0]);
+					var xchild:TitleWindow = TitleWindow(riskPanel[0][0].getChildByName("titleNuovaAzione"));
+					Alert.show(xchild[0].toString());
+					/**for each(z in mappaPannelli_nuoveAzioni ) {
+						
+						if (titleNuovaAzione[0][z.pannello][z.indiceNuovaAzione]){
+							Alert.show('z.pannello '+z.pannello + "; z.indiceNuovaAzione"+z.indiceNuovaAzione+";");
+							titleNuovaAzione[0][z.pannello+1][z.indiceNuovaAzione].visible = "true";
+							titleNuovaAzione[0][z.pannello+1][z.indiceNuovaAzione].height = 193;
+						}
+					}*/
+	            } else {
+	            
+	            }
+			}
+			
+			// ------------------------------------------------------------------------------
+			
+			// I don't want to see more than one time the new action inserted
+			private function evitaDuplicati1(event:Event, str1:String):void {
+				var i:Object;
+				var cnt:int = 0;
+				var valuesArray:Array = new Array(2);
+	            valuesArray[0] = str1;
+	            valuesArray[1] = pannelloAttuale;
+				
+				if (valuesArray[0] == "titleNuovaAzione") {
+					var xIdRischio:String = event.target.getRepeaterItem().idRischio;
+					var xIdAzione:String = event.target.getRepeaterItem().idAzione;
+
+					var indicePannelloDaVisualizzare:int;
+					for each(i in azioniNuoveArray){
+						//Alert.show(i.idRischio +"  "+ xIdRischio +" // "+ i.idAzione +" "+ xIdAzione);
+						if(i.idRischio == xIdRischio && i.idAzione == xIdAzione) {
+							indicePannelloDaVisualizzare = parseInt(valuesArray[1]);
+							break;
+						}
+					}
+					
+					var j:Object;
+					var contaPannelli:int = 0;
+
+					for each(j in titleNuovaAzione[0]) { //rptRischi[0]
+						Alert.show(
+						'contaPannelli: '+ contaPannelli +
+						' - indicePannelloDaVisualizzare: '+ indicePannelloDaVisualizzare +
+						' - indiceAzioniAggiunte: ' + indiceAzioniAggiunte);
+						
+						if (contaPannelli != indicePannelloDaVisualizzare){
+							if (titleNuovaAzione[0][contaPannelli][indiceAzioniAggiunte] != null){
+								titleNuovaAzione[0][contaPannelli][indiceAzioniAggiunte].visible = false;
+								titleNuovaAzione[0][contaPannelli][indiceAzioniAggiunte].height = 0;
+							}
+						}
+						//Qui conto i pannelli, ma le azioni nei pannelli
+						contaPannelli++;
+					}
+				}
+				else if (valuesArray[0] == "titleNuovaAzioneNG") {
+				
+				}
+			}
+//***********************************************************************************************************************			
+			// Deletind a Risk
+			private function deleteRischiArray(event:Event):void {
+				var i:Object;
+				var cnt:int = 0;
+				var valuesArray:Array;
+	            valuesArray = event.target.data.split("#");
+				
+				if (valuesArray[0] == "riskPanel") {
+					// CASO DI AZIONI PRESE DAL SERVER
+					riskPanel[0][event.target.repeaterIndex].visible = false;
+					riskPanel[0][event.target.repeaterIndex].height = 0;
+					
+					for each (i in rischiSelectedArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							if ( i.codiceChecklist == event.target.getRepeaterItem().codiceChecklist ){
+								rischiSelectedArray.removeItemAt(cnt);
+								break;
+							}	
+						}
+						cnt++;
+					}
+					rischiSelectedArray.refresh();
+					
+					cnt = 0;
+					for each (i in azioniSelectedArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							azioniSelectedArray.removeItemAt(cnt);
+						}
+						//Alert.show(i.idAzione + " - " + event.target.getRepeaterItem().idAzione);
+						cnt++;
+					}
+					azioniSelectedArray.refresh();
+				} else if (valuesArray[0] == "riskPanelRischiAggiunti") {
+					// CASO DI AZIONI PRESE DAL SERVER
+					riskPanelRischiAggiunti[0][event.target.repeaterIndex].visible = false;
+					riskPanelRischiAggiunti[0][event.target.repeaterIndex].height = 0;
+					
+					for each (i in rischiNuoviArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							if ( i.codiceChecklist == event.target.getRepeaterItem().codiceChecklist ){
+								rischiNuoviArray.removeItemAt(cnt);
+								break;
+							}	
+						}
+						cnt++;
+					}
+					
+					cnt = 0;
+					for each (i in azioniNuoveArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							azioniNuoveArray.removeItemAt(cnt);
+						}
+						cnt++;
+					}
+					rischiNuoviArray.refresh();
+					azioniNuoveArray.refresh();
+				}
+			}
+//***********************************************************************************************************************			
+			public var pop1:notSuggestedActions;
+			// Creating a pop up to add a new action
+			private function addAzioniArray(event:Event):void {
+				tmpIdRischio = event.target.getRepeaterItem().idRischio;
+				pop1 = PopUpManager.createPopUp(this, notSuggestedActions, true) as notSuggestedActions;
+				PopUpManager.centerPopUp(pop1);
+				
+				var valuesArray:Array;
+	            valuesArray = event.target.data.split("#");
+				
+				// Mando il codice Checklist
+				pop1.richiesta["data"] =  valuesArray[0];
+				pannelloAttuale = valuesArray[1];
+				
+				//Alert.show(pannelloAttuale);
+				
+				// Forse da cancellare..
+				// L'INDICE NON E' DELL'AZIONE, MA DEL RISCHIO!! PROBLEMA!!!!!
+				//indiceAzioniAggiunte = parseInt(event.target.repeaterIndex.toString());
+				/**Alert.show("mappaPannelli_nuoveAzioni.length: "+ mappaPannelli_nuoveAzioni.length);
+				indiceAzioniAggiunte = mappaPannelli_nuoveAzioni.length;*/
+				
+				pop1["okButton"].addEventListener("click", checkAddAzioniArray);
+				
+				return;
+			}
+			
+			// Adding the new action selected from the pop up
+			private function checkAddAzioniArray(event:Event):void {
+				var cnt:int = 0;
+				var i:Object;
+				
+				for each(i in azioniNuoveArray){
+					cnt++;
+				}
+				azioniNuoveArray.addItem({
+					"idRischio": tmpIdRischio, 
+					"idAzione": pop1.tmpIdAzione,
+					"identifier": "0",
+					"tipo": pop1.tmpTipoNuovaAzione,
+					"stato": "planned",
+					"descrizione": pop1.tmpDescrizioneAzione,
+					"revisione": "0",
+					"intensita": "0",
+					"ckintensita": "true"
+					});
+				azioniNuoveArray.refresh();
+				Alert.show("Hai aggiunto una nuova azione al rischio "+tmpIdRischio+". Vai al pannello \"Nuove azioni\"" + 
+						"per visualizzarla e modificarne i valori", "Bene");
+				// ---- Aggiorno la mappa di pannelli e nuove azioni
+				/*mappaPannelli_nuoveAzioni.addItem({
+					"pannello": pannelloAttuale,
+					"indiceNuovaAzione": indiceAzioniAggiunte
+				});*/
+			}
+//***********************************************************************************************************************			
+			// Updating the actions array
+			private function updateAzioniArray(event:Event):void {
+				var i:Object;
+				var cnt:int = 0;
+				var valuesArray:Array;
+	            valuesArray = event.target.data.split("#");
+				// 0 -> tipo
+				// 1 -> indice Repeater Rischio
+				
+				if (valuesArray[0] == "titleAzione" || valuesArray[0] == "tipoAzione" || valuesArray[0] == "statoAzione") {
+					// CASO DI AZIONI PRESE DAL SERVER
+					
+					for each (i in azioniSelectedArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							if ( i.idAzione == event.target.getRepeaterItem().idAzione ){
+								azioniSelectedArray[cnt].tipo = tipoAzione[0][valuesArray[1]][event.target.repeaterIndex.toString()].selectedItem.data;
+								azioniSelectedArray[cnt].stato = statoAzione[0][valuesArray[1]][event.target.repeaterIndex.toString()].selectedItem.data;
+								azioniSelectedArray[cnt].descrizione = descrizioneAzione[0][valuesArray[1]][event.target.repeaterIndex.toString()].text;
+								azioniSelectedArray[cnt].intensita = intensitaAzione[0][valuesArray[1]][event.target.repeaterIndex.toString()].text;
+								azioniSelectedArray[cnt].ckintensita = ckintensitaAzione[0][valuesArray[1]][event.target.repeaterIndex.toString()].selected;
+								break;
+							}	
+						}
+						cnt++;
+					}
+					azioniSelectedArray.refresh();
+				} else if (valuesArray[0] == "titleNuovaAzione") {
+					// CASO DI AZIONI AGGIUNTE DALL'UTENTE
+					
+					for each (i in azioniNuoveArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							if ( i.idAzione == event.target.getRepeaterItem().idAzione ){
+								//azioniNuoveArray[cnt].tipo = tipoAzioneNuoveAzioni[0][valuesArray[1]][event.target.repeaterIndex.toString()].text;
+								azioniNuoveArray[cnt].tipo = tipoAzioneNuoveAzioni[0][event.target.repeaterIndex.toString()].text;
+								/**if (statoAzioneNuoveAzioni[0][valuesArray[1]][event.target.repeaterIndex.toString()].selectedItem != null)
+									azioniNuoveArray[cnt].stato = statoAzioneNuoveAzioni[0][valuesArray[1]][event.target.repeaterIndex.toString()].selectedItem.data;
+								*/
+								if (statoAzioneNuoveAzioni[0][event.target.repeaterIndex.toString()].selectedItem != null)
+									azioniNuoveArray[cnt].stato = statoAzioneNuoveAzioni[0][event.target.repeaterIndex.toString()].selectedItem.data;
+									
+								/**azioniNuoveArray[cnt].descrizione = descrizioneAzioneNuoveAzioni[0][valuesArray[1]][event.target.repeaterIndex.toString()].text;
+								azioniNuoveArray[cnt].intensita = intensitaAzioneNuoveAzioni[0][valuesArray[1]][event.target.repeaterIndex.toString()].text;
+								azioniNuoveArray[cnt].ckintensita = ckintensitaAzioneNuoveAzioni[0][valuesArray[1]][event.target.repeaterIndex.toString()].selected;
+								*/
+								azioniNuoveArray[cnt].descrizione = descrizioneAzioneNuoveAzioni[0][event.target.repeaterIndex.toString()].text;
+								azioniNuoveArray[cnt].intensita = intensitaAzioneNuoveAzioni[0][event.target.repeaterIndex.toString()].text;
+								azioniNuoveArray[cnt].ckintensita = ckintensitaAzioneNuoveAzioni[0][event.target.repeaterIndex.toString()].selected;
+								
+									
+								break;
+							}	
+						}
+						cnt++;
+					}
+					azioniNuoveArray.refresh();
+				}
+			}
+//***********************************************************************************************************************			
+			// Updating  risks array
+			private function updateRischiArray(event:Event):void {
+				var i:Object;
+				var cnt:int = 0;
+				var valuesArray:Array;
+	            valuesArray = event.target.data.split("#");
+				// 0 -> tipo
+				// 1 -> indice Repeater Rischio
+				//Alert.show(valuesArray[0]);
+				if (valuesArray[0] == "riskPanel" || valuesArray[0] == "rVerRischio" || valuesArray[0] == "statoRischio" ) {
+					// CASO DI AZIONI PRESE DAL SERVER
+					for each (i in rischiSelectedArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							if ( i.codiceChecklist == event.target.getRepeaterItem().codiceChecklist ){
+								
+								var stato:String = statoRischio[0][event.target.repeaterIndex.toString()].selectedItem.data;
+								var rVer:String = rVer[0][event.target.repeaterIndex.toString()].selectedItem.data;
+								Alert.show(statoRischioArray[0].data +" "+statoRischioArray[0].data);
+								// CHECK STATO
+								if(stato.toLowerCase() == "monitoring") 
+				            		rischiSelectedArray[cnt].stato = statoRischioArray[0].data;
+				            	else if(stato.toLocaleLowerCase() == "mitigation") 
+				            		rischiSelectedArray[cnt].stato = statoRischioArray[1].data;
+				            	else if(stato.toLocaleLowerCase() == "closed") 
+				            		rischiSelectedArray[cnt].stato = statoRischioArray[2].data;
+				            	
+				            	// CHECK rVer
+				            	if(rVer == "0") 
+				            		rischiSelectedArray[cnt].rVer = rVerRischioArray[0].data;
+				            	else if(rVer == "1") 
+				            		rischiSelectedArray[cnt].rVer = rVerRischioArray[1].data;
+				            	else if(rVer == "2") 
+				            		rischiSelectedArray[cnt].rVer = rVerRischioArray[2].data;
+								
+								rischiSelectedArray[cnt].categoria = categoriaRischio[0][event.target.repeaterIndex.toString()].text;
+								rischiSelectedArray[cnt].descrizione = descrizioneRischio[0][event.target.repeaterIndex.toString()].text;
+								rischiSelectedArray[cnt].contingency = contingencyRischio[0][event.target.repeaterIndex.toString()].text;
+								rischiSelectedArray[cnt].causa = causaRischio[0][event.target.repeaterIndex.toString()].text;
+								rischiSelectedArray[cnt].effetto = effettoRischio[0][event.target.repeaterIndex.toString()].text;
+								rischiSelectedArray[cnt].probIniziale = probIniziale[0][event.target.repeaterIndex.toString()].data;
+								rischiSelectedArray[cnt].impattoIniziale = impattoIniziale[0][event.target.repeaterIndex.toString()].data;
+								rischiSelectedArray[cnt].costoPotenzialeImpatto = costoPotenzialeImpattoRischio[0][event.target.repeaterIndex.toString()].text;
+								break;
+							}	
+						}
+						cnt++;
+					}
+					rischiSelectedArray.refresh();
+					
+				} else if (valuesArray[0] == "riskPanelRischiAggiunti") {
+					// CASO DI AZIONI AGGIUNTE DALL'UTENTE
+					
+					for each (i in rischiNuoviArray) {
+						if ( i.idRischio == event.target.getRepeaterItem().idRischio ){
+							if ( i.codiceChecklist == event.target.getRepeaterItem().codiceChecklist ){
+								
+								
+								
+								if (statoRischioRischiAggiunti[0][event.target.repeaterIndex.toString()].selectedItem != null) {
+									var statoX:String = statoRischioRischiAggiunti[0][event.target.repeaterIndex.toString()].selectedItem.data;
+									// CHECK STATO
+									if(statoX.toLowerCase() == "monitoring") 
+					            		rischiNuoviArray[cnt].stato = statoRischioArray[0].data;
+					            	else if(statoX.toLocaleLowerCase() == "mitigation") 
+					            		rischiNuoviArray[cnt].stato = statoRischioArray[1].data;
+					            	else if(statoX.toLocaleLowerCase() == "closed") 
+					            		rischiNuoviArray[cnt].stato = statoRischioArray[2].data;
+								}
+								if (rVerRischiAggiunti[0][event.target.repeaterIndex.toString()].selectedItem != null) {
+									var rVerX:String = rVerRischiAggiunti[0][event.target.repeaterIndex.toString()].selectedItem.data;
+									// CHECK rVer
+					            	if(rVerX == "0") 
+					            		rischiNuoviArray[cnt].rVer = rVerRischioArray[0].data;
+					            	else if(rVerX == "1") 
+					            		rischiNuoviArray[cnt].rVer = rVerRischioArray[1].data;
+					            	else if(rVerX == "2") 
+					            		rischiNuoviArray[cnt].rVer = rVerRischioArray[2].data;
+								
+								}
+
+								rischiNuoviArray[cnt].categoria = categoriaRischioRischiAggiunti[0][event.target.repeaterIndex.toString()].text;
+								rischiNuoviArray[cnt].descrizione = descrizioneRischioRischiAggiunti[0][event.target.repeaterIndex.toString()].text;
+								rischiNuoviArray[cnt].contingency = contingencyRischioRischiAggiunti[0][event.target.repeaterIndex.toString()].text;
+								rischiNuoviArray[cnt].causa = causaRischioRischiAggiunti[0][event.target.repeaterIndex.toString()].text;
+								rischiNuoviArray[cnt].effetto = effettoRischioRischiAggiunti[0][event.target.repeaterIndex.toString()].text;
+								rischiNuoviArray[cnt].probIniziale = probInizialeRischiAggiunti[0][event.target.repeaterIndex.toString()].data;
+								rischiNuoviArray[cnt].impattoIniziale = impattoInizialeRischiAggiunti[0][event.target.repeaterIndex.toString()].data;
+								rischiNuoviArray[cnt].costoPotenzialeImpatto = costoPotenzialeImpattoRischioRischiAggiunti[0][event.target.repeaterIndex.toString()].text;	
+								
+								break;
+							}	
+						}
+						cnt++;
+					}
+					rischiNuoviArray.refresh();
+				}
+			}
+//***********************************************************************************************************************
+			// DEBIGGIN FUNCTION 
+			private function deleteRisk(event:CloseEvent):void { }
+//***********************************************************************************************************************			
+			// Creating a pop up to select new risks
+			private function notSuggestedRisk(evt:Event):void {
+				var pop2:notSuggestedRisks;
+                pop2 = PopUpManager.createPopUp(this, notSuggestedRisks, true) as notSuggestedRisks;
+				PopUpManager.centerPopUp(pop2);
+                return;
+			}
+//***********************************************************************************************************************			
+			public var pop2:notSuggestedRisks;
+			// Handling a new risk adding from the pop up selection
+			private function addRischiArray(event:Event):void {
+				pop2 = PopUpManager.createPopUp(this, notSuggestedRisks, true) as notSuggestedRisks;
+				PopUpManager.centerPopUp(pop2);
+				return;
+			}
+			
+			private function checkAddRischiArray(event:Event):void {
+				var cnt:int = 0;
+				var i:Object;
+				
+				for each(i in rischiNuoviArray){
+					cnt++;
+				}
+				Alert.show("empty" + emptyCNT.toString());
+				rischiNuoviArray.addItem({
+					"idRischio": "empty_" + emptyCNT.toString(), // TODO -> INSERTING PANEL NUMBER
+					"descrizione": pop2.tmpDescrizioneRischio,
+					"codiceChecklist": pop2.tmpIdRischio,
+					"stato": "",
+					"categoria": "",
+					"rVer": "",
+					"revisione": "0",
+					"contingency": "0.0",
+					"causa": "",
+					"effetto": "",
+					"probIniziale": "0",
+					"impattoIniziale": "0",
+					"costoPotenzialeImpatto": "0.0"
+				});
+				rischiNuoviArray.refresh();
+				emptyCNT++;
+			}
+//***********************************************************************************************************************			
+			// Creating the query string to send the data
+			public function createQueryStringAndSend():Object {
+				
+				var cnt:int = 0;
+				var i:Object;
+				var aux:String;
+				req["type"] = "give_mx";
+				
+				aux = "newrisk";
+				for each(i in rischiNuoviArray){
+					req[aux+"_idRischio_"+cnt] = i.idRischio ;
+					req[aux+"_descrizione_"+cnt] = i.descrizione ;
+					req[aux+"_codiceChecklist_"+cnt] = i.codiceChecklist ;
+					req[aux+"_stato_"+cnt] = i.stato ;
+					req[aux+"_categoria_"+cnt] = i.categoria ;
+					req[aux+"_rVer_"+cnt] = i.rVer ;
+					req[aux+"_revisione_"+cnt] = i.revisione ;
+					req[aux+"_contingency_"+cnt] = i.contingency ;
+					req[aux+"_causa_"+cnt] = i.causa ;
+					req[aux+"_effetto_"+cnt] = i.effetto ;
+					req[aux+"_probIniziale_"+cnt] = i.probIniziale ;
+					req[aux+"_impattoIniziale_"+cnt] = i.impattoIniziale ;
+					req[aux+"_costoPotenzialeImpatto_"+cnt] = i.costoPotenzialeImpatto ;
+					
+					cnt++;
+				}
+				req[aux+"_cnt"] = cnt.toString();
+				cnt = 0;
+				
+				aux = "risk";
+				for each(i in rischiSelectedArray){
+					req[aux+"_idRischio_"+cnt] = i.idRischio ;
+					req[aux+"_descrizione_"+cnt] = i.descrizione ;
+					req[aux+"_codiceChecklist_"+cnt] = i.codiceChecklist ;
+					req[aux+"_stato_"+cnt] = i.stato ;
+					req[aux+"_categoria_"+cnt] = i.categoria ;
+					req[aux+"_rVer_"+cnt] = i.rVer ;
+					req[aux+"_revisione_"+cnt] = i.revisione ;
+					req[aux+"_contingency_"+cnt] = i.contingency ;
+					req[aux+"_causa_"+cnt] = i.causa ;
+					req[aux+"_effetto_"+cnt] = i.effetto ;
+					req[aux+"_probIniziale_"+cnt] = i.probIniziale ;
+					req[aux+"_impattoIniziale_"+cnt] = i.impattoIniziale ;
+					req[aux+"_costoPotenzialeImpatto_"+cnt] = i.costoPotenzialeImpatto ;
+					cnt++;
+				}
+				req[aux+"_cnt"] = cnt.toString();
+				cnt = 0;
+				
+				aux = "newaction";
+				for each(i in azioniNuoveArray){
+					req[aux+"_idRischio_"+cnt] = i.idRischio ;
+					req[aux+"_idAzione_"+cnt] = i.idAzione ;
+					req[aux+"_identifier_"+cnt] = i.identifier ;
+					req[aux+"_tipo_"+cnt] = i.tipo ;
+					req[aux+"_stato_"+cnt] = i.stato ;
+					req[aux+"_descrizione_"+cnt] = i.descrizione ;
+					req[aux+"_revisione_"+cnt] = i.revisione ;
+					req[aux+"_intensita_"+cnt] = i.intensita ;
+					req[aux+"_ckintensita_"+cnt] = i.ckintensita ;
+					cnt++;
+				}
+				req[aux+"_cnt"] = cnt.toString();
+				cnt = 0;
+				
+				aux = "action";
+				for each(i in azioniSelectedArray){
+					req[aux+"_idRischio_"+cnt] = i.idRischio ;
+					req[aux+"_idAzione_"+cnt] = i.idAzione ;
+					req[aux+"_identifier_"+cnt] = i.identifier ;
+					req[aux+"_tipo_"+cnt] = i.tipo ;
+					req[aux+"_stato_"+cnt] = i.stato ;
+					req[aux+"_descrizione_"+cnt] = i.descrizione ;
+					req[aux+"_revisione_"+cnt] = i.revisione ;
+					req[aux+"_intensita_"+cnt] = i.intensita ;
+					req[aux+"_ckintensita_"+cnt] = i.ckintensita ;
+					cnt++;
+				}
+				req[aux+"_cnt"] = cnt.toString();
+				
+				//********************************************
+				
+				req["codice"]=codice[0].text;
+				req["reparto"]=reparto[0].text;
+				req["valoreEconomico"]=valoreEconomico[0].text;
+				req["durataContratto"]=durataContratto[0].value;
+				req["oggettoFornitura"]=oggettoFornitura[0].text;
+				req["nomeCliente"]=cliente[0].text;
+				req["classeDiRischio"]=classeDiRischio[0].text;
+				req["isOpen"]=isOpen[0].text;
+				req["isCase"]=isCase[0].text;
+				
+				req["rp1"]=rp1[0]["value"];
+				req["rp2"]=rp2[0]["value"];
+				req["rp3"]=rp3[0]["value"];
+				req["rmc1"]=rmc1[0]["value"];
+				req["rmc2"]=rmc2[0]["value"];
+				req["rmc3"]=rmc3[0]["value"];
+				req["rc1"]=rc1[0]["value"];
+				req["rc2"]=rc2[0]["value"];
+				req["rc3"]=rc3[0]["value"];
+				req["rcp1"]=rcp1[0]["value"];
+				req["rcp2"]=rcp2[0]["value"];
+				req["rcp3"]=rcp3[0]["value"];
+				req["ri1"]=ri1[0]["value"];
+				req["ri2"]=ri2[0]["value"];
+				req["ri3"]=ri3[0]["value"];
+				req["ra1"]=ra1[0]["value"];
+				req["ra2"]=ra2[0]["value"];
+				req["ra3"]=ra3[0]["value"];
+				req["rf1"]=rf1[0]["value"];
+				req["rf2"]=rf2[0]["value"];
+				req["rf3"]=rf3[0]["value"];
+				req["rm1"]=rm1[0]["value"];
+				req["rm2"]=rm2[0]["value"];
+				req["rm3"]=rm3[0]["value"];
+				req["rav1"]=rav1[0]["value"];
+				req["rav2"]=rav2[0]["value"];
+				req["rav3"]=rav3[0]["value"];
+	
+				req["IM"]=IM[0]["value"];
+				req["IC"]=IC[0]["value"];
+				req["IP"]=IP[0]["value"];
+				req["IA"]=IA[0]["value"];
+				req["IPP"]=IPP[0]["value"];
+	
+				req["ckrp1"]=ckrp1[0].selected;
+				req["ckrp2"]=ckrp2[0].selected;
+				req["ckrp3"]=ckrp3[0].selected;
+				req["ckmc1"]=ckrmc1[0].selected;
+				req["ckrmc2"]=ckrmc2[0].selected;
+				req["ckrmc3"]=ckrmc3[0].selected;
+				req["ckrc1"]=ckrc1[0].selected;
+				req["ckrc2"]=ckrc2[0].selected;
+				req["ckrc3"]=ckrc3[0].selected;
+				req["ckrcp1"]=ckrcp1[0].selected;
+				req["ckrcp2"]=ckrcp2[0].selected;
+				req["ckrcp3"]=ckrcp3[0].selected;
+				req["ckri1"]=ckri1[0].selected;
+				req["ckri2"]=ckri2[0].selected;
+				req["ckri3"]=ckri3[0].selected;
+				req["ckra1"]=ckra1[0].selected;
+				req["ckra2"]=ckra2[0].selected;
+				req["ckra3"]=ckra3[0].selected;
+				req["ckrf1"]=ckrf1[0].selected;
+				req["ckrf2"]=ckrf2[0].selected;
+				req["ckrf3"]=ckrf3[0].selected;
+				req["ckrm1"]=ckrm1[0].selected;
+				req["ckrm2"]=ckrm2[0].selected;
+				req["ckrm3"]=ckrm3[0].selected;
+				req["ckrav1"]=ckrav1[0].selected;
+				req["ckrav2"]=ckrav2[0].selected;
+				req["ckrav3"]=ckrav3[0].selected;
+				req["ckIM"]=ckIM[0].selected;
+				req["ckIC"]=ckIC[0].selected;
+				req["ckIP"]=ckIP[0].selected;
+				req["ckIA"]=ckIA[0].selected;
+				req["ckIPP"]=ckIPP[0].selected;
+				
+				//********************************************
+				//req["debug"] = "yes";
+				spedisci.send(req);
+				return req;
+			}
+			
+			// Function that gets the plain result from the server
+			private function handlePlain(event:ResultEvent):void
+	        {
+				Alert.show(event.result.toString(), "Risposta");
+	        }
+			import mx.rpc.events.FaultEvent;
+			// Function that handles the error event gotten from the server
+	        private function handleFault(event:FaultEvent):void
+	        {
+				Alert.show(event.fault.faultString, "Error");
+	        }
+//***********************************************************************************************************************
+		]]>
+	</mx:Script>
+	
+	<mx:HTTPService id="getCustomer" url="http://localhost:8084/connectingInterface/getData?type=take_cliente" />
+	<mx:HTTPService id="getReparto" url="http://localhost:8084/connectingInterface/getData?type=take_reparto" />
+	<mx:HTTPService id="getOggettoFornitura" url="http://localhost:8084/connectingInterface/getData?type=take_oggettofornitura" />
+	
+	<mx:HTTPService id="getRisksSelected" url="http://localhost:8084/connectingInterface/getData?type=take_selectedrisksbycategory"
+		result="handler(event)"/>	
+	
+	<mx:HTTPService id="getProjectData" url="http://localhost:8084/connectingInterface/getData?type=take_whatopenedproject"
+		result="handler(event)"/>
+		
+	<mx:HTTPService method="POST" id="spedisci" url="http://localhost:8084/connectingInterface/getData"
+    	result="handlePlain(event);"
+    	fault="handleFault(event);"
+		resultFormat="text"/>
+	
+	<mx:ArrayCollection id="statoAzioneArray">
+     	<mx:Object label="Pianificata" data="Planned"/>
+     	<mx:Object label="In progress" data="In progress"/>
+     	<mx:Object label="Chiusa" data="Closed"/>
+     	<mx:Object label="Di backup" data="Back-up"/>
+  	</mx:ArrayCollection>
+  	
+  	<mx:ArrayCollection id="tipoAzioneArray">
+		<mx:Object label="Recovery" data="R"/>
+		<mx:Object label="Mitigazione" data="M"/>
+	</mx:ArrayCollection>
+	
+	<mx:ArrayCollection id="statoRischioArray">
+     	<mx:Object label="Monitoraggio" data="Monitoring"/>
+     	<mx:Object label="Mitigazione" data="Mitigation"/>
+     	<mx:Object label="Chiuso" data="Closed"/>
+    </mx:ArrayCollection>
+    
+    <mx:ArrayCollection id="rVerRischioArray">
+    	<mx:Object label="Rischio Aperto" data="0"/>
+    	<mx:Object label="Rischio Verificato" data="1"/>
+    	<mx:Object label="Rischio Non Verificato" data="2"/>
+ 	</mx:ArrayCollection>
+	
+	<mx:VBox height="100%" width="100%" horizontalAlign="center" initialize="//getProjectData.send();">
+		<mx:Repeater id="srv" dataProvider="{getProjectData.lastResult.progetto}">
+			
+		
+		<mx:ApplicationControlBar>
+			<mx:Label text="Aggiorna progetto aperto" fontSize="20" fontWeight="bold" color="#BC0F0F" textDecoration="underline"/>
+		</mx:ApplicationControlBar>
+
+		<mx:LinkBar dataProvider="{viewstack1[0]}">
+		</mx:LinkBar>
+		<mx:ViewStack id="viewstack1" width="90%" height="100%">
+			<!--INFORMAZIONI GENERALI -->
+			
+			<mx:Canvas label="Informazioni Generali" width="100%" height="100%" borderStyle="inset" backgroundColor="#FFFFFF" backgroundAlpha="0.72">
+				<mx:HBox height="100%" width="100%" horizontalAlign="center" verticalAlign="middle">
+					<mx:VBox verticalAlign="middle" horizontalAlign="center" verticalGap="10" height="100%" width="380">
+						
+					<mx:HBox width="100%" horizontalAlign="left">
+						<mx:Label text="Codice" width="150" fontWeight="bold"/>
+						<mx:TextInput id="codice" text="{srv.currentItem.codice}"  editable="false"/>
+						<!--<mx:Image source="http://www.iitpathshala.com/images/faq_icon.gif" click="faq('codice')"/>-->
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="left">
+						<mx:Label text="Reparto" width="150" fontWeight="bold"/>
+						<mx:TextInput id="reparto" text="{srv.currentItem.reparto}"  editable="false"/>
+						<!--<mx:ComboBox id="reparto" selectedIndex="{srv.currentItem.reparto}" dataProvider="{getReparto.lastResult.reparto}" initialize="getReparto.send();" editable="false"></mx:ComboBox>-->
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="left">
+						<mx:Label text="Classe di rischio progetto" width="150" fontWeight="bold"/>
+						<mx:VBox height="100%" >
+							
+							<mx:RadioButton label="Molto rischioso" groupName="classeDiRischio" selected="{srv.currentItem.classeDiRischio == '1'}"  enabled="false"/>
+							<mx:RadioButton label="Media rischiosità" groupName="classeDiRischio" selected="{srv.currentItem.classeDiRischio == '2'}" enabled="false" />
+							<mx:RadioButton label="A basso rischio" groupName="classeDiRischio" selected="{srv.currentItem.classeDiRischio == '3'}" enabled="false"/>
+						</mx:VBox>
+						
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="left">
+						<mx:Label text="Valore economico" width="150" fontWeight="bold"/>
+						<mx:TextInput text="{srv.currentItem.valoreEconomico}" id="valoreEconomico" editable="false"/>
+						<!--<mx:Image source="http://www.iitpathshala.com/images/faq_icon.gif" click="faq('valoreEconomico')"/>-->
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="left">
+						<mx:Label text="Durata contratto" width="150" fontWeight="bold"/>
+						<mx:NumericStepper value="{srv.currentItem.durataContratto}" stepSize="1" id="durataContratto" minimum="1" maximum="15"/>
+						<!--<mx:Image source="http://www.iitpathshala.com/images/faq_icon.gif" click="faq('durataContratto')"/>-->
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="left">
+						<mx:Label text="Oggetto fornitura" width="150" fontWeight="bold"/>
+						<mx:TextInput id="oggettoFornitura" text="{srv.currentItem.oggettoFornitura}"  editable="false"/>
+						<!--<mx:ComboBox id="oggettoFornitura" dataProvider="{getOggettoFornitura.lastResult.oggettoFornitura}" initialize="getOggettoFornitura.send();" editable="false"></mx:ComboBox>-->
+					</mx:HBox>
+					<mx:HBox width="100%" horizontalAlign="left">
+						<mx:Label text="Nome cliente" width="150" fontWeight="bold"/>
+						<mx:TextInput id="cliente" text="{srv.currentItem.nomeCliente}"  editable="false"/>
+						<!--<mx:ComboBox id="nomeCliente" dataProvider="{getCustomer.lastResult.nome}"  initialize="getCustomer.send();" editable="false">
+						</mx:ComboBox>-->
+					</mx:HBox>
+					<mx:Text text="{srv.currentItem.isOpen}" id="isOpen" visible="false"/>
+					<mx:Text text="{srv.currentItem.isCase}" id="isCase" visible="false"/>
+					<mx:Text text="{srv.currentItem.classeDiRischio}" id="classeDiRischio" visible="false"/>
+					</mx:VBox>
+				</mx:HBox>
+			</mx:Canvas>
+			
+			<mx:Canvas label="Livello di rischio" width="100%" height="100%" borderStyle="inset" backgroundColor="#FFFFFF" backgroundAlpha="0.72">
+			<mx:VBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="center">
+				<mx:Label text="(0 minima influenza - 3 massima influenza)" />
+				<mx:HBox horizontalAlign="center">
+					<mx:VBox height="100%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Paese:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrp1" change="changeActivation(ckrp1[0], null, null, rp1[0] ,0)" selected="{srv.currentItem.ckrp1}"/>
+							<mx:Label text="RP1" width="40"/>
+							<mx:NumericStepper id="rp1" minimum="0" maximum="3" value="{srv.currentItem.rp1}" enabled="{srv.currentItem.ckrp1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrp2" change="changeActivation(ckrp2[0], null, null, rp2[0] ,0)" selected="{srv.currentItem.ckrp2}"/>
+							<mx:Label text="RP2" width="40"/>
+							<mx:NumericStepper id="rp2" minimum="0" maximum="3" value="{srv.currentItem.rp2}" enabled="{srv.currentItem.ckrp2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrp3" change="changeActivation(ckrp3[0], null, null, rp3[0] ,0)" selected="{srv.currentItem.ckrp3}"/>
+							<mx:Label text="RP3" width="40"/>
+							<mx:NumericStepper id="rp3" minimum="0" maximum="3" value="{srv.currentItem.rp3}" enabled="{srv.currentItem.ckrp3}"/>
+						</mx:HBox>
+					</mx:VBox>
+					
+					<mx:VBox height="100%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Mercato cliente:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrmc1" change="changeActivation(ckrmc1[0], null, null, rmc1[0] ,0)"  selected="{srv.currentItem.ckrmc1}"/>
+							<mx:Label text="RMC1" width="40"/>
+							<mx:NumericStepper id="rmc1" minimum="0" maximum="3" value="{srv.currentItem.rmc1}" enabled="{srv.currentItem.ckrmc1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrmc2" change="changeActivation(ckrmc2[0], null, null, rmc2[0] ,0)" selected="{srv.currentItem.ckrmc2}"/>
+							<mx:Label text="RMC2" width="40"/>
+							<mx:NumericStepper id="rmc2" minimum="0" maximum="3" value="{srv.currentItem.rmc2}" enabled="{srv.currentItem.ckrmc2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrmc3" change="changeActivation(ckrmc3[0], null, null, rmc3[0] ,0)" selected="{srv.currentItem.ckrmc3}"/>
+							<mx:Label text="RMC3" width="40"/>
+							<mx:NumericStepper id="rmc3" minimum="0" maximum="3" value="{srv.currentItem.rmc3}" enabled="{srv.currentItem.ckrmc3}"/>
+						</mx:HBox>
+					</mx:VBox>
+					
+					<mx:VBox height="100%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Contratto:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrc1" change="changeActivation(ckrc1[0], null, null, rc1[0] ,0)" selected="{srv.currentItem.ckrc1}"/>
+							<mx:Label text="RC1" width="40"/>
+							<mx:NumericStepper id="rc1" minimum="0" maximum="3" value="{srv.currentItem.rc1}" enabled="{srv.currentItem.ckrc1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrc2" change="changeActivation(ckrc2[0], null, null, rc2[0] ,0)" selected="{srv.currentItem.ckrc2}"/>
+							<mx:Label text="RC2" width="40"/>
+							<mx:NumericStepper id="rc2" minimum="0" maximum="3" value="{srv.currentItem.rc2}" enabled="{srv.currentItem.ckrc2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrc3" change="changeActivation(ckrc3[0], null, null, rc3[0],0)" selected="{srv.currentItem.ckrc3}"/>
+							<mx:Label text="RC3" width="40"/>
+							<mx:NumericStepper id="rc3" minimum="0" maximum="3" value="{srv.currentItem.rc3}" enabled="{srv.currentItem.ckrc3}"/>
+						</mx:HBox>
+					</mx:VBox>
+				</mx:HBox>
+	
+				<mx:HBox>
+					<mx:VBox height="100%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Composizione partnership:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrcp1" change="changeActivation(ckrcp1[0], null, null, rcp1[0] ,0)" selected="{srv.currentItem.ckrcp1}"/>
+							<mx:Label text="RCP1" width="40"/>
+							<mx:NumericStepper id="rcp1" minimum="0" maximum="3" value="{srv.currentItem.rp1}" enabled="{srv.currentItem.ckrp1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrcp2" change="changeActivation(ckrcp2[0], null, null, rcp2[0] ,0)" selected="{srv.currentItem.ckrcp2}"/>
+							<mx:Label text="RCP2" width="40"/>
+							<mx:NumericStepper id="rcp2" minimum="0" maximum="3" value="{srv.currentItem.rp2}" enabled="{srv.currentItem.ckrp2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrcp3" change="changeActivation(ckrcp3[0], null, null, rcp3[0] ,0)" selected="{srv.currentItem.ckrcp3}"/>
+							<mx:Label text="RCP3" width="40"/>
+							<mx:NumericStepper id="rcp3" minimum="0" maximum="3" value="{srv.currentItem.rp3}" enabled="{srv.currentItem.ckrp3}"/>
+						</mx:HBox>
+					</mx:VBox>
+					
+					<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Ingegneria:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckri1" change="changeActivation(ckri1[0], null, null, ri1[0] ,0)" selected="{srv.currentItem.ckri1}"/>
+							<mx:Label text="RI1" width="40"/>
+							<mx:NumericStepper id="ri1" minimum="0" maximum="3" value="{srv.currentItem.ri1}" enabled="{srv.currentItem.ckri1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckri2" change="changeActivation(ckri2[0], null, null, ri2[0] ,0)" selected="{srv.currentItem.ckri2}"/>
+							<mx:Label text="RI2" width="40"/>
+							<mx:NumericStepper id="ri2" minimum="0" maximum="3" value="{srv.currentItem.ri2}" enabled="{srv.currentItem.ckri2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckri3" change="changeActivation(ckri3[0], null, null, ri3[0] ,0)" selected="{srv.currentItem.ckri3}"/>
+							<mx:Label text="RI3" width="40"/>
+							<mx:NumericStepper id="ri3" minimum="0" maximum="3" value="{srv.currentItem.ri3}" enabled="{srv.currentItem.ckri3}"/>
+						</mx:HBox>
+					</mx:VBox>
+					
+					<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Approvvigionamento:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckra1" change="changeActivation(ckra1[0], null, null, ra1[0] ,0)" selected="{srv.currentItem.ckra1}"/>
+							<mx:Label text="RA1" width="40"/>
+							<mx:NumericStepper id="ra1" minimum="0" maximum="3" value="{srv.currentItem.ra1}" enabled="{srv.currentItem.ckra1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckra2" change="changeActivation(ckra2[0], null, null, ra2[0] ,0)" selected="{srv.currentItem.ckra2}"/>
+							<mx:Label text="RA2" width="40"/>
+							<mx:NumericStepper id="ra2" minimum="0" maximum="3" value="{srv.currentItem.ra2}" enabled="{srv.currentItem.ckra2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckra3" change="changeActivation(ckra3[0], null, null, ra3[0] ,0)" selected="{srv.currentItem.ckra3}"/>
+							<mx:Label text="RA3" width="40"/>
+							<mx:NumericStepper id="ra3" minimum="0" maximum="3" value="{srv.currentItem.ra3}" enabled="{srv.currentItem.ckra3}"/>
+						</mx:HBox>
+					</mx:VBox>
+				</mx:HBox>
+				
+				<mx:HBox>
+					<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Fabbricazione:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrf1" change="changeActivation(ckrf1[0], null, null, rf1[0] ,0)" selected="{srv.currentItem.ckrf1}"/>
+							<mx:Label text="RF1" width="40"/>
+							<mx:NumericStepper id="rf1" minimum="0" maximum="3" value="{srv.currentItem.rf1}" enabled="{srv.currentItem.ckrf1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrf2" change="changeActivation(ckrf2[0], null, null, rf2[0] ,0)" selected="{srv.currentItem.ckrf2}"/>
+							<mx:Label text="RF2" width="40"/>
+							<mx:NumericStepper id="rf2" minimum="0" maximum="3" value="{srv.currentItem.rf2}" enabled="{srv.currentItem.ckrf2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrf3" change="changeActivation(ckrf3[0], null, null, rf3[0] ,0)" selected="{srv.currentItem.ckrf3}"/>
+							<mx:Label text="RF3" width="40"/>
+							<mx:NumericStepper id="rf3" minimum="0" maximum="3" value="{srv.currentItem.rf3}" enabled="{srv.currentItem.ckrf3}"/>
+						</mx:HBox>
+					</mx:VBox>
+					
+					<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Monitoraggio:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrm1" change="changeActivation(ckrm1[0], null, null, rm1[0] ,0)" selected="{srv.currentItem.ckrm1}"/>
+							<mx:Label text="RM1" width="40"/>
+							<mx:NumericStepper id="rm1" minimum="0" maximum="3" value="{srv.currentItem.rm1}" enabled="{srv.currentItem.ckrm1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrm2" change="changeActivation(ckrm2[0], null, null, rm2[0] ,0)" selected="{srv.currentItem.ckrm2}"/>
+							<mx:Label text="RM2" width="40"/>
+							<mx:NumericStepper id="rm2" minimum="0" maximum="3" value="{srv.currentItem.rm2}" enabled="{srv.currentItem.ckrm2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrm3" change="changeActivation(ckrm3[0], null, null, rm3[0] ,0)" selected="{srv.currentItem.ckrm3}"/>
+							<mx:Label text="RM3" width="40"/>
+							<mx:NumericStepper id="rm3" minimum="0" maximum="3" value="{srv.currentItem.rm3}" enabled="{srv.currentItem.ckrm3}"/>
+						</mx:HBox>
+					</mx:VBox>
+					
+					<mx:VBox height="100%" width="30%" borderStyle="solid" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5">
+						<mx:Label text="Avviamento:"/>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrav1" change="changeActivation(ckrav1[0], null, null, rav1[0] ,0)" selected="{srv.currentItem.ckrav1}"/>
+							<mx:Label text="RAV1" width="40"/>
+							<mx:NumericStepper id="rav1" minimum="0" maximum="3" value="{srv.currentItem.rav1}" enabled="{srv.currentItem.ckrav1}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrav2" change="changeActivation(ckrav2[0], null, null, rav2[0] ,0)" selected="{srv.currentItem.ckrav2}"/>
+							<mx:Label text="RAV2" width="40"/>
+							<mx:NumericStepper id="rav2" minimum="0" maximum="3" value="{srv.currentItem.rav2}" enabled="{srv.currentItem.ckrav2}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingLeft="50" paddingRight="45">
+							<mx:CheckBox id ="ckrav3" change="changeActivation(ckrav3[0], null, null, rav3[0] ,0)" selected="{srv.currentItem.ckrav3}"/>
+							<mx:Label text="RAV3" width="40"/>
+							<mx:NumericStepper id="rav3" minimum="0" maximum="3" value="{srv.currentItem.rav3}" enabled="{srv.currentItem.ckrav3}"/>
+						</mx:HBox>
+					</mx:VBox>
+					
+				</mx:HBox>
+			</mx:VBox>
+			</mx:Canvas>
+			
+			<mx:Canvas label="Impatto Strategico" width="100%" height="100%" borderStyle="inset" backgroundColor="#FFFFFF" backgroundAlpha="0.72">
+			<mx:HBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:VBox verticalAlign="middle" horizontalAlign="center" width="443" verticalGap="12">
+					<mx:HBox  width="100%">
+						<mx:CheckBox id ="ckIM" change="changeActivation(ckIM[0], null, null, IM[0] ,0)" selected="{srv.currentItem.ckIM}"/>
+						<mx:Label text="Importanza del mercato"  width="300" fontWeight="bold"/>
+						<mx:NumericStepper  id="IM" minimum="0" maximum="3" value="{srv.currentItem.IM}" enabled="{srv.currentItem.ckIM}"/>
+					</mx:HBox>
+					<mx:HBox  width="100%">
+						<mx:CheckBox id ="ckIC" change="changeActivation(ckIC[0], null, null, IC[0] ,0)" selected="{srv.currentItem.ckIC}"/>
+						<mx:Label text="Interesse nell'acquisire il cliente"  width="300" fontWeight="bold"/>
+						<mx:NumericStepper  id="IC" minimum="0" maximum="3" value="{srv.currentItem.IC}" enabled="{srv.currentItem.ckIC}"/>
+					</mx:HBox>
+					<mx:HBox  width="100%">
+						<mx:CheckBox id ="ckIP" change="changeActivation(ckIP[0], null, null, IP[0] ,0)" selected="{srv.currentItem.ckIP}"/>
+						<mx:Label text="Grado di innovazione del prodotto"  width="300" fontWeight="bold"/>
+						<mx:NumericStepper  id="IP" minimum="0" maximum="3" value="{srv.currentItem.IP}" enabled="{srv.currentItem.ckIP}"/>
+					</mx:HBox>
+					<mx:HBox  width="100%">
+						<mx:CheckBox id ="ckIA" change="changeActivation(ckIA[0], null, null, IA[0] ,0)" selected="{srv.currentItem.ckIA}"/>
+						<mx:Label text="Incidenza sull'immagine aziendale"  width="300" fontWeight="bold"/>
+						<mx:NumericStepper  id="IA" minimum="0" maximum="3" value="{srv.currentItem.IA}" enabled="{srv.currentItem.ckIA}"/>
+					</mx:HBox>
+					<mx:HBox  width="100%">
+						<mx:CheckBox id ="ckIPP" change="changeActivation(ckIPP[0], null, null, IPP[0] ,0)" selected="{srv.currentItem.ckIPP}"/>
+						<mx:Label text="Interesse nella partecipazione alla partnership"  width="300" fontWeight="bold"/>
+						<mx:NumericStepper  id="IPP" minimum="0" maximum="3" value="{srv.currentItem.IPP}" enabled="{srv.currentItem.ckIPP}"/>
+					</mx:HBox>
+					<mx:Label text="(0 minima influenza - 3 massima influenza)"/>
+				</mx:VBox>
+			</mx:HBox>
+			</mx:Canvas>
+			
+			<mx:Canvas label="Rischi Aggiunti" width="100%" height="100%"  backgroundAlpha="0.72" horizontalScrollPolicy="off">
+				
+				<mx:VBox height="100%" width="100%" horizontalAlign="center" verticalAlign="middle" horizontalScrollPolicy="off">
+					<mx:Button label="Inserisci un nuovo rischio" click="notSuggestedRisk(event)"/>
+				<!-- ************ RISCHI AGGIUNTI ************ -->
+					<mx:Repeater id="rptRischiAggiunti" dataProvider="{rischiNuoviArray}">
+					
+					
+					<mx:TitleWindow id="riskPanelRischiAggiunti"  title="Nuovo Rischio"  
+						close="deleteRischiArray(event)" data="riskPanelRischiAggiunti#" verticalScrollPolicy="off"
+						width="850" height="436" paddingTop="15" paddingBottom="15"  showCloseButton="true">
+						
+						<mx:HBox width="100%" horizontalAlign="center">
+							<mx:VBox height="360" width="386" borderStyle="solid" cornerRadius="19" paddingTop="5" paddingLeft="5" paddingRight="5" paddingBottom="5" borderColor="#3A4248">
+								<mx:HBox width="100%">
+									<mx:Label text="Descrizione" width="110" fontWeight="bold"/>
+									<mx:TextArea id="descrizioneRischioRischiAggiunti" data="riskPanelRischiAggiunti#" text="{rptRischiAggiunti.currentItem.descrizione}" change="updateRischiArray(event)" width="227"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Categoria" width="110" fontWeight="bold"/>
+									<mx:Text text="{rptRischiAggiunti.currentItem.categoria}" data="riskPanelRischiAggiunti#" id="categoriaRischioRischiAggiunti"/>
+								</mx:HBox>
+								<mx:HBox>
+									<mx:Text text="Causa" width="110" fontWeight="bold"/>
+									<mx:TextArea id="causaRischioRischiAggiunti" data="riskPanelRischiAggiunti#" change="updateRischiArray(event)" text="{rptRischiAggiunti.currentItem.causa}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Effetto" width="110" fontWeight="bold"/>
+									<mx:TextArea id="effettoRischioRischiAggiunti" data="riskPanelRischiAggiunti#"  change="updateRischiArray(event)" text="{rptRischiAggiunti.currentItem.effetto}"/>
+								</mx:HBox>
+								<mx:HBox width="100%" fontWeight="bold">
+								    <mx:Label text="Stato" width="110"/>
+								    <mx:ComboBox id="statoRischioRischiAggiunti" dataProvider="{statoRischioArray}"  change="updateRischiArray(event)" data="statoRischioRischiAggiunti#{rptRischiAggiunti.currentIndex}##{rptRischiAggiunti.currentItem.stato}">
+									
+								    </mx:ComboBox>
+								    <!-- dataProvider="{statoRischioArray}" -->
+								    
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="R_ver" width="110" fontWeight="bold"/>
+								    <mx:ComboBox id="rVerRischiAggiunti" dataProvider="{rVerRischioArray}" change="updateRischiArray(event)" data="rVerRischiRischiAggiuntio#{rptRischiAggiunti.currentIndex}##{rptRischiAggiunti.currentItem.rVer}">
+
+								    </mx:ComboBox>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="Contingency" width="110" fontWeight="bold"/>
+								    <mx:TextInput id="contingencyRischioRischiAggiunti" data="riskPanelRischiAggiunti#" change="updateRischiArray(event)" text="{rptRischiAggiunti.currentItem.contingency}"/>
+								    <mx:Label text="(in €)" fontWeight="normal"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="Probabilità" width="110" fontWeight="bold"/>
+								    <mx:NumericStepper value="{rptRischiAggiunti.currentItem.probIniziale}" data="riskPanelRischiAggiunti#" stepSize="1" minimum="0" maximum="100" id="probInizialeRischiAggiunti"/>
+								    <mx:Label text="[0-100]" fontSize="10" fontWeight="normal"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="Impatto" width="110" fontWeight="bold"/>
+								    <mx:NumericStepper value="{rptRischiAggiunti.currentItem.impattoIniziale}" data="riskPanelRischiAggiunti#" stepSize="1" minimum="1" maximum="5" id="impattoInizialeRischiAggiunti"/>
+								    <mx:Label text="[1-5] *1= minimo impatto" fontSize="10" fontWeight="normal"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="Costo Potenziale Impatto" width="110" fontWeight="bold"/>
+								    <mx:TextInput id="costoPotenzialeImpattoRischioRischiAggiunti" data="riskPanelRischiAggiunti#" change="updateRischiArray(event)" text="{rptRischiAggiunti.currentItem.costoPotenzialeImpatto}"/>
+								</mx:HBox>
+							</mx:VBox>
+							<mx:HDividedBox width="20">
+							</mx:HDividedBox>
+							<mx:Canvas width="362" height="360" borderStyle="solid" horizontalScrollPolicy="off" borderColor="#3A4248">
+								<mx:VBox height="100%" horizontalAlign="center" width="100%" backgroundColor="haloSilver" backgroundAlpha="0.36" paddingTop="2" paddingBottom="2">
+								<mx:Button label="Inserisci nuova azione" data="{rptRischiAggiunti.currentItem.codiceChecklist}#{rptRischiAggiunti.currentIndex}" click="addAzioniArray(event)"/>
+							<!-- ****************************************************************************************************************** -->	
+								 <!--<mx:Repeater id="rptNuoveAzioniNG" dataProvider="{azioniNuoveArray}">
+									<mx:TitleWindow  id="titleNuovaAzioneNG" title="{rptNuoveAzioniNG.currentItem.idAzione}" width="274" height="193" 
+										close="deleteAzioniArray(event)" data="titleNuovaAzione#{rptRischiAggiunti.currentIndex}" creationComplete="//evitaDuplicati(event, 'titleNuovaAzioneNG');"
+										layout="absolute" verticalAlign="middle" horizontalAlign="center" showCloseButton="true" paddingBottom="2" paddingTop="2">
+										<mx:VBox>
+											
+									
+										
+										<mx:HBox width="100%">
+											<mx:Label text="Tipo" width="80" fontWeight="bold"/>
+
+											<mx:Text id="tipoAzioneNuoveAzioniNG" text="{rptNuoveAzioniNG.currentItem.tipo}"/>
+										</mx:HBox>
+										<mx:HBox width="100%">
+											<mx:Label text="Stato" width="80" fontWeight="bold"/>
+											<mx:ComboBox id="statoAzioneNuoveAzioniNG" dataProvider="{statoAzioneArray}" data="statoNuovaAzione#{rptRischiAggiunti.currentIndex}#{rptNuoveAzioniNG.currentIndex}#{rptNuoveAzioniNG.currentItem.stato}" change="updateAzioniArray(event)" selectedIndex="0">
+												
+											</mx:ComboBox>
+										</mx:HBox>
+										<mx:HBox width="100%">
+											<mx:Label text="Descrizione" width="80" fontWeight="bold"/>
+											<mx:TextArea id="descrizioneAzioneNuoveAzioniNG" text="{rptNuoveAzioniNG.currentItem.descrizione}" data="titleNuovaAzione#{rptRischiAggiunti.currentIndex}" change="updateAzioniArray(event)"/>
+										</mx:HBox>
+										<mx:HBox width="100%">
+											<mx:Label text="Intensità" width="80" fontWeight="bold"/>
+											<mx:CheckBox id="ckintensitaAzioneNuoveAzioniNG" selected="{rptNuoveAzioniNG.currentItem.ckintensita}" data="ckintensitaNuoveAzioni#{rptRischiAggiunti.currentIndex}#{rptNuoveAzioniNG.currentIndex}" change="changeActivationEvent(event)"/>
+											<mx:TextInput width="40" id="intensitaAzioneNuoveAzioniNG" text="{rptNuoveAzioniNG.currentItem.intensita}" data="titleNuovaAzione#{rptRischiAggiunti.currentIndex}" change="updateAzioniArray(event)" enabled="true"/>
+										</mx:HBox> 
+										
+										</mx:VBox>
+									</mx:TitleWindow>
+								</mx:Repeater>
+							--></mx:VBox>
+							</mx:Canvas>
+						</mx:HBox>
+					</mx:TitleWindow>
+					</mx:Repeater>
+					 <!--****************************************************************************************************************** -->	
+					<mx:Repeater id="rptRischi" dataProvider="{srv.currentItem.rischio}">
+					<mx:VDividedBox height="15"></mx:VDividedBox>
+					<mx:TitleWindow id="riskPanel" title="RISCHIO: {rptRischi.currentItem.idRischio}" initialize="initializeRischiArray(event)"  
+						close="deleteRischiArray(event)" data="riskPanel#" verticalScrollPolicy="off"
+						width="850" height="436" paddingTop="15" paddingBottom="15"  showCloseButton="true">
+						
+						<mx:HBox width="100%" horizontalAlign="center">
+							<mx:VBox height="360" width="386" borderStyle="solid" cornerRadius="19" paddingTop="5" paddingLeft="5" paddingRight="5" paddingBottom="5" borderColor="#3A4248">
+								<mx:HBox width="100%">
+									<mx:Label text="Descrizione" width="110" fontWeight="bold"/>
+									<mx:TextArea id="descrizioneRischio" data="riskPanel#" text="{rptRischi.currentItem.descrizione}" change="updateRischiArray(event)" width="227"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Categoria" width="110" fontWeight="bold"/>
+									<mx:Text text="{rptRischi.currentItem.categoria}" data="riskPanel#" id="categoriaRischio"/>
+								</mx:HBox>
+								<mx:HBox>
+									<mx:Text text="Causa" width="110" fontWeight="bold"/>
+									<mx:TextArea id="causaRischio" data="riskPanel#" change="updateRischiArray(event)" text="{rptRischi.currentItem.causa}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Effetto" width="110" fontWeight="bold"/>
+									<mx:TextArea id="effettoRischio" data="riskPanel#" change="updateRischiArray(event)" text="{rptRischi.currentItem.effetto}"/>
+								</mx:HBox>
+								<mx:HBox width="100%" fontWeight="bold">
+								    <mx:Label text="Stato" width="110"/>
+								    <mx:ComboBox id="statoRischio" dataProvider="{statoRischioArray}" change="updateRischiArray(event)" data="statoRischio#{rptRischi.currentIndex}##{rptRischi.currentItem.stato}" creationComplete="initRepeat(event)">
+
+								    </mx:ComboBox>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="R_ver" width="110" fontWeight="bold"/>
+								    <mx:ComboBox id="rVer" dataProvider="{rVerRischioArray}" change="updateRischiArray(event)" data="rVerRischio#{rptRischi.currentIndex}##{rptRischi.currentItem.rVer}" creationComplete="initRepeat(event)">
+
+								    </mx:ComboBox>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="Contingency" width="110" fontWeight="bold"/>
+								    <mx:TextInput id="contingencyRischio" data="riskPanel#" change="updateRischiArray(event)" text="{rptRischi.currentItem.contingency}"/>
+								    <mx:Label text="(in €)" fontWeight="normal"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="Probabilità" width="110" fontWeight="bold"/>
+								    <mx:NumericStepper value="{rptRischi.currentItem.probIniziale}" data="riskPanel#" stepSize="1" minimum="0" maximum="100" id="probIniziale"/>
+								    <mx:Label text="[0-100]" fontSize="10" fontWeight="normal"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="Impatto" width="110" fontWeight="bold"/>
+								    <mx:NumericStepper value="{rptRischi.currentItem.impattoIniziale}" data="riskPanel#" stepSize="1" minimum="1" maximum="5" id="impattoIniziale"/>
+								    <mx:Label text="[1-5] *1= minimo impatto" fontSize="10" fontWeight="normal"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+								    <mx:Label text="Costo Potenziale Impatto" width="110" fontWeight="bold"/>
+								    <mx:TextInput id="costoPotenzialeImpattoRischio" data="riskPanel#" change="updateRischiArray(event)" text="{rptRischi.currentItem.costoPotenzialeImpatto}"/>
+								</mx:HBox>
+							</mx:VBox>
+							<mx:HDividedBox width="20">
+							</mx:HDividedBox>
+							<mx:Canvas width="362" height="360" borderStyle="solid" horizontalScrollPolicy="off" borderColor="#3A4248">
+								<mx:VBox height="100%" horizontalAlign="center" width="100%" backgroundColor="haloSilver" backgroundAlpha="0.36" paddingTop="2" paddingBottom="2">
+								<mx:Button label="Inserisci nuova azione" data="{rptRischi.currentItem.codiceChecklist}#{rptRischi.currentIndex}" click="addAzioniArray(event);"/>
+							
+								<mx:Repeater id="rptAzioni" dataProvider="{rptRischi.currentItem.azione}" repeat="//initializeAzioniArray(event)">
+									<mx:TitleWindow id="titleAzione" title="{rptAzioni.currentItem.idAzione}" initialize="initializeAzioniArray(event)" width="274" height="217" 
+										close="deleteAzioniArray(event)" data="titleAzione#{rptRischi.currentIndex}"
+										layout="absolute" verticalAlign="middle" horizontalAlign="center" showCloseButton="true" paddingBottom="2" paddingTop="2">
+										<mx:VBox>
+											
+										<mx:Text text="" id="hiddenIdRischio" visible="false" height="0"/>
+										
+										<mx:HBox width="100%">
+											<mx:Label text="Tipo" width="80" fontWeight="bold"/>
+											<mx:ComboBox id="tipoAzione" dataProvider="{tipoAzioneArray}" data="tipoAzione#{rptRischi.currentIndex}#{rptAzioni.currentIndex}#{rptAzioni.currentItem.tipo}" creationComplete="initRepeat(event)" change="updateAzioniArray(event)" enabled="false">
+												
+											</mx:ComboBox>
+										</mx:HBox>
+										<mx:HBox width="100%">
+											<mx:Label text="Stato" width="80" fontWeight="bold"/>
+											<mx:ComboBox id="statoAzione" dataProvider="{statoAzioneArray}" data="statoAzione#{rptRischi.currentIndex}#{rptAzioni.currentIndex}#{rptAzioni.currentItem.stato}" creationComplete="initRepeat(event)" change="updateAzioniArray(event)">
+												
+											</mx:ComboBox>
+										</mx:HBox>
+										<mx:HBox width="100%">
+											<mx:Label text="Descrizione" width="80" fontWeight="bold"/>
+											<mx:TextArea id="descrizioneAzione" text="{rptAzioni.currentItem.descrizione}" data="titleAzione#{rptRischi.currentIndex}" change="updateAzioniArray(event)"/>
+										</mx:HBox>
+										<mx:HBox width="100%">
+											<mx:Label text="Revisione" width="80" fontWeight="bold"/>
+											<mx:Text text="{rptAzioni.currentItem.revisione}" id="revisioneAzione"/>
+										</mx:HBox>
+										<mx:HBox width="100%">
+											<mx:Label text="Intensità" width="80" fontWeight="bold"/>
+											<mx:CheckBox id="ckintensitaAzione"  selected="{rptAzioni.currentItem.ckintensita}" data="ckintensita#{rptRischi.currentIndex}#{rptAzioni.currentIndex}" change="changeActivationEvent(event)"/>
+											<mx:TextInput width="40" text="{rptAzioni.currentItem.intensita}" id="intensitaAzione" data="titleAzione#{rptRischi.currentIndex}" change="updateAzioniArray(event)" enabled="{rptAzioni.currentItem.ckintensita}"/>
+										</mx:HBox>
+										</mx:VBox>
+									</mx:TitleWindow>
+								</mx:Repeater>
+							<!-- ****************************************************************************************************************** -->	
+								</mx:VBox>
+								
+							</mx:Canvas>
+						</mx:HBox>
+					</mx:TitleWindow>
+					</mx:Repeater>
+					<!-- ****************************************************************************************************************** -->
+					<mx:Spacer/>
+				</mx:VBox>
+				
+			</mx:Canvas>
+			<mx:Canvas label="Tabella Rischi Proposti" width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:DataGrid id="rischiSelectedDataGrid" dataProvider="{rischiSelectedArray}">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Id rischio" dataField="idRischio"/>
+						<mx:DataGridColumn headerText="Codice Checklist" dataField="codiceChecklist"/>
+						<mx:DataGridColumn headerText="Categoria" dataField="categoria"/>
+						<mx:DataGridColumn headerText="Stato" dataField="stato"/>
+						<mx:DataGridColumn headerText="Descrizione" dataField="descrizione"/>
+						<mx:DataGridColumn headerText="R Ver" dataField="rVer"/>
+						<mx:DataGridColumn headerText="Revisione" dataField="revisione" visible="false"/>
+						<mx:DataGridColumn headerText="Contingency" dataField="contingency"/>
+						<mx:DataGridColumn headerText="Causa" dataField="causa"/>
+						<mx:DataGridColumn headerText="Effetto" dataField="effetto"/>
+						<mx:DataGridColumn headerText="Probabilità" dataField="probIniziale"/>
+						<mx:DataGridColumn headerText="Impatto" dataField="impattoIniziale"/>
+						<mx:DataGridColumn headerText="Costo Potenziale Impatto" dataField="costoPotenzialeImpatto"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas label="Tabella Nuovi Rischi" width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:DataGrid id="rischiNuoviDataGrid" dataProvider="{rischiNuoviArray}">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Id rischio" dataField="idRischio" />
+						<mx:DataGridColumn headerText="Codice Checklist" dataField="codiceChecklist"/>
+						<mx:DataGridColumn headerText="Categoria" dataField="categoria"/>
+						<mx:DataGridColumn headerText="Stato" dataField="stato"/>
+						<mx:DataGridColumn headerText="Descrizione" dataField="descrizione"/>
+						<mx:DataGridColumn headerText="R Ver" dataField="rVer"/>
+						<mx:DataGridColumn headerText="Revisione" dataField="revisione" visible="false"/>
+						<mx:DataGridColumn headerText="Contingency" dataField="contingency"/>
+						<mx:DataGridColumn headerText="Causa" dataField="causa"/>
+						<mx:DataGridColumn headerText="Effetto" dataField="effetto"/>
+						<mx:DataGridColumn headerText="Probabilità" dataField="probIniziale"/>
+						<mx:DataGridColumn headerText="Impatto" dataField="impattoIniziale"/>
+						<mx:DataGridColumn headerText="Costo Potenziale Impatto" dataField="costoPotenzialeImpatto"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas label="Tabella Azioni Suggerite" width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:DataGrid id="azioniSelectedDataGrid" dataProvider="{azioniSelectedArray}">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Id rischio" dataField="idRischio"/>
+						<mx:DataGridColumn headerText="Id Azione" dataField="idAzione"/>
+						<mx:DataGridColumn headerText="Tipo" dataField="tipo"/>
+						<mx:DataGridColumn headerText="Stato" dataField="stato"/>
+						<mx:DataGridColumn headerText="Descrizione" dataField="descrizione"/>
+						<mx:DataGridColumn headerText="Revisione" dataField="revisione"/>
+						<mx:DataGridColumn headerText="Intensità" dataField="intensita"/>
+						<mx:DataGridColumn headerText="Enable Intensità" dataField="ckintensita" visible="false"/>
+						<mx:DataGridColumn headerText="Identifier" dataField="identifier" visible="false"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas label="Nuove Azioni" width="100%" height="100%">
+			<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:DataGrid id="azioniNuoveDataGrid" dataProvider="{azioniNuoveArray}" height="165">
+					<mx:columns>
+						<mx:DataGridColumn headerText="Id rischio" dataField="idRischio"/>
+						<mx:DataGridColumn headerText="Id Azione" dataField="idAzione"/>
+						<mx:DataGridColumn headerText="Tipo" dataField="tipo"/>
+						<mx:DataGridColumn headerText="Stato" dataField="stato"/>
+						<mx:DataGridColumn headerText="Descrizione" dataField="descrizione"/>
+						<mx:DataGridColumn headerText="Revisione" dataField="revisione"/>
+						<mx:DataGridColumn headerText="Intensità" dataField="intensita"/>
+						<mx:DataGridColumn headerText="Enable Intensità" dataField="ckintensita" visible="false"/>
+						<mx:DataGridColumn headerText="Identifier" dataField="identifier" visible="false"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+				
+				<!-- ****************************************************************************************************************** -->	
+				<mx:HBox>
+				<mx:Repeater id="rptNuoveAzioni"  dataProvider="{azioniNuoveArray}">
+					
+					<mx:TitleWindow id="titleNuovaAzione"  title="Nuova azione: {rptNuoveAzioni.currentItem.idAzione}" width="274" 
+						close="deleteAzioniArray(event)" data="titleNuovaAzione#{rptRischi.currentIndex}" creationComplete="//evitaDuplicati(event, 'titleNuovaAzione');" 
+						layout="absolute" verticalAlign="middle" horizontalAlign="center" showCloseButton="true" paddingBottom="2" paddingTop="2"  height="194">
+						<mx:VBox>
+						<mx:HBox width="100%">
+							<mx:Label text="Rischio d'appartenenza" fontWeight="bold"/>
+							<mx:Text text="{rptNuoveAzioni.currentItem.idAzione}"/>
+						</mx:HBox>
+							
+						<!--<mx:Text text="" id="hiddenIdRischioNuoveAzioni" visible="false" height="0"/>-->
+						
+						<mx:HBox width="100%">
+							<mx:Label text="Tipo" width="80" fontWeight="bold"/>
+							<!--<mx:ComboBox id="tipoAzioneNuoveAzioni" dataProvider="{tipoAzioneArray}" creationComplete="comboNuovaAzione(event)" data="tipoNuovaAzione#{rptRischi.currentIndex}#{rptNuoveAzioni.currentIndex}#{rptNuoveAzioni.currentItem.tipo}" change="updateAzioniArray(event)" selectedIndex="0" enabled="false">
+								
+							</mx:ComboBox>-->
+							<mx:Text id="tipoAzioneNuoveAzioni" text="{rptNuoveAzioni.currentItem.tipo}"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Label text="Stato" width="80" fontWeight="bold"/>
+							<!--<mx:ComboBox id="statoAzioneNuoveAzioni" dataProvider="{statoAzioneArray}" creationComplete="comboNuovaAzione(event)" data="statoNuovaAzione#{rptRischi.currentIndex}#{rptNuoveAzioni.currentIndex}#{rptNuoveAzioni.currentItem.stato}" change="updateAzioniArray(event)" selectedIndex="0">
+								onlyRightActions(id:String, codice:String)
+							</mx:ComboBox>-->
+							
+							<mx:ComboBox id="statoAzioneNuoveAzioni" dataProvider="{statoAzioneArray}" creationComplete="comboNuovaAzione(event)" data="statoNuovaAzione#{rptRischi.currentIndex}#{rptNuoveAzioni.currentIndex}#{rptNuoveAzioni.currentItem.stato}" change="updateAzioniArray(event)" selectedIndex="0">
+								
+							</mx:ComboBox>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Label text="Descrizione" width="80" fontWeight="bold"/>
+							<mx:TextArea id="descrizioneAzioneNuoveAzioni" text="{rptNuoveAzioni.currentItem.descrizione}" data="titleNuovaAzione#{rptRischi.currentIndex}" change="updateAzioniArray(event)"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Label text="Intensità" width="80" fontWeight="bold"/>
+							<mx:CheckBox id="ckintensitaAzioneNuoveAzioni" selected="{rptNuoveAzioni.currentItem.ckintensita}" data="ckintensitaNuoveAzioni#{rptRischi.currentIndex}#{rptNuoveAzioni.currentIndex}" change="changeActivationEvent(event)"/>
+							<mx:TextInput width="40" id="intensitaAzioneNuoveAzioni" text="{rptNuoveAzioni.currentItem.intensita}" data="titleNuovaAzione#{rptRischi.currentIndex}" change="updateAzioniArray(event)" enabled="true"/>
+						</mx:HBox>
+						</mx:VBox>
+					</mx:TitleWindow>
+					
+				</mx:Repeater>
+				</mx:HBox>
+			<!-- ****************************************************************************************************************** -->
+
+			</mx:VBox>
+			</mx:Canvas>
+			
+		</mx:ViewStack>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Button label="CONFERMA" fillAlphas="[1.0, 1.0]" fillColors="[#36FF00, #36FF00, #BBFAAB, #BBFAAB]" color="#000000" click="createQueryStringAndSend()"/>
+			<mx:Button label="ESCI" fillAlphas="[1.0, 1.0]" fillColors="[#FF0000, #FF0000, #FF8686, #FF8686]" color="#FFFFFF"/>
+		</mx:HBox>
+		</mx:Repeater>
+	</mx:VBox>
+	<mx:Script>
+		<![CDATA[
+			// DEBUGGIN FUCNTIONS: USEFULL FOR FURHTER IMPLEMENTATIONS
+			
+			public function onlyRightActions(id:String):ArrayCollection{
+				
+				Alert.show("Id ricevuto nell'inizializzazione nuova azione / rischi presenti: " + id );
+				
+				var i:Object;
+				var xIdRischio:String = id;
+				//var xCodiceChecklist:String = codice;
+				var result:ArrayCollection = new ArrayCollection();
+				
+				
+				//&& i.idAzione == xCodiceChecklist
+				for each(i in azioniNuoveArray){
+					if(i.idRischio == xIdRischio){
+						result.addItem({
+							"idRischio": i.idRischio, 
+							"idAzione": i.idAzione,
+							"identifier": i.identifier,
+							"tipo": i.tipo,
+							"stato": i.stato,
+							"descrizione": i.descrizione,
+							"revisione": i.revisione,
+							"intensita": i.intensita,
+							"ckintensita": i.ckintensita
+							});
+					}	
+				}
+				Alert.show(result[0].descrizione);
+				return result;
+			}
+			
+			
+			
+			public function chooseItemFromArr(event:String, index:int, state:String):ArrayCollection {
+				var valuesArray:Array;
+	            valuesArray = event.split("#");
+	            //Alert.show(event +" - "+ index + " - " + state);
+	            
+	            var response:ArrayCollection = new ArrayCollection();
+	            var selected:Boolean = false;
+	            
+	            tmpStatoBool = true;
+	            
+
+				if (event == "statoNuovoRischio") {
+				/*	var i:Object;
+					
+					for each(i in rischiNuoviArray){
+						if (i.idRischio == ){
+							if (i.codiceChecklist == ){*/
+							//if (rischiNuoviArray[index].stato == state){
+							//Alert.show(rischiNuoviArray[index].stato.toString());
+							
+								//if (rischiNuoviArray[index].stato.toLocaleLowerCase() == "monitoring"){
+								if (rischiNuoviArray[index].stato.toLocaleLowerCase() == "monitoring"){
+									tmpStatoNuovoRischio.addItem({
+										"label": "Monitoraggio",
+										"data": "Monitoring",
+										"selected": true
+									});
+									tmpStatoNuovoRischio.addItem({
+										"label": "Mitigazione",
+										"data": "Mitigation",
+										"selected": false
+									});
+									tmpStatoNuovoRischio.addItem({
+										"label": "Chiuso",
+										"data": "Closed",
+										"selected": false
+									});
+								} else if (state.toLocaleLowerCase() == "mitigation"){
+									tmpStatoNuovoRischio.addItem({
+										"label": "Monitoraggio",
+										"data": "Monitoring",
+										"selected": false
+									});
+									tmpStatoNuovoRischio.addItem({
+										"label": "Mitigazione",
+										"data": "Mitigation",
+										"selected": true
+									});
+									tmpStatoNuovoRischio.addItem({
+										"label": "Chiuso",
+										"data": "Closed",
+										"selected": false
+									});
+								} else if (state.toLocaleLowerCase() == "closed"){
+									tmpStatoNuovoRischio.addItem({
+										"label": "Monitoraggio",
+										"data": "Monitoring",
+										"selected": false
+									});
+									tmpStatoNuovoRischio.addItem({
+										"label": "Mitigazione",
+										"data": "Mitigation",
+										"selected": false
+									});
+									tmpStatoNuovoRischio.addItem({
+										"label": "Chiuso",
+										"data": "Closed",
+										"selected": true
+									});
+								}
+								
+							//}
+							/*}
+						}
+					}
+					*/
+				}
+				// ******************************************
+				//tmpStatoNuovoRischio. = response;
+				return response;
+			}
+		]]>
+	</mx:Script>
+	
+	
+</mx:Application>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	backgroundGradientColors="[0xFFFFFF,0xAAAAAA]"
+	horizontalAlign="center"
+	verticalGap="15"  >
+	
+	<!-- Creating a null SESSION -->
+	<mx:HTTPService id="nullaggio" url="http://localhost:8084/connectingInterface/getData?type=give_nullrequest" />
+	
+	<mx:HBox width="100%" height="100%" initialize="nullaggio.send()" backgroundImage="Logo_unipi.jpg" backgroundAlpha="0.16" horizontalAlign="center" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+		<mx:VBox width="70%" horizontalAlign="center" height="100%"  verticalScrollPolicy="off" horizontalScrollPolicy="off">
+			<mx:ApplicationControlBar fillAlphas="[0.59, 1.0]" fillColors="[#FFFFFF, #FFFFFF]">
+				<mx:VBox height="100%" width="100%" horizontalAlign="center">
+					<mx:Label text="Università di Pisa" fontSize="25" fontWeight="bold" color="#03007D"  fontFamily="Georgia"/>
+					<mx:Label text="Corso di laurea Specialistica in Ingegneria Informatica" fontSize="15" fontWeight="bold" color="#03007D"  fontFamily="Georgia"/>
+					<mx:Label text="Project Risks CBR" fontSize="36" fontWeight="bold" color="#BC0F0F" textDecoration="normal" fontFamily="Georgia"/>
+				</mx:VBox>
+			</mx:ApplicationControlBar>
+			<mx:VDividedBox height="130">
+			</mx:VDividedBox>
+			<mx:HBox width="100%" alpha="1" horizontalAlign="center">
+				<mx:Button icon="@Embed(source='5447643061567660452.png')" alpha="1.0" label="Inserisci un nuovo Progetto" click="navigateToURL(new URLRequest('../../SI_0.2/bin-debug/main.html'), '_blank');"/>
+				<mx:Button label="Aggiorna Progetto esistente" icon="@Embed(source='3332600431816051827.png')" click="navigateToURL(new URLRequest('../../UpdateOpenedProject/bin-debug/UpdateOpenedProject.html'), '_blank');"/>
+			</mx:HBox>
+			<mx:VDividedBox height="100%">
+			</mx:VDividedBox>
+			<mx:HRule width="70%"/>
+
+	
+			<mx:VBox height="100%" horizontalAlign="center" borderStyle="solid" cornerRadius="8" backgroundColor="#FFFFFF" borderColor="#073759" alpha="0.83">
+				<mx:Label text="Corso di Sistemi Intelligenti" paddingLeft="5" paddingRight="5" paddingTop="5"  fontWeight="bold" textDecoration="underline"/>
+				<mx:Label text="prof. Lazzerini - ing. Antonelli - ing. Ducange"  fontWeight="normal"/>
+				<mx:Label text="Leonardo Loparco - David Mandoloni - Alessio Rocchi"  fontWeight="normal"/>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:HBox>
+	
+	
+</mx:Application>

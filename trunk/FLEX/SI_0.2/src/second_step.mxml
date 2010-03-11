@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	backgroundGradientColors="[0xFFFFFF,0xAAAAAA]"
+	horizontalAlign="center"
+	verticalGap="15" 
+	>
+	<mx:Style>
+		.rosso {
+			borderColor: haloSilver; 
+		}
+	</mx:Style>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.containers.TitleWindow;
+			import mx.controls.Button;
+			import mx.events.ListEvent;
+			import mx.events.CloseEvent;
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.events.IndexChangedEvent;
+			import mx.utils.ArrayUtil;
+			import mx.events.MenuEvent;
+			import mx.controls.Menu;  
+			import mx.controls.MenuBar;
+			import mx.collections.IViewCursor;
+			import mx.rpc.events.FaultEvent;
+			
+			[Bindable]
+        	public var projectGridData:ArrayCollection=new ArrayCollection();
+			private var cntRisks:int = 0;
+			private var pop1:customPopUp;
+			private var pop2:notSuggestedRisks;
+			private var panelI:int;
+			private var panelJ:int;
+			private var panelGroup:int;
+			[Bindable]
+			public var totGroups:int = 0;
+			
+			[Bindable]
+			public var daGategoria:ArrayCollection;
+			
+			[Bindable]
+			public var queryString:String;
+			
+			[Bindable]
+			public var query:Object = {};
+			
+			// The string passed has just been inserted as IdRischio in the datagrid?
+            private function isUnique(dataGrid:Object, str:String):Boolean {
+            	var dp:Object=dataGrid.dataProvider;
+				var cursor:IViewCursor=dp.createCursor();
+				var unique:Boolean = true;
+				while( !cursor.afterLast && unique ) {
+			        // The check itself
+			        if (cursor.current.idRischio == str){
+			        	unique = false;
+			        }
+			        cursor.moveNext();
+				}
+				return unique;
+            }
+			
+			// Opening the customizing risk pop up
+			private function openPopUp(evt:Event):void  {
+				// I take information about the risk from the event
+				var arr:Array = evt.target.data.split("#");
+				var idRischiox:String = arr[1];
+				
+				// There's just this risk in the data grid?
+				if(isUnique(addedRisksDataGrid, idRischiox) == false) {
+					Alert.show("Non puoi inserire due volte lo stesso rischio: "+ idRischiox, "ERRORE");
+					return;
+				}
+				// Else, create the pop up
+                pop1 = PopUpManager.createPopUp(this, customPopUp, true) as customPopUp;
+                
+                // Set properties of the customPopUp custom component.
+           		var currentIndex:String = arr[arr.length-1];
+                panelJ = parseInt(currentIndex);
+                currentIndex = arr[arr.length-2];
+                panelI = parseInt(currentIndex);
+                
+                if (arr[arr.length-3] == "gruppo")
+                	panelGroup = 0;
+               	else if (arr[arr.length-3] == "noGruppo")
+               		panelGroup = 1;
+               	else if (arr[arr.length-3] == "Selected")
+               		panelGroup = 2;
+                
+                pop1.stringaPervenuta = evt.target.data;
+				pop1.addedRisk = 0;
+				PopUpManager.centerPopUp(pop1);
+				
+                // Event listeners
+                pop1.addEventListener("close", checkAdd);
+                pop1["cancelButton"].addEventListener("click", checkAdd);
+                pop1["okButton"].addEventListener("click", checkAdd);
+                return;
+			}
+			
+			// Open a pop up for the not suggested risks
+			private function notSuggested(evt:Event):void  {
+                pop2 = PopUpManager.createPopUp(this, notSuggestedRisks, true) as notSuggestedRisks;
+				PopUpManager.centerPopUp(pop2);
+                return;
+			}
+			
+			// I want to signal the user, by colors, that he has just valued the risk 
+			private function checkAdd(evt:Event):void {
+				if (pop1.addedRisk == 1){
+                	cntRisks++;
+                	// I switch for panels of GRUPPO or NON GRUPPO or SELECTED types
+                	if (panelGroup == 0) {
+                		riskPanel[panelI][panelJ].title = "* Valutato: " + riskPanel[panelI][panelJ].title;
+                		riskPanel[panelI][panelJ].styleName = "rosso";
+                	}
+                	else if (panelGroup == 1){
+                		riskPanelNoGruppo[panelI][panelJ].title = "* Valutato: " + riskPanelNoGruppo[panelI][panelJ].title;
+                		riskPanelNoGruppo[panelI][panelJ].styleName = "rosso";
+                	}
+                	else if (panelGroup == 2){
+                		riskPanelSelected[panelI][panelJ].title = "* Valutato: " + riskPanelSelected[panelI][panelJ].title;
+                		riskPanelSelected[panelI][panelJ].styleName = "rosso";
+                	}
+    			}
+                	
+                if (cntRisks > 0){
+                	addedRisksDataGridCanvas.height = 145;
+                	addedRisksDataGridCanvas.visible = true;
+                }
+				PopUpManager.removePopUp(pop1);				
+			}
+			
+			// Sending the NO GRUPPO request only after the GRUPPO ones
+			private function handler(evt:Event):void {
+				getRisksNoGroup.send();
+			}
+			
+			// Enabling the view of the risks panel only if there is at least one risk  
+			private function setRiskPanelEnabled(str:String):Boolean
+			{
+				if (cntRisks > 0)
+					return false;
+				else
+					return true;
+			}
+			
+			// Returning to the precedent step
+			private function checkIndietro(eventObj:CloseEvent):void {
+                // Check to see if the OK button was pressed.
+                if (eventObj.detail==Alert.OK) {
+                    navigateToURL(new URLRequest("main.html"), '_self');
+                }
+            }
+			
+			// Event handler for the MenuBar control's itemClick event.
+            private function menuHandler(event:MenuEvent):void  {
+
+                if (event.item.@data == "notSuggested"){
+                	notSuggested(event);
+                }
+                else if (event.item.@data == "nascondiDataGrid"){
+                	addedRisksDataGridCanvas.height = 0;
+                	addedRisksDataGridCanvas.visible = false;
+                }
+                else if (event.item.@data == "visualizzaDataGrid"){
+                	addedRisksDataGridCanvas.height = 145;
+                	addedRisksDataGridCanvas.visible = true;
+                } else if (event.item.@data == "continua"){
+                	buildResponse(addedRisksDataGrid);
+                	httpProsegui.send(query); 
+                } else if (event.item.@data == "indietro") {
+                	Alert.show("Sei sicuro di voler tornare al primo passo?", "ATTENZIONE", Alert.OK | Alert.CANCEL, this, checkIndietro, null, Alert.OK);
+                }
+                else { // DEBUG CODE
+	                Alert.show("Label: " + event.item.@label + "\n" + 
+	                    "Data: " + event.item.@data, "Clicked menu item");
+                }
+            }
+            
+            // Deleting a row from the dataGrid
+            public function deleteRow(dataGrid:Object):void {
+				if (dataGrid.selectedIndex >= 0)
+					dataGrid.dataProvider.removeItemAt(dataGrid.selectedIndex);
+			}
+			
+			// How many groups are there
+			public function contaGruppi():void {
+				totGroups++;
+			}
+			
+			// Variable to get located to the next step
+			private var navigateTo:String;
+			
+			// Function that gets the plain result from the server
+			private function handlePlain(event:ResultEvent):void
+	        {
+	        	navigateTo = "third_step.html";
+	        	Alert.show( event.result.toString() + "Dati inviati correttamente",
+							"Attenzione", Alert.OK, null, handlePlainConfirmationHandler);
+				
+	        }
+		
+			private function handlePlainConfirmationHandler(eventObject:CloseEvent):void {
+				navigateToURL(new URLRequest(navigateTo), '_self');
+			}
+	        
+	        // Function that handles the error event gotten from the server
+	        private function handleFault(event:FaultEvent):void
+	        {
+				Alert.show("Impossibile inviare dati", "Error");
+	        }
+			
+	        // Creating the POST method data to give to the server
+	        private function buildResponse(dataGrid:Object):void {
+	        	var dp:Object=dataGrid.dataProvider;
+				var cursor:IViewCursor=dp.createCursor();
+				var cnt:int = 0;
+				var response:String = "";
+				
+				// For each row in the data grid
+				while( !cursor.afterLast ) {
+					query["idRischio_"+cnt.toString()] = cursor.current.idRischio.toString();
+					if (cursor.current.descrizione.toString() != "null")
+						query["descrizione_"+cnt.toString()] = cursor.current.descrizione.toString();
+					if (cursor.current.causa.toString() != "null")
+						query["causa_"+cnt.toString()] = cursor.current.causa.toString();
+					if (cursor.current.effetto.toString() != "null")
+						query["effetto_"+cnt.toString()] = cursor.current.effetto.toString();
+			        query["codiceChecklist_"+cnt.toString()] = cursor.current.codiceChecklist;
+			        query["stato_"+cnt.toString()] = cursor.current.stato.toString();
+			     	query["rVer_"+cnt.toString()] = cursor.current.rVer.toString();
+			     	query["contingency_"+cnt.toString()] = cursor.current.contingency.toString();
+			     	query["probIniziale_"+cnt.toString()] = cursor.current.probIniziale.toString();
+			     	query["impattoIniziale_"+cnt.toString()] = cursor.current.impattoIniziale.toString();
+			     	query["costoPotenzialeImpatto_"+cnt.toString()] = "-1";
+			     	query["revisione_"+cnt.toString()] = "-1";
+			     	query["categoria_"+cnt.toString()] = cursor.current.categoria.toString();
+					
+			     	// cicla
+			     	cnt++;   
+			        cursor.moveNext();
+				}
+				query["type"] = "give_allrisksforproject";
+				query["cnt"] = cnt.toString();
+	        }
+			
+		]]>
+	</mx:Script>
+	
+	<mx:HTTPService id="getRisksByGroup" url="http://localhost:8084/connectingInterface/getData?type=take_risksbygroup"
+		result="handler(event)"/>
+		
+	<mx:HTTPService id="getRisksNoGroup" url="http://localhost:8084/connectingInterface/getData?type=take_risksnogroup"
+		result=""/>
+	
+	<mx:HTTPService id="getRisksSelected" url="http://localhost:8084/connectingInterface/getData?type=take_selectedrisksbycategory"
+		result=""/>
+		
+	<mx:HTTPService id="httpProsegui" method="POST" url="http://localhost:8084/connectingInterface/getData"
+    	result="handlePlain(event);"
+    	fault="handleFault(event);"
+		resultFormat="text"/>
+	
+	<mx:ApplicationControlBar>
+		<mx:Label text="Rischi suggeriti" fontSize="20" fontWeight="bold" color="#BC0F0F" textDecoration="underline"/>
+	</mx:ApplicationControlBar>
+	<mx:Image autoLoad="false" id="imgRisksAdded">
+		<mx:source>http://www.iconspedia.com/uploads/18337950931560299237.png</mx:source>
+	</mx:Image>
+
+	<mx:TabNavigator width="540" height="100%" initialize="getRisksByGroup.send(); ">
+		<mx:Repeater id="rptGruppi" dataProvider="{getRisksByGroup.lastResult.gruppo}" repeat="contaGruppi()">
+
+			<mx:Canvas label="{rptGruppi.currentItem.nomeGruppo}" width="100%" height="100%" horizontalScrollPolicy="off">
+				<mx:VBox width="100%" horizontalAlign="center" id="vBoxRptRischi">
+					<mx:Repeater id="rptRischi" dataProvider="{rptGruppi.currentItem.rischio}">
+					<mx:Panel id="riskPanel" width="334" height="327" title="{rptRischi.currentItem.codiceChecklist}" paddingTop="15" paddingBottom="15" >
+						<mx:HBox width="100%">
+							<mx:Label id="descrizione" text="Descrizione" width="72" fontWeight="bold"/>
+							<mx:TextArea width="220" text="{rptRischi.currentItem.descrizione}"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Text text="Categoria" width="72" fontWeight="bold"/>
+							<mx:Text text="{rptRischi.currentItem.categoria}"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Text text="Causa" width="72" fontWeight="bold"/>
+							<!--<mx:Text text="{rptRischi.currentItem.causa}"/>-->
+							<mx:TextArea width="220" text="{rptRischi.currentItem.causa}"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Text text="Effetto" width="72" fontWeight="bold"/>
+							<mx:TextArea text="{rptRischi.currentItem.effetto}" width="220"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Text text="Probabilità iniziale" width="112" fontWeight="bold"/>
+							<mx:Text text="{rptRischi.currentItem.probIniziale}"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:Text text="Impatto iniziale" width="112" fontWeight="bold"/>
+							<mx:Text text="{rptRischi.currentItem.impattoIniziale}"/>
+						</mx:HBox>
+						<mx:HBox width="100%" horizontalAlign="center">
+							<mx:Button label="Seleziona" data="{rptRischi.currentItem.codiceChecklist}#{rptRischi.currentItem.idRischio}#{rptRischi.currentItem.stato}#{rptRischi.currentItem.rVer} 
+							#{rptRischi.currentItem.contingency}#{rptRischi.currentItem.probIniziale}#{rptRischi.currentItem.impattoIniziale}#{rptRischi.currentItem.descrizione}#{rptRischi.currentItem.causa}#{rptRischi.currentItem.effetto}#{rptRischi.currentItem.categoria}#gruppo#{rptGruppi.currentIndex}#{rptRischi.currentIndex}" 
+							click="openPopUp(event)"/>
+						</mx:HBox>
+					</mx:Panel>
+					<mx:VDividedBox height="10" width="100%" horizontalAlign="center">
+					</mx:VDividedBox>
+					</mx:Repeater>
+				</mx:VBox>
+			</mx:Canvas>
+		</mx:Repeater>
+		<mx:Repeater id="rptNoGruppo" dataProvider="{getRisksNoGroup.lastResult.root}">
+			<mx:Canvas label="Rischi senza Gruppo" width="100%" height="100%" horizontalScrollPolicy="off">
+					<mx:VBox width="100%" horizontalAlign="center">
+						<mx:Repeater id="rischiNoGruppo" dataProvider="{rptNoGruppo.currentItem.rischio}" >
+							<mx:Panel id="riskPanelNoGruppo" width="334" height="327" title="{rischiNoGruppo.currentItem.codiceChecklist}" paddingTop="15" paddingBottom="15">
+								<mx:HBox width="100%">
+									<mx:Label id="descrizioneNoGruppo" text="Descrizione" width="72" fontWeight="bold"/>
+									<mx:TextArea width="220" text="{rischiNoGruppo.currentItem.descrizione}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Categoria" width="72" fontWeight="bold"/>
+									<mx:Text text="{rischiNoGruppo.currentItem.categoria}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Causa" width="72" fontWeight="bold"/>
+									<mx:TextArea width="220" text="{rischiNoGruppo.currentItem.causa}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Effetto" width="72" fontWeight="bold"/>
+									<mx:TextArea text="{rischiNoGruppo.currentItem.effetto}" width="220"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Probabilità iniziale" width="112" fontWeight="bold"/>
+									<mx:Text text="{rischiNoGruppo.currentItem.probIniziale}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Impatto iniziale" width="112" fontWeight="bold"/>
+									<mx:Text text="{rischiNoGruppo.currentItem.impattoIniziale}"/>
+								</mx:HBox>
+								<mx:HBox width="100%" horizontalAlign="center">
+									<mx:Button label="Seleziona" data="{rischiNoGruppo.currentItem.codiceChecklist}#{rischiNoGruppo.currentItem.idRischio}#{rischiNoGruppo.currentItem.stato}#{rischiNoGruppo.currentItem.rVer} 
+									#{rischiNoGruppo.currentItem.contingency}#{rischiNoGruppo.currentItem.probIniziale}#{rischiNoGruppo.currentItem.impattoIniziale}#{rischiNoGruppo.currentItem.descrizione}#{rischiNoGruppo.currentItem.causa}#{rischiNoGruppo.currentItem.effetto}#{rischiNoGruppo.currentItem.categoria}#noGruppo#{rptNoGruppo.currentIndex}#{rischiNoGruppo.currentIndex}" 
+									click="openPopUp(event)"/>
+								</mx:HBox>
+							</mx:Panel>
+							<mx:VDividedBox height="10" width="100%" horizontalAlign="center">
+							</mx:VDividedBox>
+						</mx:Repeater>
+					</mx:VBox>
+			</mx:Canvas>
+		</mx:Repeater>
+		<mx:Repeater id="rptGruppoSelezionati" dataProvider="{getRisksSelected.lastResult.root}">
+			<mx:Canvas label="Rischi selezionati" width="100%" height="100%" horizontalScrollPolicy="off">
+					<mx:VBox width="100%" horizontalAlign="center">
+						<mx:Repeater id="rischiSelected" dataProvider="{rptGruppoSelezionati.currentItem.rischio}" >
+							<mx:Panel id="riskPanelSelected" width="334" height="327" title="{rischiSelected.currentItem.codiceChecklist}" paddingTop="15" paddingBottom="15">
+								<mx:HBox width="100%">
+									<mx:Label id="descrizioneSelected" text="Descrizione" width="72" fontWeight="bold"/>
+									<mx:TextArea width="220" text="{rischiSelected.currentItem.descrizione}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Categoria" width="72" fontWeight="bold"/>
+									<mx:Text text="{rischiSelected.currentItem.categoria}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Causa" width="72" fontWeight="bold"/>
+									<mx:TextArea width="220" text="{rischiSelected.currentItem.causa}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Effetto" width="72" fontWeight="bold"/>
+									<mx:TextArea text="{rischiSelected.currentItem.effetto}" width="220"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Probabilità iniziale" width="112" fontWeight="bold"/>
+									<mx:Text text="{rischiSelected.currentItem.probIniziale}"/>
+								</mx:HBox>
+								<mx:HBox width="100%">
+									<mx:Text text="Impatto iniziale" width="112" fontWeight="bold"/>
+									<mx:Text text="{rischiSelected.currentItem.impattoIniziale}"/>
+								</mx:HBox>
+								<mx:HBox width="100%" horizontalAlign="center">
+									<mx:Button label="Seleziona" data="{rischiSelected.currentItem.codiceChecklist}#{rischiSelected.currentItem.idRischio}#{rischiSelected.currentItem.stato}#{rischiSelected.currentItem.rVer} 
+									#{rischiSelected.currentItem.contingency}#{rischiSelected.currentItem.probIniziale}#{rischiSelected.currentItem.impattoIniziale}#{rischiSelected.currentItem.descrizione}#{rischiSelected.currentItem.causa}#{rischiSelected.currentItem.effetto}#{rischiSelected.currentItem.categoria}#Selected#{rptGruppoSelezionati.currentIndex}#{rischiSelected.currentIndex}" 
+									click="openPopUp(event)"/>
+								</mx:HBox>
+							</mx:Panel>
+							<mx:VDividedBox height="10" width="100%" horizontalAlign="center">
+							</mx:VDividedBox>
+						</mx:Repeater>
+					</mx:VBox>
+			</mx:Canvas>
+		</mx:Repeater>
+	</mx:TabNavigator>
+	<mx:Canvas id="addedRisksDataGridCanvas" height="0" visible="false">
+		<mx:VBox>
+			<mx:DataGrid id="addedRisksDataGrid" dataProvider="{projectGridData}" maxHeight="110"  editable="false">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Id Rischio" dataField="idRischio"/>
+				<mx:DataGridColumn headerText="Descrizione" dataField="descrizione"/>
+				<mx:DataGridColumn headerText="Causa" dataField="causa"/>
+				<mx:DataGridColumn headerText="Effetto" dataField="effetto"/>
+				<mx:DataGridColumn headerText="Codice" dataField="codiceChecklist"/>
+				<mx:DataGridColumn headerText="categoria" dataField="categoria"/>
+				<mx:DataGridColumn headerText="Stato" dataField="stato"/>
+				<mx:DataGridColumn headerText="R Ver" dataField="rVer"/>
+				<mx:DataGridColumn headerText="Contingency" dataField="contingency"/>
+				<mx:DataGridColumn headerText="Probabilità iniziale" dataField="probIniziale"/>
+				<mx:DataGridColumn headerText="Impatto iniziale" dataField="impattoIniziale"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:HBox width="100%" horizontalAlign="center" verticalAlign="middle">
+            <mx:Button click="deleteRow(addedRisksDataGrid);" label="X" fillAlphas="[1.0, 1.0]" fillColors="[#B80B0B, #B80B0B]" color="#FFFFFF"/>
+            <mx:Label text="Rimuovi riga selezionata" fontSize="10"/>
+        </mx:HBox>
+		</mx:VBox>
+	</mx:Canvas>
+	<mx:MenuBar id="myMenuBar" labelField="@label" itemClick="menuHandler(event);" width="100%">
+        <mx:XMLList>
+            <menuitem label="Rischi aggiunti">
+                <menuitem label="Visualizza" type="radio" groupName="grid" data="visualizzaDataGrid"/>
+                <menuitem label="Nascondi" type="radio" groupName="grid" data="nascondiDataGrid"/>
+            </menuitem>
+            <menuitem label="Rischi non suggeriti">
+            	<menuitem label="Visualizza" data="notSuggested"/>
+            </menuitem>
+            <menuitem label="Prosegui - Torna Indietro">
+                <menuitem label="Salva e procedi" type="radio" groupName="one" data="continua"/>
+                <menuitem label="Torna allo step precedente" type="radio" groupName="one" data="indietro"/>
+            </menuitem>
+        </mx:XMLList>
+    </mx:MenuBar>
+</mx:Application>

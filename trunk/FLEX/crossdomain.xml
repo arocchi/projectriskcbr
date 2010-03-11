@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : crossdomain.xml
+    Created on : 11 marzo 2010, 15.48
+    Author     : Elisa
+    Description:
+        Purpose of the document follows.
+-->
+
+<cross-domain-policy>
+    <allow-access-from domain="*" to-ports="*"/>
+</cross-domain-policy>
+
