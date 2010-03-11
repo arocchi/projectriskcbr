@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="vertical"
+        width="800"
+        height="322"
+        backgroundColor="white"
+        backgroundAlpha="1.0"
+        borderColor="#000000"
+        borderAlpha="1.0"
+        cornerRadius="20"
+        showCloseButton="true"
+        close="titleWindow_close(event)"
+        borderStyle="solid" borderThickness="1" title="Seleziona Azione tra quelle di Mitigazione o Recovery" fontSize="12" >
+         
+	<mx:Script>
+        <![CDATA[
+        	import mx.rpc.events.ResultEvent;
+            import mx.controls.Alert;
+            import mx.controls.Label;
+            import mx.controls.List;
+            import mx.collections.ArrayCollection;
+            import mx.core.DragSource;
+            import mx.controls.Tree;
+            import mx.controls.DataGrid;
+            import mx.controls.listClasses.ListBase;
+            import mx.events.DragEvent;
+            import mx.containers.Canvas;
+            import mx.managers.DragManager;
+            import mx.core.UIComponent;
+            import mx.events.CloseEvent;
+            import mx.managers.PopUpManager;
+			import mx.collections.IViewCursor;
+			
+        
+            [Bindable]
+			private var dataGridProvider:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var queryString:String;
+			
+			[Bindable]
+			public var richiesta:Object = {};
+
+			[Bindable]
+			public var datax:String;
+			
+			[Bindable]
+        	public var tmpIdAzione:String;
+			[Bindable]
+        	public var tmpDescrizioneAzione:String;
+			public var tmpTipoNuovaAzione:String;
+		
+			public function startSending(actiontype:String):void {
+				tmpTipoNuovaAzione = actiontype;
+				richiesta["type"] = "give_actionsbyutilization";
+				richiesta["actiontype"] = actiontype;
+				asynReq.send(richiesta);
+			}
+			
+			private function handlePresi(event:ResultEvent):void {
+            	richiesta["type"] = "take_actionsbyutilization";
+            	catalogoXML.send(richiesta);
+            }
+			
+            /**
+             * Handles the dragEnter event on the DataGrid control.
+             * If the dragInitiator is the Tree control, then only nodes of type "restaurant"
+             * are permitted to be dropped.
+             * Here you can see that by examining the dragSource you can determine if
+             * the control should accept the drop. The DataGrid control would not
+             * know how to treat a branch+children from the Tree control, so only leaf (restaurant)
+             * nodes are accepted.
+             */
+
+            private function onDragEnter( event:DragEvent ) : void {            
+                if( event.dragInitiator is Tree ) {
+                    var ds:DragSource = event.dragSource;
+                    if( !ds.hasFormat("treeItems") ) return;     // no useful data
+
+                    var items:Array = ds.dataForFormat("treeItems") as Array;
+                    for(var i:Number=0; i < items.length; i++) {
+
+                        var item:XML = XML(items[i]);
+                        if( item.@type != "rischio" ) return; // not what we want
+
+                    }
+                } 
+              // If the Tree control passes or the dragInitiator is not a Tree control,
+             // accept the drop.
+            	DragManager.acceptDragDrop(UIComponent(event.currentTarget)); 
+            }        
+
+            private function titleWindow_close(evt:Event):void {
+                PopUpManager.removePopUp(this);
+            }
+            
+            private function aggiungi():void{
+            	tmpIdAzione = Albero.selectedItem.@codiceChecklist;
+                tmpDescrizioneAzione = Albero.selectedItem.@label;
+                
+            	var node:XML = XML(Albero.selectedItem);
+                if( node == null ){
+                	Alert.show("Devi selezionare almeno un'azione", "ERRORE");
+                	return;
+                }
+            	PopUpManager.removePopUp(this);
+            }
+            
+            // DEBUG FUNCTION
+            private function handlePlain(event:ResultEvent):void {
+            	//Alert.show(event.result.toString());
+            }
+
+			[Bindable]
+		    private var catList:XMLList;
+		    private function parseHandler(event:ResultEvent):void {
+				trace(event.result)
+				catList = event.result.node;
+			}
+
+            
+        ]]>
+    </mx:Script>
+    <mx:HTTPService id="asynReq" url="http://localhost:8084/connectingInterface/getData"
+    	result="handlePresi(event);"
+		resultFormat="text"/>
+		
+	<mx:HTTPService id="catalogoXML" url="http://localhost:8084/connectingInterface/getData" resultFormat="e4x" result="parseHandler(event);">		
+	</mx:HTTPService>
+	<mx:HBox width="100%" horizontalAlign="center">
+		<mx:Button label="Mitigazione" click="startSending('M')"/>
+		<mx:Button label="Recovery" click="startSending('R')"/>
+	</mx:HBox>
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:Tree width="100%" height="189"
+            id="Albero"
+            dataProvider="{catList}"
+            labelField="@label"
+            dropEnabled="false"
+            dragEnabled="true"
+            dragComplete="//onTreeDragComplete(event)"
+            dragMoveEnabled="false"            />
+    </mx:HBox>
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:Button label="Aggiungi" id="okButton" click="if (Albero.selectedItem != null) aggiungi();"/>
+        <mx:Button label="Annulla" click="titleWindow_close(event)"/>
+    </mx:HBox>
+    <mx:Script>
+    	<![CDATA[
+    		public function see(event:ResultEvent):void {
+    			Alert.show(event.result.toString());
+    		}
+    	]]>
+    </mx:Script>
+</mx:TitleWindow>
+

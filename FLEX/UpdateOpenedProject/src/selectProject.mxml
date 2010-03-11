@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+        layout="vertical"
+        width="370"
+        height="270"
+        backgroundColor="white"
+        backgroundAlpha="1.0"
+        borderColor="#000000"
+        borderAlpha="1.0"
+        cornerRadius="20"
+        showCloseButton="false"
+        borderStyle="solid" borderThickness="1"  title="Seleziona il progetto da modificare:">
+    
+    <mx:Script>
+    	<![CDATA[
+    		import mx.rpc.events.ResultEvent;
+            import mx.controls.Alert;
+            import mx.controls.Label;
+            import mx.controls.List;
+            import mx.collections.ArrayCollection;
+            import mx.core.DragSource;
+            import mx.controls.Tree;
+            import mx.controls.DataGrid;
+            import mx.controls.listClasses.ListBase;
+            import mx.events.DragEvent;
+            import mx.containers.Canvas;
+            import mx.managers.DragManager;
+            import mx.core.UIComponent;
+            import mx.events.CloseEvent;
+            import mx.managers.PopUpManager;
+			import mx.collections.IViewCursor;
+    	
+    		// MAIN HANDLER
+    		private function stop():void {
+    			asynReq.send();
+    			PopUpManager.removePopUp(this);
+    		}
+    		
+    		// DEBUGGING FUNCTION
+    		private function handlePlain(event:ResultEvent):void {
+    			//Alert.show(event.result.toString(), "Risposta");
+    		}
+    	]]>
+    </mx:Script>
+    
+    <mx:HTTPService id="getProgetto" url="http://localhost:8084/connectingInterface/getData?type=take_openedprojects"/>
+        
+	<mx:HTTPService id="asynReq" url="http://localhost:8084/connectingInterface/getData?type=give_whatopenedproject" result="handlePlain(event);" resultFormat="text">
+		<mx:request xmlns="">
+			<data>
+				{dataGrid.selectedItem.idProgramma}
+			</data>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:VBox height="100%" width="100%" initialize="getProgetto.send()">
+	<mx:DataGrid id="dataGrid" dataProvider="{getProgetto.lastResult.progetto}" selectedIndex="0" width="100%" height="100%"/> 
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Button label="Seleziona" click="stop()" id="okButton"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:TitleWindow>
