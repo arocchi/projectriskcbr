@@ -1388,7 +1388,7 @@ public class dataFromDB {
     /*SIMILARITY UTILITIES*/
     private void suggestions(Progetto queryDesc, HttpSession session,PrintWriter out) throws Exception {
         
-        String file = "C:\\Users\\Elisa\\Downloads\\DAVID_ELIMINARE\\projectRiskCbr\\WebContent\\assets\\groupsConfig.xml";
+        String file = Config.configFilePath;
         FileInputStream configFile = new FileInputStream(file);
         // LOAD CONFIGURATION
         Configuration configuration = Configuration.load(configFile);
