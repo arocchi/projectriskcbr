@@ -185,18 +185,18 @@
 				
 				while( !cursor.afterLast ) {
 					
-					query["idRischio_"+cnt.toString()] = cursor.current.idRischio.toString();
-					query["idAzione_"+cnt.toString()] = cursor.current.idAzione.toString();
-			        query["tipo_"+cnt.toString()] = cursor.current.tipo;
-			        query["stato_"+cnt.toString()] = cursor.current.stato.toString();
+					query["action_idRischio_"+cnt.toString()] = cursor.current.idRischio.toString();
+					query["action_idAzione_"+cnt.toString()] = cursor.current.idAzione.toString();
+			        query["action_tipo_"+cnt.toString()] = cursor.current.tipo;
+			        query["action_stato_"+cnt.toString()] = cursor.current.stato.toString();
 			        
 			        if (cursor.current.descrizione.toString() != "null")
-			     		query["descrizione_"+cnt.toString()] = cursor.current.descrizione.toString();
+			     		query["action_descrizione_"+cnt.toString()] = cursor.current.descrizione.toString();
 			     		
-			     	query["revisione_"+cnt.toString()] = cursor.current.revisione.toString();
-			     	query["intensita_"+cnt.toString()] = cursor.current.intensita.toString();
-			     	query["ckintensita_"+cnt.toString()] = cursor.current.ckintensita.toString();
-			     	query["identifier_"+cnt.toString()] = cursor.current.identifier.toString();
+			     	query["action_revisione_"+cnt.toString()] = cursor.current.revisione.toString();
+			     	query["action_intensita_"+cnt.toString()] = cursor.current.intensita.toString();
+			     	query["action_ckintensita_"+cnt.toString()] = cursor.current.ckintensita.toString();
+			     	query["action_identifier_"+cnt.toString()] = cursor.current.identifier.toString();
      	
 			     	// cicla
 			     	cnt++;   
