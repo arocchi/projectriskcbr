@@ -1080,19 +1080,19 @@ public class dataFromDB {
         String Ia = request.getParameter("IA");
         String Ipp = request.getParameter("IPP");
 
-        if(ckIm == null || Im==null) p.setIm(new ImpattoStrategico(-1));
+        if(ckIm == null || Im==null || ckIm.equals("false")) p.setIm(new ImpattoStrategico(-1));
         else p.setIm(new ImpattoStrategico(Integer.parseInt(Im)));
 
-         if(ckIc == null || Im==null) p.setIc(new ImpattoStrategico(-1));
+         if(ckIc == null || Ic==null || ckIc.equals("false")) p.setIc(new ImpattoStrategico(-1));
         else p.setIc(new ImpattoStrategico(Integer.parseInt(Ic)));
 
-         if(ckIp == null || Im==null) p.setIp(new ImpattoStrategico(-1));
+         if(ckIp == null || Ip==null || ckIp.equals("false")) p.setIp(new ImpattoStrategico(-1));
         else p.setIp(new ImpattoStrategico(Integer.parseInt(Ip)));
 
-         if(ckIa == null || Im==null) p.setIa(new ImpattoStrategico(-1));
+         if(ckIa == null || Ia==null || ckIa.equals("false")) p.setIa(new ImpattoStrategico(-1));
         else p.setIa(new ImpattoStrategico(Integer.parseInt(Ia)));
 
-         if(ckIpp == null || Im==null) p.setIpp(new ImpattoStrategico(-1));
+         if(ckIpp == null || Ipp==null || ckIpp.equals("false")) p.setIpp(new ImpattoStrategico(-1));
         else p.setIpp(new ImpattoStrategico(Integer.parseInt(Ipp)));
         return p;
     }
