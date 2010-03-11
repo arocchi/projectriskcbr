@@ -245,7 +245,7 @@
 			        cursor.moveNext();
 				}
 				query["type"] = "give_allrisksforproject";
-				query["cnt"] = cnt.toString();
+				query["risk_cnt"] = cnt.toString();
 	        }
 			
 		]]>
