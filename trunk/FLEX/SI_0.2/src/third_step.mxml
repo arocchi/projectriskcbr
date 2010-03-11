@@ -203,7 +203,7 @@
 			        cursor.moveNext();
 				}
 				query["type"] = "give_allactionsforproject";
-				query["cnt"] = cnt.toString();
+				query["action_cnt"] = cnt.toString();
 	        }
 	        
 	        // Going to the next step
